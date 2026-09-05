@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect, actions, methodKey } from 'store/store.js'
+import { connect, actions, methodKey, isMethodInstanceDeselected } from 'store/store.js'
 
 import SplitPane from 'components/lib/SplitPane.jsx'
 import { SortButton, ScaleButton } from 'components/Icons.jsx'
@@ -16,7 +16,7 @@ import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.
 
 
 /* eslint react/prop-types: 0 */
-const RunScreen = ({ benchmarkSelection, selectedMetric, focusedBundles, deselectedMethods, chartConfig }) => {
+const RunScreen = ({ benchmarkSelection, selectedMetric, focusedBundles, deselectedMethods, deselectedParamValues, chartConfig }) => {
 
     const benchmarkBundles = benchmarkSelection.benchmarkBundles;
     const metricType = selectedMetric;
@@ -40,6 +40,22 @@ const RunScreen = ({ benchmarkSelection, selectedMetric, focusedBundles, deselec
                 name: benchmarkBundle.name,
                 methodNames: benchmarkBundle.methodNames.filter(methodName => !deselectedNames.includes(methodName)),
                 benchmarkMethods: benchmarkBundle.benchmarkMethods.filter(benchmarkMethod => !deselectedNames.includes(benchmarkMethod.name))
+            });
+        });
+        filteredBenchmarkBundles = filteredBenchmarkBundles.filter(benchmarkBundle => benchmarkBundle.methodNames.length > 0);
+    }
+    if (deselectedParamValues.size > 0) {
+        filteredBenchmarkBundles = filteredBenchmarkBundles.map(benchmarkBundle => {
+            const survivingMethods = benchmarkBundle.benchmarkMethods.filter(benchmarkMethod => !isMethodInstanceDeselected(benchmarkBundle.key, benchmarkMethod, deselectedParamValues));
+            if (survivingMethods.length === benchmarkBundle.benchmarkMethods.length) {
+                return benchmarkBundle;
+            }
+            const survivingNames = new Set(survivingMethods.map(benchmarkMethod => benchmarkMethod.name));
+            return new BenchmarkBundle({
+                key: benchmarkBundle.key,
+                name: benchmarkBundle.name,
+                methodNames: benchmarkBundle.methodNames.filter(methodName => survivingNames.has(methodName)),
+                benchmarkMethods: survivingMethods
             });
         });
         filteredBenchmarkBundles = filteredBenchmarkBundles.filter(benchmarkBundle => benchmarkBundle.methodNames.length > 0);
@@ -94,6 +110,7 @@ const RunScreen = ({ benchmarkSelection, selectedMetric, focusedBundles, deselec
             buttons={ buttons }
             focusedBenchmarkBundles={ focusedBundles }
             deselectedMethods={ deselectedMethods }
+            deselectedParamValues={ deselectedParamValues }
             categories={ categories }
             activeCategory={ activeCategory }
         /> }
@@ -101,11 +118,12 @@ const RunScreen = ({ benchmarkSelection, selectedMetric, focusedBundles, deselec
     );
 }
 
-export default connect(({ benchmarkRuns, runSelection, selectedMetric, focusedBundles, deselectedMethods, chartConfig }) => ({
+export default connect(({ benchmarkRuns, runSelection, selectedMetric, focusedBundles, deselectedMethods, deselectedParamValues, chartConfig }) => ({
     benchmarkSelection: new BenchmarkSelection(benchmarkRuns, runSelection),
     selectedMetric,
     focusedBundles,
     deselectedMethods,
+    deselectedParamValues,
     chartConfig
 }))(RunScreen)
 
