@@ -4,12 +4,12 @@
   "description": "Visualize the  results of your JMH benchmarks execution",
   "main": "index.jsx",
   "scripts": {
-    "watch": "webpack -d --watch",
-    "build": "webpack --mode development",
+    "watch": "NODE_OPTIONS=--openssl-legacy-provider webpack -d --watch",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode development",
     "lint": "eslint . --ext .js --ext .jsx --cache",
     "test": "NODE_ENV=testing NODE_PATH=./src/javascript mocha --compilers js:babel-core/register test --recursive",
     "check": "npm run lint && npm run test",
-    "release-build": "rm -rf build/* && NODE_ENV=production webpack --mode production",
+    "release-build": "rm -rf build/* && NODE_ENV=production NODE_OPTIONS=--openssl-legacy-provider webpack --mode production",
     "release": "npm run check && npm run release-build",
     "deploy": "npm run release && cp -r build/* docs/",
     "providedZip": "npm run release && cd build && zip -r ../jmh-visualizer.zip ./*"
