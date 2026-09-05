@@ -85,3 +85,24 @@
     display:inline;
     color: green;
 }
+
+/* method checkboxes nested under a benchmark bundle */
+.bs-docs-sidebar .nav .method-list {
+    list-style: none;
+    margin: 0;
+    padding-left: 32px;
+}
+
+.bs-docs-sidebar .nav .method-list li {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    white-space: nowrap;
+}
+
+.bs-docs-sidebar .nav .method-list label {
+    color: #999;
+    font-size: 11px;
+    font-weight: 400;
+    cursor: pointer;
+    margin-bottom: 0;
+}
