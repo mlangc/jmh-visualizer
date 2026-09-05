@@ -7,6 +7,7 @@ import { exampleRun1 } from 'exampleBenchmark1.js';
 import { exampleRun2 } from 'exampleBenchmark2.js';
 import { exampleRun3 } from 'exampleBenchmark3.js';
 import BenchmarkRun from 'models/BenchmarkRun.js';
+import BenchmarkSelection from 'models/BenchmarkSelection.js';
 
 const history = createBrowserHistory();
 
@@ -57,6 +58,7 @@ const config = {
         activeCategory: 'Benchmarks',
         focusedBundles: new Set(),
         deselectedMethods: new Set(),
+        deselectedParamValues: new Set(),
         chartConfig: {
             sort: false,
             logScale: false
@@ -91,6 +93,24 @@ const config = {
                 clonedDeselectedMethods.add(key);
             }
             return { deselectedMethods: clonedDeselectedMethods };
+        },
+        toggleParamValue: (state, actions, benchmarkBundleKey, methodName, paramName, value) => {
+            const key = paramValueKey(benchmarkBundleKey, methodName, paramName, value);
+            const clonedDeselectedParamValues = new Set(state.deselectedParamValues)
+            const alreadyDeselected = clonedDeselectedParamValues.has(key);
+            if (alreadyDeselected) {
+                clonedDeselectedParamValues.delete(key);
+            } else {
+                clonedDeselectedParamValues.add(key);
+                const benchmarkSelection = new BenchmarkSelection(state.benchmarkRuns, state.runSelection);
+                const bundle = benchmarkSelection.benchmarkBundles.find(aBundle => aBundle.key === benchmarkBundleKey);
+                const survives = bundle && bundle.benchmarkMethods.some(benchmarkMethod =>
+                    benchmarkMethod.name === methodName && !isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, clonedDeselectedParamValues));
+                if (!survives) {
+                    return {}; // would hide every instance of this method - refuse the toggle
+                }
+            }
+            return { deselectedParamValues: clonedDeselectedParamValues };
         },
         selectCategory: (state, actions, category) => {
             return { activeCategory: category, focusedBundles: new Set() }
@@ -144,6 +164,18 @@ export const { Provider, connect, actions } = createStore(config);
 
 export function methodKey(benchmarkBundleKey, methodName) {
     return `${benchmarkBundleKey}::${methodName}`;
+}
+
+export function paramValueKey(benchmarkBundleKey, methodName, paramName, value) {
+    return `${methodKey(benchmarkBundleKey, methodName)}::${paramName}=${value}`;
+}
+
+// Whether a specific parameterized BenchmarkMethod instance is hidden because one of its param values got deselected
+export function isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, deselectedParamValues) {
+    if (!benchmarkMethod.params) {
+        return false;
+    }
+    return benchmarkMethod.params.some(([paramName, value]) => deselectedParamValues.has(paramValueKey(benchmarkBundleKey, benchmarkMethod.name, paramName, value)));
 }
 
 history.listen((location, action) => {
