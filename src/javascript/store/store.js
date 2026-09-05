@@ -56,6 +56,7 @@ const config = {
         detailedBenchmarkBundle: null,
         activeCategory: 'Benchmarks',
         focusedBundles: new Set(),
+        deselectedMethods: new Set(),
         chartConfig: {
             sort: false,
             logScale: false
@@ -79,6 +80,17 @@ const config = {
                 clonedFocusedBundles.add(benchmarkBundleName);
             }
             return { focusedBundles: clonedFocusedBundles };
+        },
+        toggleMethod: (state, actions, benchmarkBundleKey, methodName) => {
+            const key = methodKey(benchmarkBundleKey, methodName);
+            const clonedDeselectedMethods = new Set(state.deselectedMethods)
+            const alreadyDeselected = clonedDeselectedMethods.has(key);
+            if (alreadyDeselected) {
+                clonedDeselectedMethods.delete(key);
+            } else {
+                clonedDeselectedMethods.add(key);
+            }
+            return { deselectedMethods: clonedDeselectedMethods };
         },
         selectCategory: (state, actions, category) => {
             return { activeCategory: category, focusedBundles: new Set() }
@@ -129,6 +141,10 @@ async function loadBenchmarksAsync(state, trigger, triggerFunction, getBenchmark
 }
 
 export const { Provider, connect, actions } = createStore(config);
+
+export function methodKey(benchmarkBundleKey, methodName) {
+    return `${benchmarkBundleKey}::${methodName}`;
+}
 
 history.listen((location, action) => {
     if (action === 'POP') {

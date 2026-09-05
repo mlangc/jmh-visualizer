@@ -8,7 +8,7 @@ import FormControl from 'react-bootstrap/lib/FormControl'
 import DetailsIcon from 'react-icons/lib/fa/search-plus'
 import EyeIcon from 'react-icons/lib/fa/eye'
 
-import { actions } from 'store/store.js'
+import { actions, methodKey } from 'store/store.js'
 import TocList from 'components/TocList.jsx'
 import Tooltipped from 'components/lib/Tooltipped.jsx'
 
@@ -21,12 +21,13 @@ export default class RunSideBar extends React.Component {
     metricExtractor: PropTypes.object.isRequired,
     buttons: PropTypes.array,
     focusedBenchmarkBundles: PropTypes.object.isRequired,
+    deselectedMethods: PropTypes.object.isRequired,
     categories: PropTypes.array.isRequired,
     activeCategory: PropTypes.string.isRequired,
   };
 
   render() {
-    const { benchmarkBundles, metrics, metricExtractor, buttons, focusedBenchmarkBundles, categories, activeCategory } = this.props;
+    const { benchmarkBundles, metrics, metricExtractor, buttons, focusedBenchmarkBundles, deselectedMethods, categories, activeCategory } = this.props;
 
     const metricsOptions = metrics.filter(aMetric => aMetric.startsWith('·') || aMetric === 'Score').map(metric => <option key={ metric } value={ metric }>
       { metric }
@@ -43,6 +44,32 @@ export default class RunSideBar extends React.Component {
       e.stopPropagation();
       actions.detailBenchmarkBundle(elementId);
     } } className="clickable"><sup><DetailsIcon /></sup>{ ' ' }</span>);
+
+    const methodListCreator = (bundleKey) => {
+      const bundle = benchmarkBundles.find(aBundle => aBundle.key === bundleKey);
+      if (!bundle || bundle.methodNames.length === 0) {
+        return null;
+      }
+      return (
+        <ul className="method-list">
+          { bundle.methodNames.map(methodName => {
+            const key = methodKey(bundleKey, methodName);
+            const checked = !deselectedMethods.has(key);
+            return (
+              <li key={ key }>
+                <label onClick={ (e) => e.stopPropagation() }>
+                  <input
+                    type="checkbox"
+                    checked={ checked }
+                    onChange={ () => actions.toggleMethod(bundleKey, methodName) } />
+                  { ' ' }{ methodName }
+                </label>
+              </li>
+            );
+          }) }
+        </ul>
+      );
+    };
 
     return (
       <div>
@@ -68,7 +95,8 @@ export default class RunSideBar extends React.Component {
           activeCategory={ activeCategory }
           elementIds={ elementIds }
           elementNames={ elementNames }
-          linkControlsCreators={ [focusControlCreator, detailsControlCreator] } />
+          linkControlsCreators={ [focusControlCreator, detailsControlCreator] }
+          subListCreator={ methodListCreator } />
       </div>
     );
   }

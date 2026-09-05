@@ -15,6 +15,7 @@ export default class TocList extends React.PureComponent {
         elementIds: PropTypes.array.isRequired,
         elementNames: PropTypes.array.isRequired,
         linkControlsCreators: PropTypes.array.isRequired,
+        subListCreator: PropTypes.func,
     };
 
     componentDidMount() {
@@ -31,7 +32,7 @@ export default class TocList extends React.PureComponent {
     }
 
     render() {
-        const { categories, activeCategory, elementIds, elementNames, linkControlsCreators } = this.props;
+        const { categories, activeCategory, elementIds, elementNames, linkControlsCreators, subListCreator } = this.props;
         //TODO extract TocElement to own component and make onClick handlers unique: https://stackoverflow.com/a/38908620/672008
         return (
             <ul className="nav">
@@ -57,6 +58,7 @@ export default class TocList extends React.PureComponent {
                                     { elementNames[i] }
                                 </a>
                             </div>
+                            { subListCreator ? subListCreator(elementId) : null }
                         </TocLink>)
                             : '' }
                     </ul>
