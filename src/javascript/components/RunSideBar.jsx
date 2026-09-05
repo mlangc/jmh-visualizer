@@ -46,7 +46,7 @@ export default class RunSideBar extends React.Component {
       actions.detailBenchmarkBundle(elementId);
     } } className="clickable"><sup><DetailsIcon /></sup>{ ' ' }</span>);
 
-    const paramListCreator = (bundleKey, methodName, methodInstances) => {
+    const paramListCreator = (bundleKey, methodName, methodInstances, methodEnabled) => {
       const paramNames = [];
       const valuesByParamName = {};
       methodInstances.forEach(benchmarkMethod => (benchmarkMethod.params || []).forEach(([paramName, value]) => {
@@ -71,13 +71,14 @@ export default class RunSideBar extends React.Component {
                   { values.map(value => {
                     const key = paramValueKey(bundleKey, methodName, paramName, value);
                     const checked = singleValue || !deselectedParamValues.has(key);
+                    const disabled = singleValue || !methodEnabled;
                     return (
                       <li key={ key }>
-                        <label onClick={ (e) => e.stopPropagation() } className={ singleValue ? 'param-value-fixed' : undefined }>
+                        <label onClick={ (e) => e.stopPropagation() } className={ disabled ? 'param-value-fixed' : undefined }>
                           <input
                             type="checkbox"
                             checked={ checked }
-                            disabled={ singleValue }
+                            disabled={ disabled }
                             onChange={ () => actions.toggleParamValue(bundleKey, methodName, paramName, value) } />
                           { ' ' }{ value }
                         </label>
@@ -112,7 +113,7 @@ export default class RunSideBar extends React.Component {
                     onChange={ () => actions.toggleMethod(bundleKey, methodName) } />
                   { ' ' }{ methodName }
                 </label>
-                { paramListCreator(bundleKey, methodName, methodInstances) }
+                { paramListCreator(bundleKey, methodName, methodInstances, checked) }
               </li>
             );
           }) }
