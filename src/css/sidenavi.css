@@ -65,17 +65,17 @@
     display: block;           
 }
 
-/* Icons befor element */
-.bs-docs-sidebar .nav .nav>li>div>span {
+/* Icons befor element (excludes the Tooltipped double-click hint wrapping the name link) */
+.bs-docs-sidebar .nav .nav>li>div>span:not([data-tooltip]) {
     display:none;
 }
 
-.bs-docs-sidebar .nav .nav>li>div:hover>span,
-.bs-docs-sidebar .nav .nav>li.active>div:focus>span {
+.bs-docs-sidebar .nav .nav>li>div:hover>span:not([data-tooltip]),
+.bs-docs-sidebar .nav .nav>li.active>div:focus>span:not([data-tooltip]) {
     display:inline;
 }
 
-.bs-docs-sidebar .nav .nav>li>div>span:hover {
+.bs-docs-sidebar .nav .nav>li>div>span:not([data-tooltip]):hover {
     color: green;
 }
 
