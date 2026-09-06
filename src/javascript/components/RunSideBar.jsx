@@ -8,7 +8,7 @@ import FormControl from 'react-bootstrap/lib/FormControl'
 import DetailsIcon from 'react-icons/lib/fa/search-plus'
 import EyeIcon from 'react-icons/lib/fa/eye'
 
-import { actions } from 'store/store.js'
+import { actions, methodKey } from 'store/store.js'
 import TocList from 'components/TocList.jsx'
 import Tooltipped from 'components/lib/Tooltipped.jsx'
 import MethodParamCheckboxList from 'components/lib/MethodParamCheckboxList.jsx'
@@ -56,6 +56,21 @@ export default class RunSideBar extends React.Component {
         deselectedParamValues={ deselectedParamValues } />;
     };
 
+    const selectAllMethodsCreator = (bundleKey) => {
+      const bundle = benchmarkBundles.find(aBundle => aBundle.key === bundleKey);
+      if (!bundle || bundle.methodNames.length <= 1) {
+        return null;
+      }
+      const anyDeselected = bundle.methodNames.some(methodName => deselectedMethods.has(methodKey(bundleKey, methodName)));
+      if (!anyDeselected) {
+        return null;
+      }
+      return (e) => {
+        e.stopPropagation();
+        actions.selectAllMethods(bundleKey, bundle.methodNames);
+      };
+    };
+
     return (
       <div>
         <FormGroup controlId="formControlsSelectMultiple" bsSize="small">
@@ -81,7 +96,9 @@ export default class RunSideBar extends React.Component {
           elementIds={ elementIds }
           elementNames={ elementNames }
           linkControlsCreators={ [focusControlCreator, detailsControlCreator] }
-          subListCreator={ methodListCreator } />
+          subListCreator={ methodListCreator }
+          doubleClickCreator={ selectAllMethodsCreator }
+          doubleClickTooltip="Double-click to select all methods" />
       </div>
     );
   }

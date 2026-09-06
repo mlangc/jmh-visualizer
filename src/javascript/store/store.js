@@ -112,6 +112,51 @@ const config = {
             }
             return { deselectedParamValues: clonedDeselectedParamValues };
         },
+        // Deselects every other method in the bundle, keeping only methodName selected.
+        selectOnlyMethod: (state, actions, benchmarkBundleKey, methodName, allMethodNames) => {
+            const clonedDeselectedMethods = new Set(state.deselectedMethods);
+            allMethodNames.forEach(otherMethodName => {
+                const key = methodKey(benchmarkBundleKey, otherMethodName);
+                if (otherMethodName === methodName) {
+                    clonedDeselectedMethods.delete(key);
+                } else {
+                    clonedDeselectedMethods.add(key);
+                }
+            });
+            return { deselectedMethods: clonedDeselectedMethods };
+        },
+        // Re-selects every method in the bundle.
+        selectAllMethods: (state, actions, benchmarkBundleKey, allMethodNames) => {
+            const clonedDeselectedMethods = new Set(state.deselectedMethods);
+            allMethodNames.forEach(methodName => clonedDeselectedMethods.delete(methodKey(benchmarkBundleKey, methodName)));
+            return { deselectedMethods: clonedDeselectedMethods };
+        },
+        // Deselects every other value of paramName (for methodName), keeping only value selected.
+        selectOnlyParamValue: (state, actions, benchmarkBundleKey, methodName, paramName, value, allValues) => {
+            const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
+            allValues.forEach(aValue => {
+                const key = paramValueKey(benchmarkBundleKey, methodName, paramName, aValue);
+                if (aValue === value) {
+                    clonedDeselectedParamValues.delete(key);
+                } else {
+                    clonedDeselectedParamValues.add(key);
+                }
+            });
+            const benchmarkSelection = new BenchmarkSelection(state.benchmarkRuns, state.runSelection);
+            const bundle = benchmarkSelection.benchmarkBundles.find(aBundle => aBundle.key === benchmarkBundleKey);
+            const survives = bundle && bundle.benchmarkMethods.some(benchmarkMethod =>
+                benchmarkMethod.name === methodName && !isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, clonedDeselectedParamValues));
+            if (!survives) {
+                return {}; // would hide every instance of this method - refuse the change
+            }
+            return { deselectedParamValues: clonedDeselectedParamValues };
+        },
+        // Re-selects every value of paramName (for methodName).
+        selectAllParamValues: (state, actions, benchmarkBundleKey, methodName, paramName, allValues) => {
+            const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
+            allValues.forEach(value => clonedDeselectedParamValues.delete(paramValueKey(benchmarkBundleKey, methodName, paramName, value)));
+            return { deselectedParamValues: clonedDeselectedParamValues };
+        },
         selectCategory: (state, actions, category) => {
             return { activeCategory: category, focusedBundles: new Set() }
         },
