@@ -9,6 +9,7 @@ import BackIcon from 'react-icons/lib/md/keyboard-backspace'
 
 import { actions } from 'store/store.js'
 import TocList from 'components/TocList.jsx'
+import MethodParamCheckboxList from 'components/lib/MethodParamCheckboxList.jsx'
 
 export default class DetailSideBar extends React.Component {
 
@@ -16,11 +17,13 @@ export default class DetailSideBar extends React.Component {
     benchmarkBundle: PropTypes.object.isRequired,
     benchmarkBundles: PropTypes.array.isRequired,
     secondaryMetrics: PropTypes.array.isRequired,
+    deselectedMethods: PropTypes.object.isRequired,
+    deselectedParamValues: PropTypes.object.isRequired,
     buttons: PropTypes.array,
   };
 
   render() {
-    const { benchmarkBundle, benchmarkBundles, secondaryMetrics, buttons } = this.props;
+    const { benchmarkBundle, benchmarkBundles, secondaryMetrics, deselectedMethods, deselectedParamValues, buttons } = this.props;
     const benchmarkBundleOptions = benchmarkBundles.map(bundle => <option key={ bundle.key } value={ bundle.key }>
       { bundle.name }
     </option>);
@@ -48,6 +51,14 @@ export default class DetailSideBar extends React.Component {
         elementIds={ metrics }
         elementNames={ metrics }
         linkControlsCreators={ [] } />
+      <hr style={ { marginTop: '10px', marginBottom: '10px' } } />
+      <div className="nav">
+        <MethodParamCheckboxList
+          bundleKey={ benchmarkBundle.key }
+          bundle={ benchmarkBundle }
+          deselectedMethods={ deselectedMethods }
+          deselectedParamValues={ deselectedParamValues } />
+      </div>
     </div>
   }
 

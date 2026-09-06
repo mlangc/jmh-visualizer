@@ -14,16 +14,23 @@ import DiffBarChartView from 'components/two/DiffBarChartView.jsx'
 import LineChartView from 'components/multi/LineChartView.jsx'
 
 import { parseClassNameFromFullName } from 'functions/parse.js';
+import { filterBenchmarkBundle } from 'functions/benchmarkFilter.js';
 
 /* eslint react/prop-types: 0 */
-const DetailScreen = ({ detailedBenchmarkBundle, benchmarkSelection, chartConfig }) => {
+const DetailScreen = ({ detailedBenchmarkBundle, benchmarkSelection, deselectedMethods, deselectedParamValues, chartConfig }) => {
 
     const benchmarkBundles = benchmarkSelection.benchmarkBundles;
     const runNames = benchmarkSelection.runNames;
 
-    const detailBundle = benchmarkBundles.find(bundle => bundle.key === detailedBenchmarkBundle) || new BenchmarkBundle({
+    const rawDetailBundle = benchmarkBundles.find(bundle => bundle.key === detailedBenchmarkBundle) || new BenchmarkBundle({
         key: detailedBenchmarkBundle,
         name: parseClassNameFromFullName(detailedBenchmarkBundle),
+        methodNames: [],
+        benchmarkMethods: []
+    });
+    const detailBundle = filterBenchmarkBundle(rawDetailBundle, deselectedMethods, deselectedParamValues) || new BenchmarkBundle({
+        key: rawDetailBundle.key,
+        name: rawDetailBundle.name,
         methodNames: [],
         benchmarkMethods: []
     });
@@ -34,12 +41,12 @@ const DetailScreen = ({ detailedBenchmarkBundle, benchmarkSelection, chartConfig
 
 
     let error, chartGeneratorFunction;
-    if (runNames.length == 1) {
-        if (detailBundle.methodNames.length == 0) {
-            error = `No benchmark results for run  ${runNames[0]}`;
-        } else {
-            chartGeneratorFunction = singleRunChartGenerator;
-        }
+    if (detailBundle.methodNames.length == 0) {
+        error = rawDetailBundle.methodNames.length == 0 && runNames.length == 1
+            ? `No benchmark results for run  ${runNames[0]}`
+            : 'All benchmark methods are filtered out';
+    } else if (runNames.length == 1) {
+        chartGeneratorFunction = singleRunChartGenerator;
     } else if (runNames.length == 2) {
         chartGeneratorFunction = twoRunsChartGenerator;
     } else {
@@ -71,17 +78,21 @@ const DetailScreen = ({ detailedBenchmarkBundle, benchmarkSelection, chartConfig
 
     return (
         <SplitPane left={ mainView } right={ <DetailSideBar
-            benchmarkBundle={ detailBundle }
+            benchmarkBundle={ rawDetailBundle }
             benchmarkBundles={ benchmarkBundles }
             secondaryMetrics={ secondaryMetrics }
+            deselectedMethods={ deselectedMethods }
+            deselectedParamValues={ deselectedParamValues }
             buttons={ buttons }
         /> } />
     );
 }
 
-export default connect(({ detailedBenchmarkBundle, benchmarkRuns, runSelection, chartConfig }) => ({
+export default connect(({ detailedBenchmarkBundle, benchmarkRuns, runSelection, deselectedMethods, deselectedParamValues, chartConfig }) => ({
     detailedBenchmarkBundle,
     benchmarkSelection: new BenchmarkSelection(benchmarkRuns, runSelection),
+    deselectedMethods,
+    deselectedParamValues,
     chartConfig
 }))(DetailScreen)
 

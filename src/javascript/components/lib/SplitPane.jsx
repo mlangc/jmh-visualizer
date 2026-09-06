@@ -8,7 +8,7 @@ import Col from 'react-bootstrap/lib/Col'
 export default function SplitPane(props) {
 
   return <Grid fluid={ true }>
-    <Row>
+    <Row style={ { display: 'flex', flexWrap: 'wrap' } }>
       <Col xs={ 14 } md={ 10 }>
         { props.left }
       </Col>

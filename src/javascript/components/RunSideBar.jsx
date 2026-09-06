@@ -8,9 +8,10 @@ import FormControl from 'react-bootstrap/lib/FormControl'
 import DetailsIcon from 'react-icons/lib/fa/search-plus'
 import EyeIcon from 'react-icons/lib/fa/eye'
 
-import { actions, methodKey, paramValueKey } from 'store/store.js'
+import { actions } from 'store/store.js'
 import TocList from 'components/TocList.jsx'
 import Tooltipped from 'components/lib/Tooltipped.jsx'
+import MethodParamCheckboxList from 'components/lib/MethodParamCheckboxList.jsx'
 
 // Side bar for SingleRunView, TwoRunViews, etc...
 export default class RunSideBar extends React.Component {
@@ -46,79 +47,13 @@ export default class RunSideBar extends React.Component {
       actions.detailBenchmarkBundle(elementId);
     } } className="clickable"><sup><DetailsIcon /></sup>{ ' ' }</span>);
 
-    const paramListCreator = (bundleKey, methodName, methodInstances, methodEnabled) => {
-      const paramNames = [];
-      const valuesByParamName = {};
-      methodInstances.forEach(benchmarkMethod => (benchmarkMethod.params || []).forEach(([paramName, value]) => {
-        if (!valuesByParamName[paramName]) {
-          valuesByParamName[paramName] = new Set();
-          paramNames.push(paramName);
-        }
-        valuesByParamName[paramName].add(value);
-      }));
-      if (paramNames.length === 0) {
-        return null;
-      }
-      return (
-        <ul className="param-list">
-          { paramNames.map(paramName => {
-            const values = Array.from(valuesByParamName[paramName]);
-            const singleValue = values.length === 1;
-            return (
-              <li key={ paramName }>
-                <span className="param-name">{ paramName }</span>
-                <ul className="param-value-list">
-                  { values.map(value => {
-                    const key = paramValueKey(bundleKey, methodName, paramName, value);
-                    const checked = singleValue || !deselectedParamValues.has(key);
-                    const disabled = singleValue || !methodEnabled;
-                    return (
-                      <li key={ key }>
-                        <label onClick={ (e) => e.stopPropagation() } className={ disabled ? 'param-value-fixed' : undefined }>
-                          <input
-                            type="checkbox"
-                            checked={ checked }
-                            disabled={ disabled }
-                            onChange={ () => actions.toggleParamValue(bundleKey, methodName, paramName, value) } />
-                          { ' ' }{ value }
-                        </label>
-                      </li>
-                    );
-                  }) }
-                </ul>
-              </li>
-            );
-          }) }
-        </ul>
-      );
-    };
-
     const methodListCreator = (bundleKey) => {
       const bundle = benchmarkBundles.find(aBundle => aBundle.key === bundleKey);
-      if (!bundle || bundle.methodNames.length === 0) {
-        return null;
-      }
-      return (
-        <ul className="method-list">
-          { bundle.methodNames.map(methodName => {
-            const key = methodKey(bundleKey, methodName);
-            const checked = !deselectedMethods.has(key);
-            const methodInstances = bundle.benchmarkMethods.filter(benchmarkMethod => benchmarkMethod.name === methodName);
-            return (
-              <li key={ key }>
-                <label onClick={ (e) => e.stopPropagation() }>
-                  <input
-                    type="checkbox"
-                    checked={ checked }
-                    onChange={ () => actions.toggleMethod(bundleKey, methodName) } />
-                  { ' ' }{ methodName }
-                </label>
-                { paramListCreator(bundleKey, methodName, methodInstances, checked) }
-              </li>
-            );
-          }) }
-        </ul>
-      );
+      return <MethodParamCheckboxList
+        bundleKey={ bundleKey }
+        bundle={ bundle }
+        deselectedMethods={ deselectedMethods }
+        deselectedParamValues={ deselectedParamValues } />;
     };
 
     return (
