@@ -1,0 +1,101 @@
+# jmh-visualizer — notes for Claude
+
+Tracked in this fork/checkout (no longer excluded via `.git/info/exclude`).
+`E2E_POC_PLAN.md` and `RECHARTS_LOCKFILE_ISSUE.md` are separate local design
+docs that remain untracked there.
+
+## Commands
+
+- Build (dev): `npm run build` (webpack --mode development)
+- Watch: `npm run watch`
+- Release build: `npm run release-build`
+- Lint: `npm run lint`
+- Test: `npm run test` (mocha 5.2.0, uses the deprecated `--compilers` flag —
+  don't bump mocha without also fixing this, see below)
+- `npm run check` = lint + test; `npm run release` = check + release-build
+
+All webpack scripts need `NODE_OPTIONS=--openssl-legacy-provider` (already
+baked into the npm scripts) because this is webpack 4 + Node's newer OpenSSL.
+
+`e2e/` is a separate, isolated Playwright/TS black-box test suite (own
+`package.json`/`node_modules`) — see `e2e/CLAUDE.md`. It's excluded in the
+root `.eslintignore`: ESLint 4 doesn't ignore nested `node_modules` the way
+newer versions do, so without that exclusion `npm run lint` (and `check`/
+`release`) crashes trying to resolve `.eslintrc` files inside `e2e`'s own
+dependency tree.
+
+## Commit message style
+
+The maintainer's own commits are almost always a single-line subject with no
+body — e.g. `Release 0.9.6`, `Quick hack for heterogenous test setups of a
+class`, `Fix multi file gists`, `#35 Stabelize gist order`. The multi-line
+ones in the log are squash-merged PRs or dependabot's auto-generated
+messages, not commits the maintainer wrote by hand. Match this: keep the
+subject terse and skip any descriptive body/bullet list. This is about the
+message content only — Claude Code's own attribution trailer
+(`Co-Authored-By:` / `Claude-Session:`), when the session's settings call for
+it, still gets appended mechanically and doesn't count as "body prose."
+
+## Serving `build/index.html` locally
+
+`http://localhost:63342/jmh-visualizer/build/index.html` (IntelliJ's built-in
+web server) 404s in this environment even though the project is open in
+IDEA — root cause not fully pinned down. Workaround: serve `build/` directly,
+e.g. `python3 -m http.server 8934 --bind 127.0.0.1` from the `build/`
+directory, then open `http://localhost:8934/index.html`. `file://` URLs are
+blocked by the Claude-in-Chrome extension, so that's not an option either.
+
+## Architecture quick map
+
+- State: `src/javascript/store/store.js`, a `react-waterfall` store (single
+  global store + actions, not Redux). Key state: `benchmarkRuns`,
+  `selectedMetric`, `focusedBundles` (class-level solo/isolate filter, toggled
+  by the sidebar eye icon), `deselectedMethods` (method-level hide filter,
+  added for the nested checkbox feature — exclusion-style: empty = show all).
+- Models: `BenchmarkBundle` (one per benchmark class) holds
+  `benchmarkMethods: BenchmarkMethod[]` and `methodNames` (unique names;
+  a method can repeat across params). `BenchmarkMethod` is one JMH method
+  (possibly parameterized).
+- Sidebar tree: `RunSideBar.jsx` → `TocList.jsx` → `TocLink.jsx` (react-scroll
+  `ScrollLink`). `TocList` takes `linkControlsCreators` (inline icon controls
+  per row) and `subListCreator` (renders a nested `<ul>` under a row — used
+  for the per-method checkboxes). Any click handler on something nested
+  inside a `TocLink` must call `e.stopPropagation()` or it'll trigger the
+  link's scroll-to-section behavior.
+- Chart rendering fans out from `RunScreen.jsx` into `SingleRunView` /
+  `TwoRunsView` / `MultiRunView` depending on run count. `RunScreen.jsx` is
+  where bundle/method filtering happens — filtered bundles get passed to the
+  chart views, but the *unfiltered* bundles go to the sidebar so toggles stay
+  visible/reversible.
+- **Gotcha**: chart code (e.g. `BarDataSet.js`) assumes every bundle passed
+  to it has at least one method (`benchmarkMethods[0]` is accessed
+  unconditionally). There's no error boundary, so a bundle with zero methods
+  reaching the chart views crashes to a blank page. Any future filtering
+  feature must drop empty bundles before they reach `SingleRunView` /
+  `TwoRunsView` / `MultiRunView`.
+
+## Known dependency landmines
+
+- `recharts` 1.8.5 → 1.8.6 (patch bump, looks safe) breaks the build: 1.8.6
+  bumps its internal `core-js` dependency to `^3.4.2`, but this project's
+  `webpack.config.js` overrides `resolve.modules` to an absolute path at the
+  top-level `node_modules` only, so webpack can't resolve the nested
+  `recharts/node_modules/core-js@3`. Stay pinned at `^1.3.1` (currently
+  resolving to 1.8.5) until this is deliberately fixed. **Hit for real once**
+  already: a "version bumps" commit on a feature branch drifted the
+  *lockfile* resolution to 1.8.6 without touching the declared range, so
+  `npm ci` silently reproduced the exact webpack failure above. Fixed there
+  with a lockfile-only commit pinning the resolution back to 1.8.5. This note
+  exists so the same mistake doesn't happen again — if a `package-lock.json`
+  update ever bumps `recharts` past 1.8.5, re-pin it the same way.
+- Open Dependabot PRs needing real migration work, not just a version bump:
+  - #47/#48 — mocha 5→10: hard-pinned nested `minimatch`/`minimist` copies,
+    plus mocha 6+ dropped `--compilers` (used in the `test` npm script).
+  - #45 — css-loader/html-webpack-plugin bumps require webpack 5; project is
+    still on webpack 4.
+  - #42 — `d3-scale-chromatic` 3.x is ESM-only (risky under webpack4/Babel6);
+    `recharts` 2.x is a breaking rewrite.
+- Safe, already-applied bumps (via `npm update` / `npm install --no-save`,
+  verified with a real build each time): yargs-parser, decode-uri-component,
+  terser, path-parse, minimatch, minimist-via-babel-loader, and several
+  direct deps within their existing `package.json` ranges.
