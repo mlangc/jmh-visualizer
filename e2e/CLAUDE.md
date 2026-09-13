@@ -2,8 +2,7 @@
 
 Playwright + TypeScript, fully isolated from the app's own toolchain (own
 `package.json`/`node_modules`/`tsconfig.json`). Never touches app source or
-the app's Babel 6 / webpack 4 stack. See `../E2E_POC_PLAN.md` (untracked, see
-`.git/info/exclude`) for the full design rationale.
+the app's Babel 6 / webpack 4 stack.
 
 ## What this tests
 

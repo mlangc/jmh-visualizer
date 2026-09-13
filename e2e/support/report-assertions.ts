@@ -8,9 +8,8 @@ import { expect, Page } from '@playwright/test';
  * the DOM the instant upload/load settles.
  *
  * Called bare (default timeout) by the smoke spec, and with a short
- * `opts.timeout` inside `expect(...).rejects.toThrow()` by the harness spec
- * (§2 of E2E_POC_PLAN.md) — same routine, so the falsification checks can't
- * drift from what they guard.
+ * `opts.timeout` inside `expect(...).rejects.toThrow()` by the harness spec —
+ * same routine, so the falsification checks can't drift from what they guard.
  */
 export async function expectCompleteSingleRunReport(
   page: Page,
@@ -24,7 +23,7 @@ export async function expectCompleteSingleRunReport(
 
   // 2. "Show JSON" button
   // .first(): one such button renders per benchmark class (SingleRunBundle.jsx),
-  // and the wrong-data harness checks (§2) load real reports with many classes —
+  // and the wrong-data harness checks load real reports with many classes —
   // unscoped, this throws a strict-mode violation there instead of rejecting on
   // row 3, the first row that's actually content-specific.
   await expect(page.getByRole('button', { name: 'Show JSON' }).first()).toBeVisible(opts);

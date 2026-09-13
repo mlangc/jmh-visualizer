@@ -2,12 +2,15 @@ import { expect, test } from '@playwright/test';
 import { JmhApp } from '../support/jmh-app';
 import { expectCompleteSingleRunReport } from '../support/report-assertions';
 
-// This suite tests the §5 assertion routine itself (expectCompleteSingleRunReport),
-// not the app — see E2E_POC_PLAN.md §2. Two generic falsification checks every
-// data-dependent characterization routine must pass: it must reject on a blank
-// page, and it must reject on real-but-wrong data.
+// This suite tests the assertion routine itself (expectCompleteSingleRunReport),
+// not the app. Two generic falsification checks every data-dependent
+// characterization routine must pass: it must reject on a blank page, and it
+// must reject on real-but-wrong data.
 test.describe('expectCompleteSingleRunReport falsification checks', () => {
-  const NEG_TIMEOUT = { timeout: 1_000 };   // modest, not sub-second — see §2
+  // Modest, not sub-second: the routine checks a couple of always-present
+  // chrome elements before the first report-specific one, so a too-tight
+  // budget risks a spurious timeout on those instead of a real rejection.
+  const NEG_TIMEOUT = { timeout: 1_000 };
 
   test('rejects on a blank page', async ({ page }) => {
     await page.goto('about:blank');
