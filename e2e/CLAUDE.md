@@ -8,20 +8,35 @@ the app's Babel 6 / webpack 4 stack.
 
 Loads a real JMH result file into the built app and asserts the single-run
 report renders completely — text, roles, presence of chart, via user-visible
-DOM only. No interactions (no toggles/filters), no knowledge of React/webpack/
-recharts. The point is to survive a stack migration: as long as this suite
-stays green, the app's rendered behaviour hasn't regressed.
+DOM only. No knowledge of React/webpack/recharts. The point is to survive a
+stack migration: as long as this suite stays green, the app's rendered
+behaviour hasn't regressed.
 
-- `specs/smoke-cost-of-alloc-rate-norm-benchmark.spec.ts` — the one
+Most of the suite is pure characterization (upload, assert presence, no
+interactions beyond the upload itself). One spec goes further and drives real
+UI interactions (the scale toggle, and Details/Back navigation) to check
+their effects too — see below.
+
+- `specs/smoke-cost-of-alloc-rate-norm-benchmark.spec.ts` — the static
   characterization test.
+- `specs/linked-hash-first-vs-iter-next-benchmark.spec.ts` — interaction
+  test: on top of the initial render, clicks the log/linear scale toggle and
+  asserts the chart changes without error, then Show Details / Back and
+  asserts the fixture's secondary GC metrics (`gc.alloc.rate`,
+  `gc.alloc.rate.norm`, `gc.count`, `gc.time`) are listed and navigation
+  returns cleanly.
 - `specs/harness.spec.ts` — tests the assertions back: they must reject on a
   blank page and on the three bundled examples (real JMH data the routine
   isn't written for). Proves the checks aren't vacuously green.
 - `support/report-assertions.ts` — `expectCostOfAllocRateNormReport()`, the 13
-  shared presence checks both specs above call.
+  shared presence checks the smoke spec and harness spec call.
 - `support/jmh-app.ts` — page object; the only place that knows app-specific
-  selectors (upload input, "Load … Example" links).
-- `fixtures/cost-of-alloc-rate-norm-benchmark.json` — vendored JMH report used by the smoke spec.
+  selectors (upload input, "Load … Example" links, scale/details/back
+  controls).
+- `fixtures/cost-of-alloc-rate-norm-benchmark.json` — vendored JMH report used
+  by the smoke spec.
+- `fixtures/linked-hash-first-vs-iter-next-benchmark.json` — vendored JMH
+  report (with populated `secondaryMetrics`) used by the interaction spec.
 
 ## Commands
 

@@ -39,4 +39,29 @@ export class JmhApp {
     // worded summary line) — a rendered chart is the one signal common to all.
     await this.page.locator('.recharts-wrapper').first().waitFor();
   }
+
+  /**
+   * Click a chart header's "Switch scale (log/linear)" control — an
+   * unlabelled icon in a `data-tooltip`-carrying span (Icons.jsx's
+   * ScaleButton). Scoped to a heading: DetailScreen renders its own
+   * ScaleButton in the sidebar (outside any heading), so an unscoped
+   * page-wide selector would silently hit the wrong control there.
+   */
+  async toggleScale(): Promise<void> {
+    await this.page.getByRole('heading').locator('[data-tooltip^="Switch scale"]').click();
+  }
+
+  /**
+   * Click a chart header's "Show details" control (Icons.jsx's
+   * DetailsButton), navigating to the full-screen DetailScreen.
+   */
+  async showDetails(): Promise<void> {
+    await this.page.getByRole('heading').locator('[data-tooltip^="Show details"]').click();
+    await this.page.getByText('Back..').waitFor(); // confirms the DetailScreen navigation completed
+  }
+
+  /** Click DetailScreen's "Back.." link, returning to the previous screen via history.goBack(). */
+  async goBack(): Promise<void> {
+    await this.page.getByText('Back..').click();
+  }
 }
