@@ -12,15 +12,16 @@ DOM only. No interactions (no toggles/filters), no knowledge of React/webpack/
 recharts. The point is to survive a stack migration: as long as this suite
 stays green, the app's rendered behaviour hasn't regressed.
 
-- `specs/smoke-randomize-rerun.spec.ts` — the one characterization test.
+- `specs/smoke-cost-of-alloc-rate-norm-benchmark.spec.ts` — the one
+  characterization test.
 - `specs/harness.spec.ts` — tests the assertions back: they must reject on a
   blank page and on the three bundled examples (real JMH data the routine
   isn't written for). Proves the checks aren't vacuously green.
-- `support/report-assertions.ts` — `expectCompleteSingleRunReport()`, the 13
+- `support/report-assertions.ts` — `expectCostOfAllocRateNormReport()`, the 13
   shared presence checks both specs above call.
 - `support/jmh-app.ts` — page object; the only place that knows app-specific
   selectors (upload input, "Load … Example" links).
-- `fixtures/randomize-rerun.json` — vendored JMH report used by the smoke spec.
+- `fixtures/cost-of-alloc-rate-norm-benchmark.json` — vendored JMH report used by the smoke spec.
 
 ## Commands
 

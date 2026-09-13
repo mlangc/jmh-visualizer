@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { JmhApp } from '../support/jmh-app';
-import { expectCompleteSingleRunReport } from '../support/report-assertions';
+import { expectCostOfAllocRateNormReport } from '../support/report-assertions';
 
-// This suite tests the assertion routine itself (expectCompleteSingleRunReport),
+// This suite tests the assertion routine itself (expectCostOfAllocRateNormReport),
 // not the app. Two generic falsification checks every data-dependent
 // characterization routine must pass: it must reject on a blank page, and it
 // must reject on real-but-wrong data.
-test.describe('expectCompleteSingleRunReport falsification checks', () => {
+test.describe('expectCostOfAllocRateNormReport falsification checks', () => {
   // Modest, not sub-second: the routine checks a couple of always-present
   // chrome elements before the first report-specific one, so a too-tight
   // budget risks a spurious timeout on those instead of a real rejection.
@@ -14,7 +14,7 @@ test.describe('expectCompleteSingleRunReport falsification checks', () => {
 
   test('rejects on a blank page', async ({ page }) => {
     await page.goto('about:blank');
-    await expect(expectCompleteSingleRunReport(page, NEG_TIMEOUT)).rejects.toThrow();
+    await expect(expectCostOfAllocRateNormReport(page, NEG_TIMEOUT)).rejects.toThrow();
     await expect(page.getByText('JMH Visualizer')).toHaveCount(0);
   });
 
@@ -23,7 +23,7 @@ test.describe('expectCompleteSingleRunReport falsification checks', () => {
       await page.goto('/');
       await new JmhApp(page).loadBundledExample(kind);
       await expect(page.locator('.recharts-wrapper').first()).toBeVisible();   // a chart *did* render
-      await expect(expectCompleteSingleRunReport(page, NEG_TIMEOUT)).rejects.toThrow();
+      await expect(expectCostOfAllocRateNormReport(page, NEG_TIMEOUT)).rejects.toThrow();
     });
   }
 });

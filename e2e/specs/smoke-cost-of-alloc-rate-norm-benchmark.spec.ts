@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { JmhApp } from '../support/jmh-app';
-import { expectCompleteSingleRunReport } from '../support/report-assertions';
+import { expectCostOfAllocRateNormReport } from '../support/report-assertions';
 
-test('randomize-rerun.json renders a complete single-run report', async ({ page }) => {
+test('cost-of-alloc-rate-norm-benchmark.json renders a complete single-run report', async ({ page }) => {
   // collect dialogs (a JMH parse failure calls window.alert) and dismiss them;
   // assert none fired at the end
   const dialogs: string[] = [];
@@ -12,8 +12,8 @@ test('randomize-rerun.json renders a complete single-run report', async ({ page 
   });
 
   await page.goto('/');
-  await new JmhApp(page).uploadReport('randomize-rerun.json');
-  await expectCompleteSingleRunReport(page);
+  await new JmhApp(page).uploadReport('cost-of-alloc-rate-norm-benchmark.json');
+  await expectCostOfAllocRateNormReport(page);
 
   expect(dialogs).toEqual([]);
 });

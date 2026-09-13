@@ -2,7 +2,7 @@ import { expect, Page } from '@playwright/test';
 
 /**
  * The 13 presence checks that characterize a complete single-run report for
- * the `randomize-rerun.json` fixture. Each row is an auto-retrying
+ * the `cost-of-alloc-rate-norm-benchmark.json` fixture. Each row is an auto-retrying
  * `toBeVisible()` — never `count()` or `await`-then-`expect` — because
  * recharts animates the bar labels in over ~540ms, so rows 10-12 aren't in
  * the DOM the instant upload/load settles.
@@ -11,7 +11,7 @@ import { expect, Page } from '@playwright/test';
  * `opts.timeout` inside `expect(...).rejects.toThrow()` by the harness spec —
  * same routine, so the falsification checks can't drift from what they guard.
  */
-export async function expectCompleteSingleRunReport(
+export async function expectCostOfAllocRateNormReport(
   page: Page,
   opts: { timeout?: number } = {},
 ): Promise<void> {
@@ -30,7 +30,7 @@ export async function expectCompleteSingleRunReport(
 
   // 3. run-summary line
   await expect(
-    page.getByText(/different benchmark classes for single run 'randomize-rerun' and metric 'Score' detected/),
+    page.getByText(/different benchmark classes for single run 'cost-of-alloc-rate-norm-benchmark' and metric 'Score' detected/),
   ).toBeVisible(opts);
 
   // 4. "Benchmarks" TOC category
