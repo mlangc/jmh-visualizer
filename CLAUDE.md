@@ -1,9 +1,5 @@
 # jmh-visualizer — notes for Claude
 
-Tracked in this fork/checkout (no longer excluded via `.git/info/exclude`).
-`E2E_POC_PLAN.md` and `RECHARTS_LOCKFILE_ISSUE.md` are separate local design
-docs that remain untracked there.
-
 ## Commands
 
 - Build (dev): `npm run build` (webpack --mode development)
@@ -35,15 +31,6 @@ subject terse and skip any descriptive body/bullet list. This is about the
 message content only — Claude Code's own attribution trailer
 (`Co-Authored-By:` / `Claude-Session:`), when the session's settings call for
 it, still gets appended mechanically and doesn't count as "body prose."
-
-## Serving `build/index.html` locally
-
-`http://localhost:63342/jmh-visualizer/build/index.html` (IntelliJ's built-in
-web server) 404s in this environment even though the project is open in
-IDEA — root cause not fully pinned down. Workaround: serve `build/` directly,
-e.g. `python3 -m http.server 8934 --bind 127.0.0.1` from the `build/`
-directory, then open `http://localhost:8934/index.html`. `file://` URLs are
-blocked by the Claude-in-Chrome extension, so that's not an option either.
 
 ## Architecture quick map
 
@@ -85,9 +72,9 @@ blocked by the Claude-in-Chrome extension, so that's not an option either.
   already: a "version bumps" commit on a feature branch drifted the
   *lockfile* resolution to 1.8.6 without touching the declared range, so
   `npm ci` silently reproduced the exact webpack failure above. Fixed there
-  with a lockfile-only commit pinning the resolution back to 1.8.5. This note
-  exists so the same mistake doesn't happen again — if a `package-lock.json`
-  update ever bumps `recharts` past 1.8.5, re-pin it the same way.
+  with a lockfile-only commit pinning the resolution back to 1.8.5. If a
+  `package-lock.json` update ever bumps `recharts` past 1.8.5, re-pin it the
+  same way.
 - Open Dependabot PRs needing real migration work, not just a version bump:
   - #47/#48 — mocha 5→10: hard-pinned nested `minimatch`/`minimist` copies,
     plus mocha 6+ dropped `--compilers` (used in the `test` npm script).
@@ -95,7 +82,15 @@ blocked by the Claude-in-Chrome extension, so that's not an option either.
     still on webpack 4.
   - #42 — `d3-scale-chromatic` 3.x is ESM-only (risky under webpack4/Babel6);
     `recharts` 2.x is a breaking rewrite.
-- Safe, already-applied bumps (via `npm update` / `npm install --no-save`,
-  verified with a real build each time): yargs-parser, decode-uri-component,
-  terser, path-parse, minimatch, minimist-via-babel-loader, and several
-  direct deps within their existing `package.json` ranges.
+- Several other minor/patch Dependabot bumps have already been applied
+  safely (via `npm update` / `npm install --no-save`, within their existing
+  `package.json` ranges), each verified with a real build.
+
+## General notes
+
+- Don't reference files that are deliberately untracked (via `.gitignore` or
+  `.git/info/exclude`) from files that are checked into git — it'll puzzle
+  whoever checks out the project anew.
+- Let the code speak for itself, and only add comments where they clearly add
+  value. A comment is no excuse for bad code. Try to make the code readable
+  first.
