@@ -26,6 +26,88 @@ export class JmhApp {
   }
 
   /**
+   * Upload multiple JMH JSON files at once via the same file input, matching
+   * a real multi-file drag-and-drop. Settles on the Summary screen's
+   * "Ignoring deviations below" text -- the one thing guaranteed present
+   * whenever more than one run is loaded, unlike uploadReport()'s single-run
+   * settle text, which never fires for a multi-run upload.
+   */
+  async uploadReports(fixtureNames: string[]): Promise<void> {
+    const fileInput = this.page
+      .locator('div.btn', { hasText: 'Open File Dialog' })
+      .locator('input[type="file"]');
+    await fileInput.setInputFiles(fixtureNames.map((name) => path.join(FIXTURES, name)));
+    await this.page.getByText(/Ignoring deviations below/).waitFor();
+  }
+
+  /**
+   * Click a top-nav run-selection button, narrowing the view to that single
+   * run. Settles on that run's single-run summary sentence, not
+   * `.recharts-wrapper` -- the Summary screen already contains recharts
+   * elements (SummaryChangeChart/SummaryHistogramChart), so that wait would
+   * pass before the click's effect actually landed.
+   */
+  async selectRun(runName: string): Promise<void> {
+    await this.page.getByRole('button', { name: runName, exact: true }).click();
+    await this.page.getByText(new RegExp(`for single run '${runName}'`)).waitFor();
+  }
+
+  /**
+   * Click the run-selection bar's plain "Summary"/"Compare" title button --
+   * never its caret (no text content, only a mirrored aria-label) nor the
+   * SplitButton's dropdown menu items (an <a role="menuitem"> for each of
+   * "Summary"/"Compare", present in the DOM but hidden until the caret is
+   * opened -- a bare text/role query matches those too). Scoping to
+   * `<button>` with exact text excludes both. Its effect is state-dependent
+   * (RunSelectionBar.jsx's selectAllWithPossibleSwitchView): reselects all
+   * runs without changing the view when not all runs are currently selected,
+   * or toggles Summary<->Compare once all runs are already selected -- so
+   * callers assert the result themselves rather than this method waiting on
+   * a fixed landmark.
+   */
+  async clickAllRunsButton(): Promise<void> {
+    await this.page.locator('button', { hasText: /^(Summary|Compare)$/ }).click();
+  }
+
+  /**
+   * Click a "Benchmarks" sidebar entry by benchmark class name. This is a
+   * react-scroll smooth-scroll, not a state change, so there's no settled
+   * landmark to wait on -- callers assert the scroll's effect via
+   * `toBeInViewport()`.
+   */
+  async clickBenchmarkClassLink(className: string): Promise<void> {
+    await this.page.locator('ul.nav ul.nav').getByText(className, { exact: true }).click();
+  }
+
+  /**
+   * Push the "Ignoring deviations below X%" slider to its max (50%). Focuses
+   * the handle via its enclosing aria-valuenow container rather than the
+   * handle's own (unlabelled, roleless) library class name, then presses
+   * ArrowRight enough times to cover the full min=0/max=50/step=5 range from
+   * the initial value of 5.
+   */
+  async moveMinDeviationSliderToMax(): Promise<void> {
+    const handle = this.page.locator('[aria-valuenow] [tabindex="0"]');
+    await handle.focus();
+    for (let i = 0; i < 9; i++) {
+      await this.page.keyboard.press('ArrowRight');
+    }
+  }
+
+  /**
+   * Open the "JMH Visualizer" brand dropdown and click "Reset & Upload New",
+   * which does a real `window.location` reload back to the bare URL (not a
+   * React transition) -- wait for the start screen's dropzone text to
+   * reappear before returning, keeping this symmetric with the suite's other
+   * transition methods.
+   */
+  async resetAndUploadNew(): Promise<void> {
+    await this.page.getByText('JMH Visualizer').first().click();
+    await this.page.getByRole('menuitem', { name: /Reset & Upload New/ }).click();
+    await this.page.getByText('Drop your JMH JSON report file(s) here!').waitFor();
+  }
+
+  /**
    * Click one of the upload sidebar's "Load … Example" links — plain <a>s
    * wired to `actions.load{Single,Two,Multi}RunExample`, byte-identical
    * master..add-filters-for-large-result-files. Loads the bundled

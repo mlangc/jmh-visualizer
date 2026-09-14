@@ -12,10 +12,11 @@ DOM only. No knowledge of React/webpack/recharts. The point is to survive a
 stack migration: as long as this suite stays green, the app's rendered
 behaviour hasn't regressed.
 
-Most of the suite is pure characterization (upload, assert presence, no
-interactions beyond the upload itself). One spec goes further and drives real
-UI interactions (the scale toggle, and Details/Back navigation) to check
-their effects too — see below.
+The suite is a mix of pure characterization specs (upload, assert presence,
+no interactions beyond the upload itself) and interaction specs that drive
+real UI — the scale toggle, Details/Back navigation, the multi-run
+Summary/Compare workflow — and check their effects too. See below for which
+is which.
 
 - `specs/smoke-cost-of-alloc-rate-norm-benchmark.spec.ts` — the static
   characterization test.
@@ -25,18 +26,37 @@ their effects too — see below.
   asserts the fixture's secondary GC metrics (`gc.alloc.rate`,
   `gc.alloc.rate.norm`, `gc.count`, `gc.time`) are listed and navigation
   returns cleanly.
+- `specs/multi-run-summary-and-compare.spec.ts` — uploads all 3 fixtures
+  together and drives the multi-run workflow: the "Ignoring deviations
+  below" slider (moved to its max to prove a real filtering effect, not just
+  a label change), the "Declined Benchmarks" table, drilling into each
+  uploaded file individually via the top-nav run buttons, switching back to
+  Summary and on to Compare via the same title button, the "Benchmarks"
+  sidebar's scroll-to-section links, and "Reset & Upload New" returning to
+  the start screen.
+- `specs/start-screen.spec.ts` — characterizes the empty upload/start screen
+  on a fresh page load (the cold-load path, as opposed to the post-reset
+  path exercised inline at the end of the multi-run spec above — those two
+  are driven by genuinely different code that only coincidentally produces
+  the same screen today).
 - `specs/harness.spec.ts` — tests the assertions back: they must reject on a
   blank page and on the three bundled examples (real JMH data the routine
   isn't written for). Proves the checks aren't vacuously green.
 - `support/report-assertions.ts` — `expectCostOfAllocRateNormReport()`, the 13
   shared presence checks the smoke spec and harness spec call.
+- `support/start-screen-assertions.ts` — `expectStartScreen()`, shared by the
+  start-screen spec and the post-reset check in the multi-run spec.
 - `support/jmh-app.ts` — page object; the only place that knows app-specific
   selectors (upload input, "Load … Example" links, scale/details/back
-  controls).
+  controls, the multi-run top nav and sidebar).
 - `fixtures/cost-of-alloc-rate-norm-benchmark.json` — vendored JMH report used
-  by the smoke spec.
+  by the smoke spec (and, via a single-file drill-down, the multi-run spec).
 - `fixtures/linked-hash-first-vs-iter-next-benchmark.json` — vendored JMH
   report (with populated `secondaryMetrics`) used by the interaction spec.
+- `fixtures/linked-hash-first-vs-iter-next-on-battery-benchmark.json` —
+  deliberate companion to the fixture above: same benchmark class, methods,
+  and params, with worse (~45-51%) scores throughout, used by the multi-run
+  spec to drive a real "Declined Benchmarks" comparison.
 
 ## Commands
 
