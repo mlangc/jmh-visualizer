@@ -98,3 +98,21 @@ it, still gets appended mechanically and doesn't count as "body prose."
 - Let the code speak for itself, and only add comments where they clearly add
   value. A comment is no excuse for bad code. Try to make the code readable
   first.
+
+## Agentic Reviews
+
+When I ask you to let a subagent review your work, please consider this:
+- Use Opus as a reviewer, in a fresh subagent — not a fork, since a fork
+  inherits your full context and always runs on your own model, which
+  defeats the point of an independent pair of eyes.
+- Tell the subagent what you were tasked to do.
+- Where I gave you a specific instruction, constraint, or correction that
+  shapes what the review should check, quote my own words directly rather
+  than only your paraphrase of them — a paraphrase can silently carry your
+  own misreading forward, and the reviewer has no way to catch that if it
+  only ever sees your restatement. Don't dump the whole conversation on it
+  though; a fresh pair of eyes is the point.
+- The reviewer must not modify the implementer's worktree, and is expected
+  to report findings back rather than fix anything itself. It's encouraged
+  to create its own temporary worktree off the implementer's branch to
+  experiment, confirm suspicions, or verify proposed fixes.
