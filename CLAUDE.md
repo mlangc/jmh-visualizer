@@ -10,8 +10,12 @@
   don't bump mocha without also fixing this, see below)
 - `npm run check` = lint + test; `npm run release` = check + release-build
 
-All webpack scripts need `NODE_OPTIONS=--openssl-legacy-provider` (already
-baked into the npm scripts) because this is webpack 4 + Node's newer OpenSSL.
+All webpack scripts (`build`/`watch`/`release-build`) need
+`NODE_OPTIONS=--openssl-legacy-provider` set when you invoke them — it's
+*not* baked into the npm scripts themselves — because this is webpack 4 +
+Node's newer OpenSSL. Without it, `npm run build` fails with
+`ERR_OSSL_EVP_UNSUPPORTED`. e.g. `NODE_OPTIONS=--openssl-legacy-provider npm
+run build`.
 
 `e2e/` is a separate, isolated Playwright/TS black-box test suite (own
 `package.json`/`node_modules`) — see `e2e/CLAUDE.md`. It's excluded in the

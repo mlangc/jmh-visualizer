@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { Page } from '@playwright/test';
+import { escapeRegExp } from './regex-util';
 
 const FIXTURES = path.join(__dirname, '..', 'fixtures');
 
@@ -49,7 +50,7 @@ export class JmhApp {
    */
   async selectRun(runName: string): Promise<void> {
     await this.page.getByRole('button', { name: runName, exact: true }).click();
-    await this.page.getByText(new RegExp(`for single run '${runName}'`)).waitFor();
+    await this.page.getByText(new RegExp(`for single run '${escapeRegExp(runName)}'`)).waitFor();
   }
 
   /**
@@ -145,5 +146,79 @@ export class JmhApp {
   /** Click DetailScreen's "Back.." link, returning to the previous screen via history.goBack(). */
   async goBack(): Promise<void> {
     await this.page.getByText('Back..').click();
+  }
+
+  /**
+   * Open the "Load from URL(s)" modal (LoadFromUrlsDialog.jsx), fill URL 1
+   * (and URL 2 if given), and submit. The dialog's `Load` button doesn't
+   * dispatch a store action -- it rewrites `window.location.search` and does
+   * a real full-page reload -- so this settles the same way `uploadReport(s)`
+   * does, on whichever text is guaranteed present once the reload lands
+   * (single-run sentence for 1 URL, "Ignoring deviations below" for 2),
+   * rather than on any transition-specific signal.
+   */
+  async loadFromUrls(urls: string[]): Promise<void> {
+    await this.page.getByText('Load from URL(s)', { exact: true }).click();
+    const dialog = this.page.getByRole('dialog');
+    await dialog.getByLabel('URL 1').fill(urls[0]);
+    if (urls[1]) {
+      await dialog.getByLabel('URL 2 (optional)').fill(urls[1]);
+    }
+    await dialog.getByRole('button', { name: 'Load', exact: true }).click();
+    await this.waitForRunsSettled(urls.length);
+  }
+
+  /**
+   * Same as `loadFromUrls`, for the "Load from Gist(s)" modal
+   * (LoadFromGistsDialog.jsx). Field 1 takes a raw gist ID, not a full URL.
+   *
+   * `expectedRunCount` defaults to `gistIds.length`, correct whenever every
+   * gist holds exactly 1 file -- pass it explicitly for a gist with 2+ files
+   * (`fetchFromGists` in processParameters.js makes one run per file in the
+   * gist, not one run per gist ID).
+   */
+  async loadFromGists(gistIds: string[], expectedRunCount = gistIds.length): Promise<void> {
+    await this.page.getByText('Load from Gist(s)', { exact: true }).click();
+    const dialog = this.page.getByRole('dialog');
+    await dialog.getByLabel('Gist 1').fill(gistIds[0]);
+    if (gistIds[1]) {
+      await dialog.getByLabel('Gist 2 (optional)').fill(gistIds[1]);
+    }
+    await dialog.getByRole('button', { name: 'Load', exact: true }).click();
+    await this.waitForRunsSettled(expectedRunCount);
+  }
+
+  /**
+   * Navigate straight to `?sources=url1,url2,...` (processParameters.js),
+   * bypassing the "Load from URL(s)" dialog's 2-field cap -- the only way to
+   * load 3+ URLs at once.
+   */
+  async gotoWithSources(urls: string[]): Promise<void> {
+    await this.page.goto(`/?sources=${urls.join(',')}`);
+    await this.waitForRunsSettled(urls.length);
+  }
+
+  /** Same as `gotoWithSources`, for `?gists=id1,id2,...`. */
+  async gotoWithGists(gistIds: string[]): Promise<void> {
+    await this.page.goto(`/?gists=${gistIds.join(',')}`);
+    await this.waitForRunsSettled(gistIds.length);
+  }
+
+  /**
+   * `runCount` is the number of runs the reload should settle into, not the
+   * number of URLs/gist IDs passed to load them -- the two coincide whenever
+   * every gist holds exactly 1 file (`fetchFromUrls` is always 1 URL : 1
+   * run), but `fetchFromGists` (processParameters.js) turns one gist ID into
+   * one run *per file in that gist*. `loadFromGists` above takes an explicit
+   * `expectedRunCount` for this reason; `gotoWithGists` doesn't yet, since no
+   * caller has needed a multi-file gist via `?gists=` -- add the same
+   * parameter there if one does.
+   */
+  private async waitForRunsSettled(runCount: number): Promise<void> {
+    if (runCount === 1) {
+      await this.page.getByText(/different benchmark classes for single run/).waitFor();
+    } else {
+      await this.page.getByText(/Ignoring deviations below/).waitFor();
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { JmhApp } from '../support/jmh-app';
+import { watchDialogsAndErrors } from '../support/page-watchers';
 
 // The suite's first interaction-driven spec: beyond static presence, it
 // drives the scale toggle and the details/back navigation and checks their
@@ -7,20 +8,8 @@ import { JmhApp } from '../support/jmh-app';
 // because it has populated secondaryMetrics (gc.* profiling data) to exercise
 // the Details screen with.
 test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and details/back navigation', async ({ page }) => {
-  // collect dialogs (a JMH parse failure calls window.alert) and dismiss them;
-  // assert none fired after each interaction
-  const dialogs: string[] = [];
-  page.on('dialog', async (d) => {
-    dialogs.push(d.message());
-    await d.dismiss();
-  });
-
-  // collect uncaught exceptions triggered by the interactions below. Not also
-  // collecting console errors: the app already emits unrelated unknown-prop
-  // warnings (e.g. TocLink's prop spread), so a blanket console-error
-  // assertion would be noise, not signal.
-  const pageErrors: string[] = [];
-  page.on('pageerror', (err) => pageErrors.push(err.message));
+  // assert none fired after each interaction below
+  const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);
   await page.goto('/');
