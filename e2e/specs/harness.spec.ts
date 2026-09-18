@@ -9,18 +9,19 @@ import {
   LINKED_HASH_PAIR_ROWS_MINUS_SURVIVOR,
   LINKED_HASH_PAIR_SURVIVING_ROW,
 } from '../support/summary-comparison-assertions';
+import {expectStartScreen} from "../support/start-screen-assertions";
+import {expectBrandMenu} from "../support/brand-menu-assertions";
 
-// This suite tests the assertion routines themselves, not the app. Two
-// generic falsification checks every data-dependent characterization routine
-// must pass: it must reject on a blank page, and it must reject on real-but-
-// wrong data.
+// This timeout is used for negative assertions, where failure means success.
+// Using the default value makes these tests slow. Using a value that is too low
+// risks making these tests pass for the wrong reason.
+const NEG_TIMEOUT = { timeout: 1_000 };
 
+// This suite tests the assertion routines themselves, not the app. Every
+// routine here must reject on a blank page, and must reject on a real page
+// whose state doesn't match the claim -- wrong table data for the two
+// data-dependent routines below, the wrong screen for expectStartScreen, etc.
 test.describe('expectCostOfAllocRateNormReport falsification checks', () => {
-  // Modest, not sub-second: the routine checks a couple of always-present
-  // chrome elements before the first report-specific one, so a too-tight
-  // budget risks a spurious timeout on those instead of a real rejection.
-  const NEG_TIMEOUT = { timeout: 1_000 };
-
   test('rejects on a blank page', async ({ page }) => {
     await page.goto('about:blank');
     await expect(expectCostOfAllocRateNormReport(page, NEG_TIMEOUT)).rejects.toThrow();
@@ -42,30 +43,13 @@ test.describe('expectCostOfAllocRateNormReport falsification checks', () => {
 // so falsifying expectDeclinedBenchmarks/expectImprovedBenchmarks/
 // expectUnchangedBenchmarks here covers all three.
 test.describe('expectComparisonRows falsification checks', () => {
-  // Unlike expectCostOfAllocRateNormReport's NEG_TIMEOUT above, every check
-  // here can reject on its very first assertion (the heading lookup), so
-  // there's no "always-present chrome" to budget past -- 1s is kept anyway,
-  // since a too-tight budget makes a *spurious* timeout read as a pass
-  // (see the "wrong params" test below).
-  const NEG_TIMEOUT = { timeout: 1_000 };
-
-  async function loadLinkedHashPair(page: Page): Promise<JmhApp> {
-    const app = new JmhApp(page);
-    await page.goto('/');
-    await app.uploadReports([
-      'linked-hash-first-vs-iter-next-benchmark.json',
-      'linked-hash-first-vs-iter-next-on-battery-benchmark.json',
-    ]);
-    return app;
-  }
-
   test('rejects on a blank page', async ({ page }) => {
     await page.goto('about:blank');
     await expect(expectDeclinedBenchmarks(page, LINKED_HASH_PAIR_ROWS, NEG_TIMEOUT)).rejects.toThrow();
   });
 
   test('rejects when the claimed table has no rows at all', async ({ page }) => {
-    await loadLinkedHashPair(page);
+    await loadLinkedHashMapBenchmarks(page);
 
     // Confirm the real state first -- regular-then-on-battery always declines.
     await expectDeclinedBenchmarks(page, LINKED_HASH_PAIR_ROWS);
@@ -79,7 +63,7 @@ test.describe('expectComparisonRows falsification checks', () => {
   });
 
   test('rejects when a row belongs to a different table on the same page, despite a matching row count', async ({ page }) => {
-    const app = await loadLinkedHashPair(page);
+    const app = await loadLinkedHashMapBenchmarks(page);
 
     // At the slider's 50% max, both a real Declined and a real Unchanged
     // table exist on the same page -- confirm the real state first.
@@ -96,7 +80,7 @@ test.describe('expectComparisonRows falsification checks', () => {
   });
 
   test('rejects when a row has the wrong params', async ({ page }) => {
-    await loadLinkedHashPair(page);
+    await loadLinkedHashMapBenchmarks(page);
 
     // Confirm the real state first -- otherwise a routine that regressed to
     // rejecting at the heading check (rather than the per-row loop this test
@@ -113,3 +97,45 @@ test.describe('expectComparisonRows falsification checks', () => {
     await expect(expectDeclinedBenchmarks(page, rowsWithOneWrongParams, NEG_TIMEOUT)).rejects.toThrow();
   });
 });
+
+test.describe('start screen falsification checks', () => {
+  test('rejects on a blank page', async ({page}) => {
+    await page.goto('about:blank');
+    await expect(expectStartScreen(page, NEG_TIMEOUT)).rejects.toThrow();
+  })
+
+    test('rejects if benchmarks are already loaded', async ({page}) => {
+        await loadLinkedHashMapBenchmarks(page)
+        await expect(expectStartScreen(page, NEG_TIMEOUT)).rejects.toThrow();
+    })
+});
+
+test.describe('brand menu falsification checks', () => {
+    test('rejects on a blank page', async ({page}) => {
+        await page.goto('about:blank');
+        await expect(expectBrandMenu(page, {...NEG_TIMEOUT, visible: true})).rejects.toThrow();
+    })
+
+    test('rejects if the menu is hidden, but expected to be visible', async ({page}) => {
+        await page.goto('/');
+        await expect(expectBrandMenu(page, {...NEG_TIMEOUT, visible: true})).rejects.toThrow();
+    })
+
+    test('rejects if the menu is visible, but expected to be hidden', async ({page}) => {
+        const app = new JmhApp(page);
+        await page.goto('/')
+        await app.toggleBrandMenu();
+        await expect(expectBrandMenu(page, {...NEG_TIMEOUT, visible: false})).rejects.toThrow();
+    })
+})
+
+async function loadLinkedHashMapBenchmarks(page: Page): Promise<JmhApp> {
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReports([
+        'linked-hash-first-vs-iter-next-benchmark.json',
+        'linked-hash-first-vs-iter-next-on-battery-benchmark.json',
+    ]);
+    return app;
+}
+

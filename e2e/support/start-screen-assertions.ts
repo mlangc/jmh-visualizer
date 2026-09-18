@@ -26,4 +26,6 @@ export async function expectStartScreen(
   ]) {
     await expect(page.getByText(label, { exact: true })).toBeVisible(opts);
   }
+
+  await expect(page.getByText('Your data stays locally in')).toBeVisible(opts);
 }

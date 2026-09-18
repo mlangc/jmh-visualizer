@@ -103,7 +103,7 @@ export class JmhApp {
    * transition methods.
    */
   async resetAndUploadNew(): Promise<void> {
-    await this.page.getByText('JMH Visualizer').first().click();
+    await this.toggleBrandMenu();
     await this.page.getByRole('menuitem', { name: /Reset & Upload New/ }).click();
     await this.page.getByText('Drop your JMH JSON report file(s) here!').waitFor();
   }
@@ -132,6 +132,10 @@ export class JmhApp {
    */
   async toggleScale(): Promise<void> {
     await this.page.getByRole('heading').locator('[data-tooltip^="Switch scale"]').click();
+  }
+
+  async toggleBrandMenu(): Promise<void> {
+    await this.page.getByRole('link', { name: 'JMH Visualizer' }).click();
   }
 
   /**
