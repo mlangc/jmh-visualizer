@@ -17,22 +17,22 @@ export const GISTS = {
     filenameInGist: 'test-fixture-cost-of-alloc-rate-norm-benchmark.json',
     fixture: 'cost-of-alloc-rate-norm-benchmark.json',
     rawUrl:
-      'https://gist.githubusercontent.com/mlangc/b75a453e93ab8cb1c0c7983d3a9fc778/raw/1d97ce84dba6192879197948eb2deb8cb61c6c83/test-fixture-cost-of-alloc-rate-norm-benchmark.json',
+      'https://gist.githubusercontent.com/mlangc/b75a453e93ab8cb1c0c7983d3a9fc778/raw/1d97ce84dba6192879197948eb2deb8cb61c6c83/test-fixture-cost-of-alloc-rate-norm-benchmark.json'
   },
   linkedHash: {
     id: '583ba9b1b1c9b239d7688480a936dd30',
     filenameInGist: 'test-fixture-linked-hash-first-vs-iter-next-benchmark.json',
     fixture: 'linked-hash-first-vs-iter-next-benchmark.json',
     rawUrl:
-      'https://gist.githubusercontent.com/mlangc/583ba9b1b1c9b239d7688480a936dd30/raw/aa18756580a7d0cf899021dcae5022ba9620ec0e/test-fixture-linked-hash-first-vs-iter-next-benchmark.json',
+      'https://gist.githubusercontent.com/mlangc/583ba9b1b1c9b239d7688480a936dd30/raw/aa18756580a7d0cf899021dcae5022ba9620ec0e/test-fixture-linked-hash-first-vs-iter-next-benchmark.json'
   },
   linkedHashOnBattery: {
     id: '5d7a72f3cffcaddfa79373067a107037',
     filenameInGist: 'test-fixture-linked-hash-first-vs-iter-next-on-battery-benchmark.json',
     fixture: 'linked-hash-first-vs-iter-next-on-battery-benchmark.json',
     rawUrl:
-      'https://gist.githubusercontent.com/mlangc/5d7a72f3cffcaddfa79373067a107037/raw/71f618f549c42026c18cf07f971b17cf98e16528/test-fixture-linked-hash-first-vs-iter-next-on-battery-benchmark.json',
-  },
+      'https://gist.githubusercontent.com/mlangc/5d7a72f3cffcaddfa79373067a107037/raw/71f618f549c42026c18cf07f971b17cf98e16528/test-fixture-linked-hash-first-vs-iter-next-on-battery-benchmark.json'
+  }
 } as const;
 
 export type GistKey = keyof typeof GISTS;

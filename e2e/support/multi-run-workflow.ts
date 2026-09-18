@@ -1,15 +1,15 @@
-import { expect, Page } from '@playwright/test';
-import { JmhApp } from './jmh-app';
+import { expect, type Page } from '@playwright/test';
+import type { JmhApp } from './jmh-app';
+import type { PageWatchers } from './page-watchers';
+import { escapeRegExp } from './regex-util';
 import { expectCostOfAllocRateNormReport } from './report-assertions';
 import { expectStartScreen } from './start-screen-assertions';
-import { escapeRegExp } from './regex-util';
-import { PageWatchers } from './page-watchers';
 import {
   expectDeclinedBenchmarks,
   expectUnchangedBenchmarks,
   LINKED_HASH_PAIR_ROWS,
   LINKED_HASH_PAIR_ROWS_MINUS_SURVIVOR,
-  LINKED_HASH_PAIR_SURVIVING_ROW,
+  LINKED_HASH_PAIR_SURVIVING_ROW
 } from './summary-comparison-assertions';
 
 /**
@@ -29,7 +29,7 @@ export async function expectMultiRunWorkflow(
   page: Page,
   app: JmhApp,
   runNames: { costOfAllocRateNorm: string; linkedHash: string; linkedHashOnBattery: string },
-  watched: PageWatchers,
+  watched: PageWatchers
 ): Promise<void> {
   const { dialogs, pageErrors } = watched;
   // 1. slider present, "Declined Benchmarks (4)" at the default 5% threshold
@@ -67,7 +67,9 @@ export async function expectMultiRunWorkflow(
   await expect(page.locator('.recharts-wrapper').getByText('firstEntry')).toBeVisible();
 
   await app.selectRun(runNames.linkedHashOnBattery);
-  await expect(page.getByText(new RegExp(`for single run '${escapeRegExp(runNames.linkedHashOnBattery)}'`))).toBeVisible();
+  await expect(
+    page.getByText(new RegExp(`for single run '${escapeRegExp(runNames.linkedHashOnBattery)}'`))
+  ).toBeVisible();
   await expect(page.getByRole('heading', { name: /LinkedHashFirstVsIterNextBenchmark/ })).toBeVisible();
 
   expect(dialogs).toEqual([]);

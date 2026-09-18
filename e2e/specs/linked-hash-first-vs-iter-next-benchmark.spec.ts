@@ -7,7 +7,9 @@ import { watchDialogsAndErrors } from '../support/page-watchers';
 // effects. Uses this fixture (not cost-of-alloc-rate-norm-benchmark.json)
 // because it has populated secondaryMetrics (gc.* profiling data) to exercise
 // the Details screen with.
-test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and details/back navigation', async ({ page }) => {
+test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and details/back navigation', async ({
+  page
+}) => {
   // assert none fired after each interaction below
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
@@ -19,7 +21,9 @@ test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and de
   const header = page.getByRole('heading', { name: /LinkedHashFirstVsIterNextBenchmark/ });
 
   // initial render: benchmark class, mode badge, both methods
-  await expect(page.locator('ul.nav ul.nav').getByText('LinkedHashFirstVsIterNextBenchmark', { exact: true })).toBeVisible();
+  await expect(
+    page.locator('ul.nav ul.nav').getByText('LinkedHashFirstVsIterNextBenchmark', { exact: true })
+  ).toBeVisible();
   await expect(header).toBeVisible();
   await expect(header.getByText('Average Time')).toBeVisible();
   await expect(chart.getByText('entryIteratorNext')).toBeVisible();
@@ -56,7 +60,9 @@ test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and de
   // Back: confirm we're back on the original report screen
   await app.goBack();
   await expect(page.getByText('Back..')).toHaveCount(0);
-  await expect(page.locator('ul.nav ul.nav').getByText('LinkedHashFirstVsIterNextBenchmark', { exact: true })).toBeVisible();
+  await expect(
+    page.locator('ul.nav ul.nav').getByText('LinkedHashFirstVsIterNextBenchmark', { exact: true })
+  ).toBeVisible();
   await expect(page.getByRole('heading').locator('[data-tooltip^="Show details"]')).toBeVisible();
 
   expect(dialogs).toEqual([]);

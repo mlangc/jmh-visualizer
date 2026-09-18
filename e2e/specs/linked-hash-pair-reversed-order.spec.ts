@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { GISTS, gistRunName } from '../support/gist-fixtures';
 import { JmhApp } from '../support/jmh-app';
 import { blockOffOrigin, mockGistApi, mockRawUrls } from '../support/mock-remote-fixtures';
-import { GISTS, gistRunName } from '../support/gist-fixtures';
-import { expectImprovedBenchmarks, LINKED_HASH_PAIR_ROWS } from '../support/summary-comparison-assertions';
 import { watchDialogsAndErrors } from '../support/page-watchers';
+import { expectImprovedBenchmarks, LINKED_HASH_PAIR_ROWS } from '../support/summary-comparison-assertions';
 
 // URL/Gist-only companion to linked-hash-pair-via-file-url-gist.spec.ts: the
 // same 2 fixtures, loaded on-battery-first instead -- an ordering file upload
@@ -32,7 +32,10 @@ test('loading the linked-hash pair via URL, on-battery first, improves every met
   await app.loadFromUrls([GISTS.linkedHashOnBattery.rawUrl, GISTS.linkedHash.rawUrl]);
   await expectImprovedBenchmarks(page, LINKED_HASH_PAIR_ROWS);
 
-  for (const runName of ['test-fixture-linked-hash-first-vs-iter-next-on-battery', 'test-fixture-linked-hash-first-vs-iter-next']) {
+  for (const runName of [
+    'test-fixture-linked-hash-first-vs-iter-next-on-battery',
+    'test-fixture-linked-hash-first-vs-iter-next'
+  ]) {
     await expect(page.getByRole('button', { name: runName, exact: true })).toBeVisible();
   }
 
@@ -40,7 +43,9 @@ test('loading the linked-hash pair via URL, on-battery first, improves every met
   expect(pageErrors).toEqual([]);
 });
 
-test('loading the linked-hash pair via Gist, on-battery first, improves every metric even at the deviation slider max', async ({ page }) => {
+test('loading the linked-hash pair via Gist, on-battery first, improves every metric even at the deviation slider max', async ({
+  page
+}) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   await mockGistApi(page, 'linkedHashOnBattery', 'linkedHash');

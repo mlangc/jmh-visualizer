@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { escapeRegExp } from './regex-util';
 
 /**
@@ -19,7 +19,7 @@ import { escapeRegExp } from './regex-util';
  */
 export async function expectCostOfAllocRateNormReport(
   page: Page,
-  opts: { timeout?: number; runName?: string } = {},
+  opts: { timeout?: number; runName?: string } = {}
 ): Promise<void> {
   const { runName = 'cost-of-alloc-rate-norm-benchmark', ...waitOpts } = opts;
   const chart = page.locator('.recharts-wrapper');
@@ -38,17 +38,17 @@ export async function expectCostOfAllocRateNormReport(
   // 3. run-summary line
   await expect(
     page.getByText(
-      new RegExp(`different benchmark classes for single run '${escapeRegExp(runName)}' and metric 'Score' detected`),
-    ),
+      new RegExp(`different benchmark classes for single run '${escapeRegExp(runName)}' and metric 'Score' detected`)
+    )
   ).toBeVisible(waitOpts);
 
   // 4. "Benchmarks" TOC category
   await expect(page.getByText('Benchmarks', { exact: true })).toBeVisible(waitOpts);
 
   // 5. class listed in sidebar
-  await expect(
-    page.locator('ul.nav ul.nav').getByText('CostOfAllocRateNormBenchmark', { exact: true }),
-  ).toBeVisible(waitOpts);
+  await expect(page.locator('ul.nav ul.nav').getByText('CostOfAllocRateNormBenchmark', { exact: true })).toBeVisible(
+    waitOpts
+  );
 
   // 6. metric picker + lone "Score" option
   const metricPicker = page.locator('select');

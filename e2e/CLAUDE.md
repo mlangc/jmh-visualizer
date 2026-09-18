@@ -137,6 +137,8 @@ npm ci && npx playwright install chromium   # one-time
 npm test                                    # headless run
 npm run test:headed                         # headed, for debugging
 npm run report                              # open the HTML report
+npm run lint                                # biome check (formatting + lint), no writes
+npm run format                              # biome check --write, applies safe fixes
 ```
 
 Needs a built app to serve. From the repo root:
@@ -156,6 +158,27 @@ git worktree add <path> <branch>
 APP_BUILD_DIR=<path>/build npm test
 ```
 
+## Formatting & linting
+
+[Biome](https://biomejs.dev) (`biome.json`), scoped to this directory only —
+`src/` isn't covered yet. Bundles formatting, linting (`recommended` preset),
+and import sorting into one `check` command (`npm run lint`/`npm run
+format`). `fixtures/*.json` are excluded: those are vendored, unmodified JMH
+tool output (note the `"key" : value` space-before-colon — that's JMH's own
+JSON writer, not a style choice), and reformatting them would trade that
+authenticity for a purely cosmetic diff.
+
+Formatter settings (2-space indent, single quotes, semicolons, no trailing
+commas, 120-col width) were picked to match `src/`'s own dominant
+conventions where one exists, so extending Biome to `src/` later stays a
+small diff — indent width is the one exception (`src/` splits ~58/68 files
+at 4-space with no discernible pattern; 2-space was a deliberate call to
+match Biome/Prettier's own default instead). The lint preset is
+`recommended` as-is; nothing's been relaxed yet since it hasn't produced any
+noise here (all violations to date: one rule, `useImportType`, always
+safe-fixable). Expect some of `recommended` to need relaxing once Biome
+extends to `src/`'s older patterns.
+
 ## Constraints
 
 - **No app-source changes** — the suite must run unmodified against a vanilla
@@ -165,6 +188,7 @@ APP_BUILD_DIR=<path>/build npm test
   hashed class names.
 - **Exact-pinned deps, no retries** — a characterization suite is for signal;
   a silent dependency bump or a retry-hidden flake both defeat the purpose.
+  `@biomejs/biome` is pinned the same way.
 - Every spec must pass unmodified on both `master` and
   `add-filters-for-large-result-files` — it characterizes *shared* behaviour,
   not branch-only UI.

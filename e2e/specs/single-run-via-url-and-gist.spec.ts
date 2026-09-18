@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { JmhApp } from '../support/jmh-app';
-import { expectCostOfAllocRateNormReport } from '../support/report-assertions';
-import { blockOffOrigin, mockGistApi, mockRawUrls } from '../support/mock-remote-fixtures';
 import { GISTS, gistRunName, urlRunName } from '../support/gist-fixtures';
+import { JmhApp } from '../support/jmh-app';
+import { blockOffOrigin, mockGistApi, mockRawUrls } from '../support/mock-remote-fixtures';
 import { watchDialogsAndErrors } from '../support/page-watchers';
+import { expectCostOfAllocRateNormReport } from '../support/report-assertions';
 
 // Companion to smoke-cost-of-alloc-rate-norm-benchmark.spec.ts's file-upload
 // case: same fixture, same report, loaded via the other two mechanisms. Both
@@ -14,7 +14,9 @@ test.beforeEach(async ({ page }) => {
   await blockOffOrigin(page);
 });
 
-test('loading the cost-of-alloc-rate-norm-benchmark fixture via a single URL renders the same report as the file upload', async ({ page }) => {
+test('loading the cost-of-alloc-rate-norm-benchmark fixture via a single URL renders the same report as the file upload', async ({
+  page
+}) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   await mockRawUrls(page, 'costOfAllocRateNorm');
@@ -30,7 +32,9 @@ test('loading the cost-of-alloc-rate-norm-benchmark fixture via a single URL ren
   expect(pageErrors).toEqual([]);
 });
 
-test('loading the cost-of-alloc-rate-norm-benchmark fixture via a single Gist renders the same report as the file upload', async ({ page }) => {
+test('loading the cost-of-alloc-rate-norm-benchmark fixture via a single Gist renders the same report as the file upload', async ({
+  page
+}) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   await mockGistApi(page, 'costOfAllocRateNorm');

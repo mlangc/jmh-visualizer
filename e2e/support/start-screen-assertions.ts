@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 /**
  * The presence checks that characterize the empty upload/start screen --
@@ -8,10 +8,7 @@ import { expect, Page } from '@playwright/test';
  * are driven by genuinely different code that only coincidentally produces
  * the same screen today.
  */
-export async function expectStartScreen(
-  page: Page,
-  opts: { timeout?: number } = {},
-): Promise<void> {
+export async function expectStartScreen(page: Page, opts: { timeout?: number } = {}): Promise<void> {
   await expect(page.getByText('JMH Visualizer').first()).toBeVisible(opts);
   await expect(page.getByRole('heading', { name: 'Dropzone' })).toBeVisible(opts);
   await expect(page.getByText('Drop your JMH JSON report file(s) here!')).toBeVisible(opts);
@@ -22,7 +19,7 @@ export async function expectStartScreen(
     'Load Two Runs Example',
     'Load Multi Run Example',
     'Load from URL(s)',
-    'Load from Gist(s)',
+    'Load from Gist(s)'
   ]) {
     await expect(page.getByText(label, { exact: true })).toBeVisible(opts);
   }

@@ -6,7 +6,7 @@ import { watchDialogsAndErrors } from '../support/page-watchers';
 const FIXTURES = [
   'cost-of-alloc-rate-norm-benchmark.json',
   'linked-hash-first-vs-iter-next-benchmark.json',
-  'linked-hash-first-vs-iter-next-on-battery-benchmark.json',
+  'linked-hash-first-vs-iter-next-on-battery-benchmark.json'
 ];
 
 // The on-battery fixture is a deliberate companion to
@@ -17,7 +17,9 @@ const FIXTURES = [
 // has no entry in either compared run and is dropped from the comparison
 // entirely. See support/multi-run-workflow.ts for the shared assertions.
 
-test('uploading 3 reports supports Summary/Compare switching, single-run drill-down, sidebar scrolling, and reset', async ({ page }) => {
+test('uploading 3 reports supports Summary/Compare switching, single-run drill-down, sidebar scrolling, and reset', async ({
+  page
+}) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);
@@ -30,8 +32,8 @@ test('uploading 3 reports supports Summary/Compare switching, single-run drill-d
     {
       costOfAllocRateNorm: 'cost-of-alloc-rate-norm-benchmark',
       linkedHash: 'linked-hash-first-vs-iter-next-benchmark',
-      linkedHashOnBattery: 'linked-hash-first-vs-iter-next-on-battery-benchmark',
+      linkedHashOnBattery: 'linked-hash-first-vs-iter-next-on-battery-benchmark'
     },
-    { dialogs, pageErrors },
+    { dialogs, pageErrors }
   );
 });

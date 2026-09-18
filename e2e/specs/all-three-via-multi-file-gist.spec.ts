@@ -1,8 +1,8 @@
 import { test } from '@playwright/test';
-import { JmhApp } from '../support/jmh-app';
-import { expectMultiRunWorkflow } from '../support/multi-run-workflow';
-import { blockOffOrigin, mockMultiFileGistApi } from '../support/mock-remote-fixtures';
 import { ALL_THREE_GIST_ID, allThreeGistRunName } from '../support/gist-fixtures';
+import { JmhApp } from '../support/jmh-app';
+import { blockOffOrigin, mockMultiFileGistApi } from '../support/mock-remote-fixtures';
+import { expectMultiRunWorkflow } from '../support/multi-run-workflow';
 import { watchDialogsAndErrors } from '../support/page-watchers';
 
 // Companion to multi-run-summary-and-compare.spec.ts's file-upload case: same
@@ -22,7 +22,9 @@ test.beforeEach(async ({ page }) => {
   await blockOffOrigin(page);
 });
 
-test('loading all 3 fixtures from one multi-file gist supports the same Summary/Compare workflow as the file upload', async ({ page }) => {
+test('loading all 3 fixtures from one multi-file gist supports the same Summary/Compare workflow as the file upload', async ({
+  page
+}) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   await mockMultiFileGistApi(page, 'costOfAllocRateNorm', 'linkedHash', 'linkedHashOnBattery');
@@ -38,8 +40,8 @@ test('loading all 3 fixtures from one multi-file gist supports the same Summary/
     {
       costOfAllocRateNorm: allThreeGistRunName('costOfAllocRateNorm'),
       linkedHash: allThreeGistRunName('linkedHash'),
-      linkedHashOnBattery: allThreeGistRunName('linkedHashOnBattery'),
+      linkedHashOnBattery: allThreeGistRunName('linkedHashOnBattery')
     },
-    { dialogs, pageErrors },
+    { dialogs, pageErrors }
   );
 });

@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { GISTS, gistRunName } from '../support/gist-fixtures';
 import { JmhApp } from '../support/jmh-app';
 import { blockOffOrigin, mockGistApi, mockRawUrls } from '../support/mock-remote-fixtures';
-import { GISTS, gistRunName } from '../support/gist-fixtures';
-import { expectDeclinedBenchmarks, LINKED_HASH_PAIR_ROWS } from '../support/summary-comparison-assertions';
 import { watchDialogsAndErrors } from '../support/page-watchers';
+import { expectDeclinedBenchmarks, LINKED_HASH_PAIR_ROWS } from '../support/summary-comparison-assertions';
 
 // Unlike multi-run-summary-and-compare.spec.ts (all 3 fixtures), this loads
 // just the linked-hash pair on its own -- a subset the existing suite never
@@ -25,10 +25,13 @@ test('uploading just the linked-hash pair via file selects them and declines eve
   await page.goto('/');
   await app.uploadReports([
     'linked-hash-first-vs-iter-next-benchmark.json',
-    'linked-hash-first-vs-iter-next-on-battery-benchmark.json',
+    'linked-hash-first-vs-iter-next-on-battery-benchmark.json'
   ]);
   await expectDeclinedBenchmarks(page, LINKED_HASH_PAIR_ROWS);
-  for (const runName of ['linked-hash-first-vs-iter-next-benchmark', 'linked-hash-first-vs-iter-next-on-battery-benchmark']) {
+  for (const runName of [
+    'linked-hash-first-vs-iter-next-benchmark',
+    'linked-hash-first-vs-iter-next-on-battery-benchmark'
+  ]) {
     await expect(page.getByRole('button', { name: runName, exact: true })).toBeVisible();
   }
 
@@ -46,7 +49,10 @@ test('loading just the linked-hash pair via URL (regular, then on-battery) decli
   await expectDeclinedBenchmarks(page, LINKED_HASH_PAIR_ROWS);
 
   // getUniqueNames strips the shared "-benchmark.json" suffix off both URLs.
-  for (const runName of ['test-fixture-linked-hash-first-vs-iter-next', 'test-fixture-linked-hash-first-vs-iter-next-on-battery']) {
+  for (const runName of [
+    'test-fixture-linked-hash-first-vs-iter-next',
+    'test-fixture-linked-hash-first-vs-iter-next-on-battery'
+  ]) {
     await expect(page.getByRole('button', { name: runName, exact: true })).toBeVisible();
   }
 
@@ -54,7 +60,9 @@ test('loading just the linked-hash pair via URL (regular, then on-battery) decli
   expect(pageErrors).toEqual([]);
 });
 
-test('loading just the linked-hash pair via Gist (regular, then on-battery) declines every metric', async ({ page }) => {
+test('loading just the linked-hash pair via Gist (regular, then on-battery) declines every metric', async ({
+  page
+}) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   await mockGistApi(page, 'linkedHash', 'linkedHashOnBattery');

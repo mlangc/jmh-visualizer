@@ -1,14 +1,19 @@
 {
   "name": "jmh-visualizer-e2e",
   "private": true,
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "report": "playwright show-report",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "lint": "biome check .",
+    "format": "biome check --write ."
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.14",
     "@playwright/test": "1.63.0",
     "@types/node": "26.5.1",
     "http-server": "14.1.1",

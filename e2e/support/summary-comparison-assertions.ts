@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { escapeRegExp } from './regex-util';
 
 /**
@@ -17,7 +17,7 @@ async function expectComparisonRows(
   page: Page,
   tableHeading: string,
   rows: { method: string; params: string }[],
-  opts: { timeout?: number } = {},
+  opts: { timeout?: number } = {}
 ): Promise<void> {
   const heading = page.getByRole('heading', { name: `${tableHeading} (${rows.length})`, exact: true });
   await expect(heading).toBeVisible(opts);
@@ -34,7 +34,7 @@ async function expectComparisonRows(
     // not a plain substring -- "size=100".includes("size=10") is true, which
     // would double-count the size=100 row under size=10 too.
     await expect(
-      tableRows.filter({ hasText: method }).filter({ hasText: new RegExp(`${escapeRegExp(params)}(?!\\d)`) }),
+      tableRows.filter({ hasText: method }).filter({ hasText: new RegExp(`${escapeRegExp(params)}(?!\\d)`) })
     ).toHaveCount(1, opts);
   }
 }
@@ -43,7 +43,7 @@ async function expectComparisonRows(
 export async function expectDeclinedBenchmarks(
   page: Page,
   rows: { method: string; params: string }[],
-  opts: { timeout?: number } = {},
+  opts: { timeout?: number } = {}
 ): Promise<void> {
   await expectComparisonRows(page, 'Declined Benchmarks', rows, opts);
 }
@@ -52,7 +52,7 @@ export async function expectDeclinedBenchmarks(
 export async function expectImprovedBenchmarks(
   page: Page,
   rows: { method: string; params: string }[],
-  opts: { timeout?: number } = {},
+  opts: { timeout?: number } = {}
 ): Promise<void> {
   await expectComparisonRows(page, 'Improved Benchmarks', rows, opts);
 }
@@ -61,7 +61,7 @@ export async function expectImprovedBenchmarks(
 export async function expectUnchangedBenchmarks(
   page: Page,
   rows: { method: string; params: string }[],
-  opts: { timeout?: number } = {},
+  opts: { timeout?: number } = {}
 ): Promise<void> {
   await expectComparisonRows(page, 'Unchanged Benchmarks', rows, opts);
 }
@@ -81,7 +81,7 @@ export const LINKED_HASH_PAIR_ROWS = [
   { method: 'entryIteratorNext', params: 'size=10' },
   { method: 'entryIteratorNext', params: 'size=100' },
   { method: 'firstEntry', params: 'size=10' },
-  { method: 'firstEntry', params: 'size=100' },
+  { method: 'firstEntry', params: 'size=100' }
 ];
 
 /**

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { Page } from '@playwright/test';
-import { GISTS, GistKey, ALL_THREE_GIST_ID } from './gist-fixtures';
+import type { Page } from '@playwright/test';
+import { ALL_THREE_GIST_ID, GISTS, type GistKey } from './gist-fixtures';
 
 const FIXTURES = path.join(__dirname, '..', 'fixtures');
 
@@ -43,9 +43,9 @@ export async function mockGistApi(page: Page, ...keys: GistKey[]): Promise<void>
         contentType: 'application/json',
         body: JSON.stringify({
           id: gist.id,
-          files: { [gist.filenameInGist]: { content } },
-        }),
-      }),
+          files: { [gist.filenameInGist]: { content } }
+        })
+      })
     );
   }
 }
@@ -74,8 +74,8 @@ export async function mockMultiFileGistApi(page: Page, ...keys: GistKey[]): Prom
     route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ id: ALL_THREE_GIST_ID, files }),
-    }),
+      body: JSON.stringify({ id: ALL_THREE_GIST_ID, files })
+    })
   );
 }
 
@@ -95,8 +95,8 @@ export async function mockRawUrls(page: Page, ...keys: GistKey[]): Promise<void>
       route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: content,
-      }),
+        body: content
+      })
     );
   }
 }

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { escapeRegExp } from './regex-util';
 
 const FIXTURES = path.join(__dirname, '..', 'fixtures');
@@ -19,9 +19,7 @@ export class JmhApp {
    * to the test timeout instead of settling.
    */
   async uploadReport(fixtureName: string): Promise<void> {
-    const fileInput = this.page
-      .locator('div.btn', { hasText: 'Open File Dialog' })
-      .locator('input[type="file"]');
+    const fileInput = this.page.locator('div.btn', { hasText: 'Open File Dialog' }).locator('input[type="file"]');
     await fileInput.setInputFiles(path.join(FIXTURES, fixtureName));
     await this.page.getByText(/different benchmark classes for single run/).waitFor();
   }
@@ -34,9 +32,7 @@ export class JmhApp {
    * settle text, which never fires for a multi-run upload.
    */
   async uploadReports(fixtureNames: string[]): Promise<void> {
-    const fileInput = this.page
-      .locator('div.btn', { hasText: 'Open File Dialog' })
-      .locator('input[type="file"]');
+    const fileInput = this.page.locator('div.btn', { hasText: 'Open File Dialog' }).locator('input[type="file"]');
     await fileInput.setInputFiles(fixtureNames.map((name) => path.join(FIXTURES, name)));
     await this.page.getByText(/Ignoring deviations below/).waitFor();
   }
@@ -115,7 +111,9 @@ export class JmhApp {
    * `ListCreationBenchmark`-family report of the requested shape.
    */
   async loadBundledExample(kind: 'single' | 'two' | 'multi'): Promise<void> {
-    const label = { single: 'Load Single Run Example', two: 'Load Two Runs Example', multi: 'Load Multi Run Example' }[kind];
+    const label = { single: 'Load Single Run Example', two: 'Load Two Runs Example', multi: 'Load Multi Run Example' }[
+      kind
+    ];
     await this.page.getByText(label).click();
     // Unlike uploadReport, the settled state isn't a single shared text across
     // all three shapes (single/two/multi runs each render a differently

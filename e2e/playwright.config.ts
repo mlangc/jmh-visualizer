@@ -19,13 +19,13 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,
-    trace: 'retain-on-failure',   // retries:0 -> 'on-first-retry' never fires
+    trace: 'retain-on-failure' // retries:0 -> 'on-first-retry' never fires
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: `npx http-server "${BUILD_DIR}" -a 127.0.0.1 -p ${PORT} -s -c-1`,
     url: `http://127.0.0.1:${PORT}`,
     reuseExistingServer: false,
-    timeout: 30_000,
-  },
+    timeout: 30_000
+  }
 });

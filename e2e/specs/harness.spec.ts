@@ -1,16 +1,16 @@
-import { expect, Page, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
+import { expectBrandMenu } from '../support/brand-menu-assertions';
 import { JmhApp } from '../support/jmh-app';
 import { expectCostOfAllocRateNormReport } from '../support/report-assertions';
+import { expectStartScreen } from '../support/start-screen-assertions';
 import {
   expectDeclinedBenchmarks,
   expectImprovedBenchmarks,
   expectUnchangedBenchmarks,
   LINKED_HASH_PAIR_ROWS,
   LINKED_HASH_PAIR_ROWS_MINUS_SURVIVOR,
-  LINKED_HASH_PAIR_SURVIVING_ROW,
+  LINKED_HASH_PAIR_SURVIVING_ROW
 } from '../support/summary-comparison-assertions';
-import {expectStartScreen} from "../support/start-screen-assertions";
-import {expectBrandMenu} from "../support/brand-menu-assertions";
 
 // This timeout is used for negative assertions, where failure means success.
 // Using the default value makes these tests slow. Using a value that is too low
@@ -32,7 +32,7 @@ test.describe('expectCostOfAllocRateNormReport falsification checks', () => {
     test(`rejects on the bundled ${kind}-run example`, async ({ page }) => {
       await page.goto('/');
       await new JmhApp(page).loadBundledExample(kind);
-      await expect(page.locator('.recharts-wrapper').first()).toBeVisible();   // a chart *did* render
+      await expect(page.locator('.recharts-wrapper').first()).toBeVisible(); // a chart *did* render
       await expect(expectCostOfAllocRateNormReport(page, NEG_TIMEOUT)).rejects.toThrow();
     });
   }
@@ -62,7 +62,9 @@ test.describe('expectComparisonRows falsification checks', () => {
     await expect(expectImprovedBenchmarks(page, LINKED_HASH_PAIR_ROWS, NEG_TIMEOUT)).rejects.toThrow();
   });
 
-  test('rejects when a row belongs to a different table on the same page, despite a matching row count', async ({ page }) => {
+  test('rejects when a row belongs to a different table on the same page, despite a matching row count', async ({
+    page
+  }) => {
     const app = await loadLinkedHashMapBenchmarks(page);
 
     // At the slider's 50% max, both a real Declined and a real Unchanged
@@ -90,52 +92,48 @@ test.describe('expectComparisonRows falsification checks', () => {
     // Same method/row count as the real Declined table (so the heading match
     // alone can't reject this), but the last entry's params don't exist --
     // proving the per-row loop, not just the heading's row count, is checked.
-    const rowsWithOneWrongParams = [
-      ...LINKED_HASH_PAIR_ROWS.slice(0, 3),
-      { method: 'firstEntry', params: 'size=999' },
-    ];
+    const rowsWithOneWrongParams = [...LINKED_HASH_PAIR_ROWS.slice(0, 3), { method: 'firstEntry', params: 'size=999' }];
     await expect(expectDeclinedBenchmarks(page, rowsWithOneWrongParams, NEG_TIMEOUT)).rejects.toThrow();
   });
 });
 
 test.describe('start screen falsification checks', () => {
-  test('rejects on a blank page', async ({page}) => {
+  test('rejects on a blank page', async ({ page }) => {
     await page.goto('about:blank');
     await expect(expectStartScreen(page, NEG_TIMEOUT)).rejects.toThrow();
-  })
+  });
 
-    test('rejects if benchmarks are already loaded', async ({page}) => {
-        await loadLinkedHashMapBenchmarks(page)
-        await expect(expectStartScreen(page, NEG_TIMEOUT)).rejects.toThrow();
-    })
+  test('rejects if benchmarks are already loaded', async ({ page }) => {
+    await loadLinkedHashMapBenchmarks(page);
+    await expect(expectStartScreen(page, NEG_TIMEOUT)).rejects.toThrow();
+  });
 });
 
 test.describe('brand menu falsification checks', () => {
-    test('rejects on a blank page', async ({page}) => {
-        await page.goto('about:blank');
-        await expect(expectBrandMenu(page, {...NEG_TIMEOUT, visible: true})).rejects.toThrow();
-    })
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectBrandMenu(page, { ...NEG_TIMEOUT, visible: true })).rejects.toThrow();
+  });
 
-    test('rejects if the menu is hidden, but expected to be visible', async ({page}) => {
-        await page.goto('/');
-        await expect(expectBrandMenu(page, {...NEG_TIMEOUT, visible: true})).rejects.toThrow();
-    })
+  test('rejects if the menu is hidden, but expected to be visible', async ({ page }) => {
+    await page.goto('/');
+    await expect(expectBrandMenu(page, { ...NEG_TIMEOUT, visible: true })).rejects.toThrow();
+  });
 
-    test('rejects if the menu is visible, but expected to be hidden', async ({page}) => {
-        const app = new JmhApp(page);
-        await page.goto('/')
-        await app.toggleBrandMenu();
-        await expect(expectBrandMenu(page, {...NEG_TIMEOUT, visible: false})).rejects.toThrow();
-    })
-})
-
-async function loadLinkedHashMapBenchmarks(page: Page): Promise<JmhApp> {
+  test('rejects if the menu is visible, but expected to be hidden', async ({ page }) => {
     const app = new JmhApp(page);
     await page.goto('/');
-    await app.uploadReports([
-        'linked-hash-first-vs-iter-next-benchmark.json',
-        'linked-hash-first-vs-iter-next-on-battery-benchmark.json',
-    ]);
-    return app;
-}
+    await app.toggleBrandMenu();
+    await expect(expectBrandMenu(page, { ...NEG_TIMEOUT, visible: false })).rejects.toThrow();
+  });
+});
 
+async function loadLinkedHashMapBenchmarks(page: Page): Promise<JmhApp> {
+  const app = new JmhApp(page);
+  await page.goto('/');
+  await app.uploadReports([
+    'linked-hash-first-vs-iter-next-benchmark.json',
+    'linked-hash-first-vs-iter-next-on-battery-benchmark.json'
+  ]);
+  return app;
+}
