@@ -245,7 +245,13 @@ export class JmhApp {
     await this.waitForRunsSettled(urls.length);
   }
 
-  /** Same as `gotoWithSources`, for `?gists=id1,id2,...`. */
+  /**
+   * Same as `gotoWithSources`, for `?gists=id1,id2,...`.
+   *
+   * Unlike `loadFromGists`, this has no `expectedRunCount` override -- no
+   * caller has needed a multi-file gist via `?gists=` yet. Add the same
+   * parameter here if one does.
+   */
   async gotoWithGists(gistIds: string[]): Promise<void> {
     await this.page.goto(`/?gists=${gistIds.join(',')}`);
     await this.waitForRunsSettled(gistIds.length);
@@ -257,9 +263,7 @@ export class JmhApp {
    * every gist holds exactly 1 file (`fetchFromUrls` is always 1 URL : 1
    * run), but `fetchFromGists` (processParameters.js) turns one gist ID into
    * one run *per file in that gist*. `loadFromGists` above takes an explicit
-   * `expectedRunCount` for this reason; `gotoWithGists` doesn't yet, since no
-   * caller has needed a multi-file gist via `?gists=` -- add the same
-   * parameter there if one does.
+   * `expectedRunCount` for this reason.
    */
   private async waitForRunsSettled(runCount: number): Promise<void> {
     if (runCount === 1) {
