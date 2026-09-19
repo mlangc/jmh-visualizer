@@ -18,8 +18,19 @@ function parseFlag(name: string): boolean {
 }
 
 const INCLUDE_FILTERS = parseFlag('INCLUDE_FILTERS');
+// Opts *out* of tests that need an app fix this suite ships alongside -- set it when
+// pointing APP_BUILD_DIR at a build that predates the fix. The two tag axes are
+// independent: @filters/@no-filters says which branch's UI is under test, @needs-fix
+// says which app fixes the build has. /@needs-fix/ has no trailing \b on purpose, so a
+// per-fix tag (@needs-fix-summary-run-names) is covered by the same switch.
+const SKIP_NEEDS_FIX = parseFlag('SKIP_NEEDS_FIX');
 const BUILD_DIR = process.env.APP_BUILD_DIR ?? '../build';
 const PORT = 4173;
+
+const grepInvert = [INCLUDE_FILTERS ? /@no-filters\b/ : /@filters\b/];
+if (SKIP_NEEDS_FIX) {
+  grepInvert.push(/@needs-fix/);
+}
 
 export default defineConfig({
   testDir: './specs',
@@ -37,6 +48,11 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,
+    // Bar labels go through Number.toLocaleString(), so the browser locale decides
+    // whether a score reads '60,050' or '60.050' (report-assertions.ts pins the
+    // former). Chromium defaults to en-US here, but pin it: the suite's determinism
+    // shouldn't rest on a default.
+    locale: 'en-US',
     trace: 'retain-on-failure' // retries:0 -> 'on-first-retry' never fires
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
@@ -46,5 +62,5 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 30_000
   },
-  grepInvert: INCLUDE_FILTERS ? /@no-filters\b/ : /@filters\b/
+  grepInvert
 });

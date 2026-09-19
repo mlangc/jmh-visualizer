@@ -41,6 +41,18 @@ test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and de
   // each of the 2 methods renders as 2 bars — one label per bar
   await expect(chart.getByText(/s\/op/)).toHaveCount(4);
 
+  // ...and by value. These scores are all < 1, so util.js's round/formatNumber leave
+  // them unrounded and they render in full precision — the opposite branch from
+  // cost-of-alloc-rate-norm's locale-formatted '60,050 ops/s' (report-assertions.ts).
+  for (const label of [
+    '7.949607915875453e-10 s/op',
+    '1.6888394101249562e-9 s/op',
+    '8.664407435614395e-10 s/op',
+    '1.816618712295571e-9 s/op'
+  ]) {
+    await expect(chart.getByText(label, { exact: true })).toBeVisible();
+  }
+
   // Switch scale (log/linear): assert the chart actually changes and nothing errors
   const beforeScale = await chart.textContent();
   await app.toggleScale();

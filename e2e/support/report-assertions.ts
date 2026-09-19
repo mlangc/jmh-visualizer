@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 import { escapeRegExp } from './regex-util';
 
 /**
- * The 13 presence checks that characterize a complete single-run report for
+ * The 14 checks that characterize a complete single-run report for
  * the `cost-of-alloc-rate-norm-benchmark.json` fixture. Each row is an auto-retrying
  * `toBeVisible()` — never `count()` or `await`-then-`expect` — because
  * recharts animates the bar labels in over ~540ms, so rows 10-12 aren't in
@@ -73,10 +73,22 @@ export async function expectCostOfAllocRateNormReport(
   // 11. param-value bar group "10000"
   await expect(chart.getByText('10000', { exact: true })).toBeVisible(waitOpts);
 
-  // 12. a score label carries the unit (unit only, never the number) — both
-  // bars get one, so assert the count rather than just .first() being visible
+  // 12. both score labels, by value: rounded and locale-formatted by util.js's
+  // shouldRound/round/formatNumber (these scores are > 5, so they round), with the
+  // unit appended. Pinning the text, not just /ops\/s/, is what makes a migration
+  // that changes number formatting or bar scaling fail here instead of passing.
+  await expect(chart.getByText('60,050 ops/s', { exact: true })).toBeVisible(waitOpts);
+  await expect(chart.getByText('59,689 ops/s', { exact: true })).toBeVisible(waitOpts);
   await expect(chart.getByText(/ops\/s/)).toHaveCount(2, waitOpts);
 
-  // 13. "Parameter Names: batchSize" caption
+  // 13. x-axis ticks. recharts picks which ticks exist; charts.js's own tickFormatter
+  // decides they read '10k' rather than '10000'. Pinned deliberately even though a
+  // recharts major could move the positions for reasons that aren't regressions —
+  // that's a change worth being told about. Row 12 carries the value signal alone.
+  for (const tick of ['10k', '60k']) {
+    await expect(chart.locator('text', { hasText: new RegExp(`^${tick}$`) })).toBeVisible(waitOpts);
+  }
+
+  // 14. "Parameter Names: batchSize" caption
   await expect(page.getByText(/Parameter Names:\s*batchSize/)).toBeVisible(waitOpts);
 }

@@ -40,6 +40,37 @@ is which.
   path exercised at the end of `support/multi-run-workflow.ts`'s shared
   assertions — those two are driven by genuinely different code that only
   coincidentally produces the same screen today).
+- `specs/bundled-examples.spec.ts` — characterizes the three bundled examples
+  (`exampleBenchmark{1,2,3}.js`), the only data here that is broad rather than
+  deep: 18-19 benchmark classes, two benchmark modes and five score units in
+  one report, 1-3 parameter benchmarks, and classes present in one run but not
+  another. Deliberately structural (counts, modes, units, run names, table
+  sizes) — exact values are the vendored fixtures' job. Everywhere else the
+  examples appear only as *negative* data in `harness.spec.ts`.
+- `specs/two-runs-compare.spec.ts` — the two-run Compare screen
+  (`TwoRunsView`/`TwoRunBundle`/`DiffBarChartView`), which nothing else
+  reaches: specs that load 2 runs stop at the Summary screen, and the
+  3-fixture specs toggling Compare land in `MultiRunView`. Covers the diff
+  chart's categories and per-bar percentages, the mutually exclusive
+  "Show JSON 1"/"Show JSON 2" panels, and (on the bundled two-run example,
+  since the fixtures hold identical benchmark sets) the "Removed
+  benchmarks:"/"New benchmarks:" lists.
+- `specs/secondary-metrics.spec.ts` — the sidebar metric dropdown switching the
+  Run screen onto a secondary metric. `RunSideBar` only offers options starting
+  with JMH's `·`, which no vendored fixture has (their JMH wrote
+  `gc.alloc.rate` unprefixed), so this runs on the bundled example. The second
+  test pins the flip side: with those fixtures the picker stays *enabled* with
+  a single option and its "No secondary metrics found!!" hint suppressed.
+- `specs/summary-header.spec.ts` — the Summary screen's "Comparing … for 'X'
+  and 'Y' …" sentence, the only place the app names *which* two runs the
+  comparison tables are about. The 3-run test is `@needs-fix`-tagged (see
+  Commands below).
+- `specs/load-errors.spec.ts` — the failure paths every other spec asserts
+  *don't* happen: an unparseable upload (an inline buffer, not a vendored
+  broken file) alerting and leaving the start screen usable, and a 404 on a
+  URL/gist alerting and stranding the app on a blank screen. The gist case also
+  pins a real bug — `fetchFromGists` alerts inside its own `.catch` and then
+  reads `json.files` off the `undefined` that resolves to.
 - `specs/harness.spec.ts` — tests the assertion routines back, proving they
   aren't vacuously green: `expectCostOfAllocRateNormReport` must reject on a
   blank page and on the three bundled examples (real JMH data the routine
@@ -49,7 +80,11 @@ is which.
   improved rows), reject a row that's real but lives in a *different* table
   on the same page despite a matching row count (the two-real-tables case at
   the slider's 50% max), and reject a row set with one wrong `params` value
-  despite a matching row count.
+  despite a matching row count. `expectSummaryHeader` must reject swapped run
+  names and a wrong result count; `expectTwoRunCompare` must reject the
+  *Summary* screen of the very same two runs (which also says "Comparing",
+  also renders charts, and also names both runs) and a single wrong score
+  difference.
 - `specs/single-run-via-url-and-gist.spec.ts` — the smoke spec's fixture,
   loaded via a single "Load from URL(s)"/"Load from Gist(s)" entry instead
   of file upload, against mocked network responses (see
@@ -74,10 +109,20 @@ is which.
   `fetchFromGists`' one-run-per-file-in-the-gist fan-out (every other Gist
   spec mocks a single-file gist). Reuses the same
   `support/multi-run-workflow.ts` assertions as the file-upload spec.
-- `support/report-assertions.ts` — `expectCostOfAllocRateNormReport()`, the 13
-  shared presence checks the smoke spec and harness spec call. Takes an
+- `support/report-assertions.ts` — `expectCostOfAllocRateNormReport()`, the 14
+  shared checks the smoke spec and harness spec call — presence, plus both bar
+  labels and two axis ticks by value, so a migration that changes number
+  formatting or bar scaling fails here instead of passing. Takes an
   optional `runName` (defaults to the file-upload name) for the URL/Gist
   variants, which name the same fixture differently.
+- `support/summary-header-assertions.ts` — `expectSummaryHeader()`, the Summary
+  screen's header sentence including both `<Badge>` counts, matched as one
+  whitespace-tolerant regex since React splits it across text nodes.
+- `support/two-run-compare-assertions.ts` — `expectTwoRunCompare()` plus
+  `LINKED_HASH_PAIR_COMPARE`, the expectation the Compare spec and the harness
+  spec share. Categories and bar labels are checked for presence, not pairing:
+  tying a label to its category needs recharts' internal class names, which
+  this suite doesn't use.
 - `support/start-screen-assertions.ts` — `expectStartScreen()`, shared by the
   start-screen spec and the post-reset check in the multi-run spec.
 - `support/summary-comparison-assertions.ts` —
@@ -182,6 +227,32 @@ are not implemented" falsification check, which only holds against a
 `master` build (the filters branch actually implements them, so the check
 would fail there for the right reason but for the wrong test).
 
+`SKIP_NEEDS_FIX` (env var, same parsing as `INCLUDE_FILTERS`) opts *out* of
+`@needs-fix`-tagged tests — tests that need an app fix this suite ships
+alongside. Unlike `@filters`, they run by default: the fix is in this branch's
+`src/`, so the default build has it. Set the flag when `APP_BUILD_DIR` points
+at a build that predates the fix (an older branch, `master` before the fix
+lands, a bisect):
+
+```bash
+SKIP_NEEDS_FIX=1 APP_BUILD_DIR=<path-to-older-build>/build npm test
+```
+
+The two tag axes are independent and combine — checking the filters branch
+before the fix is merged there needs both:
+
+```bash
+INCLUDE_FILTERS=1 SKIP_NEEDS_FIX=1 APP_BUILD_DIR=<filters-branch>/build npm test
+```
+
+The only fix currently tagged is `SummaryScreen.jsx` passing the full run-name
+list to `SummaryView`: before it, a Summary comparing 3+ runs indexed an
+already-sliced 2-element array with absolute run indices, so with 3 runs it
+named the *last* run first and left the second name empty — and with 4+ runs
+both names came out empty. `/@needs-fix/` is
+matched without a trailing `\b`, so a per-fix tag (`@needs-fix-summary-run-names`)
+would be covered by the same switch if a second one ever earns its own name.
+
 ## Formatting & linting
 
 [Biome](https://biomejs.dev) (`biome.json`), scoped to this directory only —
@@ -205,8 +276,11 @@ extends to `src/`'s older patterns.
 
 ## Constraints
 
-- **No app-source changes** — the suite must run unmodified against a vanilla
-  checkout. Where semantic locators (`getByRole`/`getByText`) fall short, only
+- **No app-source changes for the suite's own benefit** — no test-only hooks,
+  ids or attributes were ever added to `src/` to make something testable, and
+  the suite runs unmodified against a vanilla checkout apart from the
+  `@needs-fix` tests described below, which need a genuine behavioural fix
+  (not a test affordance) that older builds lack. Where semantic locators (`getByRole`/`getByText`) fall short, only
   four non-semantic hooks are used: `.recharts-wrapper`, `ul.nav ul.nav`,
   `div.btn`, and `Tooltipped.jsx`'s `data-tooltip` attribute. No generated /
   hashed class names.
@@ -215,7 +289,8 @@ extends to `src/`'s older patterns.
   `@biomejs/biome` is pinned the same way.
 - Every spec must pass unmodified on both `master` and
   `add-filters-for-large-result-files` — it characterizes *shared* behaviour,
-  not branch-only UI. The one deliberate exception: `@filters`-tagged tests
+  not branch-only UI. Two deliberate exceptions, both tagged and both
+  switchable from the environment. First, `@filters`-tagged tests
   characterize the filter checkboxes that only exist on
   `add-filters-for-large-result-files`. They're excluded by default (opt in
   with `INCLUDE_FILTERS=1`, see Commands above), so plain `npm test` still
@@ -223,3 +298,9 @@ extends to `src/`'s older patterns.
   exception's mirror image: a falsification check that only holds against
   `master` (see Commands above), excluded the other way by the same
   `INCLUDE_FILTERS` toggle.
+- Second, `@needs-fix` cuts the other way: those tests describe behaviour only a build
+  carrying this branch's `src/` fix has, so they run by default and get
+  excluded with `SKIP_NEEDS_FIX=1` when testing an older build (see Commands
+  above). Both directions are verified: the full suite is green against the
+  filters-branch build with `INCLUDE_FILTERS=1 SKIP_NEEDS_FIX=1`, and against
+  a pre-fix build with `SKIP_NEEDS_FIX=1`.

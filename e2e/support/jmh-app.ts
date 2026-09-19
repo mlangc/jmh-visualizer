@@ -19,8 +19,7 @@ export class JmhApp {
    * to the test timeout instead of settling.
    */
   async uploadReport(fixtureName: string): Promise<void> {
-    const fileInput = this.page.locator('div.btn', { hasText: 'Open File Dialog' }).locator('input[type="file"]');
-    await fileInput.setInputFiles(path.join(FIXTURES, fixtureName));
+    await this.fileInput().setInputFiles(path.join(FIXTURES, fixtureName));
     await this.page.getByText(/different benchmark classes for single run/).waitFor();
   }
 
@@ -32,9 +31,26 @@ export class JmhApp {
    * settle text, which never fires for a multi-run upload.
    */
   async uploadReports(fixtureNames: string[]): Promise<void> {
-    const fileInput = this.page.locator('div.btn', { hasText: 'Open File Dialog' }).locator('input[type="file"]');
-    await fileInput.setInputFiles(fixtureNames.map((name) => path.join(FIXTURES, name)));
+    await this.fileInput().setInputFiles(fixtureNames.map((name) => path.join(FIXTURES, name)));
     await this.page.getByText(/Ignoring deviations below/).waitFor();
+  }
+
+  /**
+   * Upload arbitrary bytes through the same input as `uploadReport`, for content that
+   * has no business in `fixtures/` — which holds real, unmodified JMH output. Returns
+   * as soon as the file is handed over: what the app does next is the caller's to
+   * assert, and for unparseable content it's an `alert()` and no state change at all.
+   */
+  async uploadRawFile(file: { name: string; mimeType: string; buffer: Buffer }): Promise<void> {
+    await this.fileInput().setInputFiles(file);
+  }
+
+  /**
+   * The upload sidebar's labelled file input. react-dropzone renders a second,
+   * unlabelled one, hence the scoping to the "Open File Dialog" button.
+   */
+  private fileInput(): Locator {
+    return this.page.locator('div.btn', { hasText: 'Open File Dialog' }).locator('input[type="file"]');
   }
 
   /**
@@ -175,6 +191,19 @@ export class JmhApp {
    */
   async toggleScale(): Promise<void> {
     await this.page.getByRole('heading').locator('[data-tooltip^="Switch scale"]').click();
+  }
+
+  /**
+   * Pick a metric in the sidebar's metric dropdown (`RunSideBar`'s `<select>`, wired
+   * to `actions.selectMetric`). Only `'Score'` and `'·'`-prefixed secondary metrics
+   * are ever offered — see `secondary-metrics.spec.ts`.
+   *
+   * Unscoped `select` is safe on the Run and Summary screens, which render exactly
+   * one; `DetailSideBar` renders its own (the benchmark-class chooser), so don't
+   * reuse this there.
+   */
+  async selectMetric(metric: string): Promise<void> {
+    await this.page.locator('select').selectOption(metric);
   }
 
   async toggleBrandMenu(): Promise<void> {

@@ -15,6 +15,8 @@ import {
   LINKED_HASH_PAIR_ROWS_MINUS_SURVIVOR,
   LINKED_HASH_PAIR_SURVIVING_ROW
 } from '../support/summary-comparison-assertions';
+import { expectSummaryHeader } from '../support/summary-header-assertions';
+import { expectTwoRunCompare, LINKED_HASH_PAIR_COMPARE } from '../support/two-run-compare-assertions';
 
 // This timeout is used for negative assertions, where failure means success.
 // Using the default value makes these tests slow. Using a value that is too low
@@ -160,6 +162,66 @@ test.describe('linked-hash-first-vs-iter-next-filters falsification checks', () 
     await page.goto('/');
     await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
     await expectNoFilters(page);
+  });
+});
+
+test.describe('expectSummaryHeader falsification checks', () => {
+  const REAL_HEADER = {
+    results: 4,
+    benchmarkClasses: 1,
+    runName1: 'linked-hash-first-vs-iter-next-benchmark',
+    runName2: 'linked-hash-first-vs-iter-next-on-battery-benchmark'
+  };
+
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectSummaryHeader(page, REAL_HEADER, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects when the compared runs are named in the wrong order', async ({ page }) => {
+    await loadLinkedHashMapBenchmarks(page);
+
+    // Confirm the real state first -- otherwise a routine that stopped matching run
+    // names at all would still pass this.
+    await expectSummaryHeader(page, REAL_HEADER);
+
+    const swapped = { ...REAL_HEADER, runName1: REAL_HEADER.runName2, runName2: REAL_HEADER.runName1 };
+    await expect(expectSummaryHeader(page, swapped, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects when the compared-results count is wrong', async ({ page }) => {
+    await loadLinkedHashMapBenchmarks(page);
+    await expectSummaryHeader(page, REAL_HEADER);
+
+    // Right run names, wrong badge count -- proves the counts are part of the match,
+    // not decoration around the names.
+    await expect(expectSummaryHeader(page, { ...REAL_HEADER, results: 3 }, NEG_TIMEOUT)).rejects.toThrow();
+  });
+});
+
+test.describe('expectTwoRunCompare falsification checks', () => {
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectTwoRunCompare(page, LINKED_HASH_PAIR_COMPARE, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects on the Summary screen of the very same two runs', async ({ page }) => {
+    // Same runs, same data, wrong screen: the Summary screen also says "Comparing",
+    // also renders charts, and also names both runs -- so only a routine that keys on
+    // the Compare screen's own sentence and its diff chart can reject this.
+    await loadLinkedHashMapBenchmarks(page);
+    await expect(expectTwoRunCompare(page, LINKED_HASH_PAIR_COMPARE, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects when a score difference is wrong', async ({ page }) => {
+    const app = await loadLinkedHashMapBenchmarks(page);
+    await app.clickAllRunsButton();
+    await expectTwoRunCompare(page, LINKED_HASH_PAIR_COMPARE);
+
+    const wrongDiffs = [...LINKED_HASH_PAIR_COMPARE.scoreDiffs.slice(0, 3), '-99.9'];
+    await expect(
+      expectTwoRunCompare(page, { ...LINKED_HASH_PAIR_COMPARE, scoreDiffs: wrongDiffs }, NEG_TIMEOUT)
+    ).rejects.toThrow();
   });
 });
 
