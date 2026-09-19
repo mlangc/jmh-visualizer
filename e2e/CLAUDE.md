@@ -25,7 +25,8 @@ is which.
   asserts the chart changes without error, then Show Details / Back and
   asserts the fixture's secondary GC metrics (`gc.alloc.rate`,
   `gc.alloc.rate.norm`, `gc.count`, `gc.time`) are listed and navigation
-  returns cleanly.
+  returns cleanly. Also holds a `@filters`-tagged test, excluded by default —
+  see Constraints and `INCLUDE_FILTERS` below.
 - `specs/multi-run-summary-and-compare.spec.ts` — uploads all 3 fixtures
   together, then delegates to `support/multi-run-workflow.ts`'s shared
   assertions: the "Ignoring deviations below" slider (moved to its max to
@@ -86,6 +87,10 @@ is which.
   falsification checks fail fast), plus `LINKED_HASH_PAIR_ROWS` (the
   method/param combinations the linked-hash pair always produces, regardless
   of which table load order sends them to).
+- `support/linked-hash-first-vs-iter-next-filters-assertions.ts` —
+  `expectFiltersBeingPresent()`, the `@filters`-tagged test's own assertion:
+  checkbox presence for both methods (`entryIteratorNext`, `firstEntry`) and
+  both `size` param values (`10`, `100`) they share.
 - `support/regex-util.ts` — `escapeRegExp()`, shared by the two support files
   above wherever fixture-derived text (run names, param values) is
   interpolated into a `RegExp`.
@@ -158,6 +163,25 @@ git worktree add <path> <branch>
 APP_BUILD_DIR=<path>/build npm test
 ```
 
+`INCLUDE_FILTERS` (env var; `1`/`true`/`yes` to opt in, `0`/`false`/`no`,
+empty or unset to skip — anything else aborts the run) opts into
+`@filters`-tagged specs —
+tests for the benchmark/param filter checkboxes added on
+`add-filters-for-large-result-files`. That UI doesn't exist on `master`, so
+these specs are excluded by default (`grepInvert` in `playwright.config.ts`)
+and only make sense run against a build of that branch — combine with
+`APP_BUILD_DIR` the same way as above:
+
+```bash
+INCLUDE_FILTERS=1 APP_BUILD_DIR=<path-to-filters-branch>/build npm test
+```
+
+The same `grepInvert` toggle also excludes the mirror-image `@no-filters`
+tag whenever `INCLUDE_FILTERS` is set — `harness.spec.ts`'s "rejects filters
+are not implemented" falsification check, which only holds against a
+`master` build (the filters branch actually implements them, so the check
+would fail there for the right reason but for the wrong test).
+
 ## Formatting & linting
 
 [Biome](https://biomejs.dev) (`biome.json`), scoped to this directory only —
@@ -191,4 +215,11 @@ extends to `src/`'s older patterns.
   `@biomejs/biome` is pinned the same way.
 - Every spec must pass unmodified on both `master` and
   `add-filters-for-large-result-files` — it characterizes *shared* behaviour,
-  not branch-only UI.
+  not branch-only UI. The one deliberate exception: `@filters`-tagged tests
+  characterize the filter checkboxes that only exist on
+  `add-filters-for-large-result-files`. They're excluded by default (opt in
+  with `INCLUDE_FILTERS=1`, see Commands above), so plain `npm test` still
+  passes unmodified against a `master` build. `@no-filters` is this
+  exception's mirror image: a falsification check that only holds against
+  `master` (see Commands above), excluded the other way by the same
+  `INCLUDE_FILTERS` toggle.

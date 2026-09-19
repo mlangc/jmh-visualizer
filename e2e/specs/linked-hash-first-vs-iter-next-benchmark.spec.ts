@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { JmhApp } from '../support/jmh-app';
+import {
+  expectBenchmarkFiltersHavingAnEffect,
+  expectFiltersBeingPresent
+} from '../support/linked-hash-first-vs-iter-next-filters-assertions';
 import { watchDialogsAndErrors } from '../support/page-watchers';
 
 // The suite's first interaction-driven spec: beyond static presence, it
@@ -64,6 +68,21 @@ test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and de
     page.locator('ul.nav ul.nav').getByText('LinkedHashFirstVsIterNextBenchmark', { exact: true })
   ).toBeVisible();
   await expect(page.getByRole('heading').locator('[data-tooltip^="Show details"]')).toBeVisible();
+
+  expect(dialogs).toEqual([]);
+  expect(pageErrors).toEqual([]);
+});
+
+test('linked-hash-first-vs-iter-next-benchmark.json supports filters', {
+  tag: '@filters'
+}, async ({ page }) => {
+  const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+  const app = new JmhApp(page);
+  await page.goto('/');
+  await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
+  await expectFiltersBeingPresent(page);
+  await expectBenchmarkFiltersHavingAnEffect(page);
 
   expect(dialogs).toEqual([]);
   expect(pageErrors).toEqual([]);

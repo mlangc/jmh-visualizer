@@ -1,6 +1,10 @@
 import { expect, type Page, test } from '@playwright/test';
 import { expectBrandMenu } from '../support/brand-menu-assertions';
 import { JmhApp } from '../support/jmh-app';
+import {
+  expectBenchmarkFiltersHavingAnEffect,
+  expectFiltersBeingPresent
+} from '../support/linked-hash-first-vs-iter-next-filters-assertions';
 import { expectCostOfAllocRateNormReport } from '../support/report-assertions';
 import { expectStartScreen } from '../support/start-screen-assertions';
 import {
@@ -125,6 +129,37 @@ test.describe('brand menu falsification checks', () => {
     await page.goto('/');
     await app.toggleBrandMenu();
     await expect(expectBrandMenu(page, { ...NEG_TIMEOUT, visible: false })).rejects.toThrow();
+  });
+});
+
+test.describe('linked-hash-first-vs-iter-next-filters falsification checks', () => {
+  async function expectNoFilters(page: Page): Promise<void> {
+    await expect(expectFiltersBeingPresent(page, NEG_TIMEOUT)).rejects.toThrow();
+    await expect(expectBenchmarkFiltersHavingAnEffect(page, NEG_TIMEOUT)).rejects.toThrow();
+  }
+
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expectNoFilters(page);
+  });
+
+  test('rejects on a start page', async ({ page }) => {
+    await page.goto('/');
+    await expectNoFilters(page);
+  });
+
+  test('rejects if wrong benchmarks are loaded', async ({ page }) => {
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReport('cost-of-alloc-rate-norm-benchmark.json');
+    await expectNoFilters(page);
+  });
+
+  test('rejects filters are not implemented', { tag: '@no-filters' }, async ({ page }) => {
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
+    await expectNoFilters(page);
   });
 });
 

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { escapeRegExp } from './regex-util';
 
 const FIXTURES = path.join(__dirname, '..', 'fixtures');
@@ -74,6 +74,51 @@ export class JmhApp {
    */
   async clickBenchmarkClassLink(className: string): Promise<void> {
     await this.page.locator('ul.nav ul.nav').getByText(className, { exact: true }).click();
+  }
+
+  /**
+   * Locate one control in a benchmark class's sidebar filter tree
+   * (MethodParamCheckboxList.jsx), scoped to `className`'s own row and
+   * addressed by its path through that tree from there:
+   *
+   *   benchmarkFilter('SomeBenchmark', 'firstEntry')              -> the method's checkbox
+   *   benchmarkFilter('SomeBenchmark', 'firstEntry', 'size')      -> the 'size' param's name label
+   *   benchmarkFilter('SomeBenchmark', 'firstEntry', 'size', '100') -> that param value's checkbox
+   *
+   * Returns a Locator rather than performing the click, so callers keep
+   * Playwright's own vocabulary -- `.click(opts)`, `.dblclick(opts)` (both
+   * gestures are meaningful here: double-click means "select only this") and
+   * `expect(...)`. Every level is scoped to its enclosing <li> -- via the
+   * `listitem` role every <li> implicitly gets inside a <ul>/<ol>, no
+   * app-specific class needed -- rather than searched unscoped: class,
+   * method, and param names, and param values, all repeat (across classes,
+   * across methods), so an unscoped lookup can match more than one control
+   * and only be picked apart by `.nth()`, which silently depends on render
+   * order.
+   */
+  benchmarkFilter(className: string, methodName: string, paramName?: string, paramValue?: string): Locator {
+    const bundleItem = this.page
+      .locator('ul.nav ul.nav > li')
+      .filter({ has: this.page.getByText(className, { exact: true }) });
+
+    if (paramName === undefined) {
+      return bundleItem.getByRole('checkbox', { name: methodName, exact: true });
+    }
+
+    // The `has` locators below are deliberately built from `this.page`, not from
+    // `bundleItem`/`method` -- `.filter({ has })` re-scopes its locator under each
+    // candidate, and a `has` locator built from an already-scoped locator embeds that
+    // same scoping chain again, requiring (impossibly) a second nested match of it.
+    const method = bundleItem
+      .getByRole('listitem')
+      .filter({ has: this.page.getByRole('checkbox', { name: methodName, exact: true }) });
+    const paramNameLabel = method.getByText(paramName, { exact: true });
+    if (paramValue === undefined) {
+      return paramNameLabel;
+    }
+
+    const param = method.getByRole('listitem').filter({ has: this.page.getByText(paramName, { exact: true }) });
+    return param.getByRole('checkbox', { name: paramValue, exact: true });
   }
 
   /**

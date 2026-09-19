@@ -1,5 +1,23 @@
 import { defineConfig, devices } from '@playwright/test';
 
+function parseFlag(name: string): boolean {
+  const value = process.env[name];
+
+  if (value === undefined) {
+    return false;
+  }
+
+  const normalizedValue = value.trim().toLowerCase();
+  if (['0', 'false', 'no', ''].includes(normalizedValue)) {
+    return false;
+  } else if (['1', 'true', 'yes'].includes(normalizedValue)) {
+    return true;
+  } else {
+    throw new Error(`${name}: Cannot parse '${value}' as boolean`);
+  }
+}
+
+const INCLUDE_FILTERS = parseFlag('INCLUDE_FILTERS');
 const BUILD_DIR = process.env.APP_BUILD_DIR ?? '../build';
 const PORT = 4173;
 
@@ -27,5 +45,6 @@ export default defineConfig({
     url: `http://127.0.0.1:${PORT}`,
     reuseExistingServer: false,
     timeout: 30_000
-  }
+  },
+  grepInvert: INCLUDE_FILTERS ? /@no-filters\b/ : /@filters\b/
 });
