@@ -101,6 +101,8 @@ it, still gets appended mechanically and doesn't count as "body prose."
 
 ## Agentic Reviews
 
+### By Subagents
+
 When I ask you to let a subagent review your work, please consider this:
 - Use Opus as a reviewer, in a fresh subagent — not a fork, since a fork
   inherits your full context and always runs on your own model, which
@@ -116,3 +118,10 @@ When I ask you to let a subagent review your work, please consider this:
   to report findings back rather than fix anything itself. It's encouraged
   to create its own temporary worktree off the implementer's branch to
   experiment, confirm suspicions, or verify proposed fixes.
+
+### By You
+
+If I ask you to review something directly, don't change anything in the
+worktree — just report your findings. Base them on evidence rather than
+speculation: as with the subagent reviewer above, you're encouraged to create
+your own temporary worktree to experiment in and confirm your suspicions.
