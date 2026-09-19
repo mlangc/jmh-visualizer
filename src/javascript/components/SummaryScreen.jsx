@@ -28,14 +28,13 @@ const SummaryScreen = ({ benchmarkSelection, selectedMetric }) => {
     const metrics = Array.from(metricsSet);
 
     let runIndices = [benchmarkSelection.runNames.length - 2, benchmarkSelection.runNames.length - 1];
-    let runNames = runIndices.map(i => benchmarkSelection.runNames[i]);
 
     return (
         <SplitPane
             left={
                 <SummaryView
                     runIndex={ runIndices }
-                    runNames={ runNames }
+                    runNames={ benchmarkSelection.runNames }
                     minDeviation={ 5 }
                     benchmarkBundles={ filteredBenchmarkBundles }
                     metricExtractor={ metricExtractor }
