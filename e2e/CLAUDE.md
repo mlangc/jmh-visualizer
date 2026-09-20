@@ -104,6 +104,17 @@ is which.
   branches also swap `DefaultTopBar` for `Footer`. Plus the `onbeforeunload`
   guard, which only the upload path arms — loading an example leaves nothing of
   the user's to lose, and doesn't.
+- `specs/filters.spec.ts` — the filter checkboxes beyond the single-run,
+  single-class, sidebar-only coverage in
+  `linked-hash-first-vs-iter-next-benchmark.spec.ts`: deselecting *every*
+  method of the only loaded class (zero bundles reaching `SingleRunView`, the
+  shape of the `BarDataSet` gotcha in the root `CLAUDE.md`), `toggleParamValue`
+  silently refusing a change that would hide a method's last instance, the
+  Details screen's own checkbox tree and its `All benchmark methods are
+  filtered out` branch, the two-run Compare screen (and the Summary screen,
+  which ignores the filters entirely), the class row's double-click
+  "select all methods" gesture, and a single-valued param rendering fixed
+  rather than filterable. All `@filters`-tagged.
 - `specs/harness.spec.ts` — tests the assertion routines back, proving they
   aren't vacuously green: `expectCostOfAllocRateNormReport` must reject on a
   blank page and on the three bundled examples (real JMH data the routine
@@ -177,7 +188,7 @@ is which.
   method/param combinations the linked-hash pair always produces, regardless
   of which table load order sends them to).
 - `support/linked-hash-first-vs-iter-next-filters-assertions.ts` —
-  `expectFiltersBeingPresent()`, the `@filters`-tagged test's own assertion:
+  `expectFiltersBeingPresent()`, that fixture's `@filters`-tagged test's own assertion:
   checkbox presence for both methods (`entryIteratorNext`, `firstEntry`) and
   both `size` param values (`10`, `100`) they share.
 - `support/regex-util.ts` — `escapeRegExp()`, shared by the two support files
@@ -306,6 +317,22 @@ named the *last* run first and left the second name empty — and with 4+ runs
 both names came out empty. `/@needs-fix/` is
 matched without a trailing `\b`, so a per-fix tag (`@needs-fix-summary-run-names`)
 would be covered by the same switch if a second one ever earns its own name.
+
+## Gotchas
+
+- **Don't click while the bar labels are animating in.** `BarChartView`'s
+  `LabelList` animates over ~540ms after a load, and a re-render during that
+  window drops the labels permanently — the chart keeps its bars, axes and
+  category names, but the per-bar value labels never come back. A spec that
+  interacts straight after `uploadReport()` and then asserts on a label will
+  fail in a way that looks like a filtering bug. Wait the labels out first
+  (`await expect(chart.getByText(/s\/op/)).toHaveCount(4)`), which several specs
+  do as their first assertion anyway. Not pinned by a test of its own: it is a
+  real glitch, but a test for it would be a test of an animation race.
+- **A tooltip changes what `.recharts-wrapper` matches.** `SingleRunChartTooltip`
+  renders its "Raw Data" iteration charts as recharts charts of their own, so
+  while one is open the page has several wrappers nested inside the first. Use
+  `.first()` (or `benchmarkSection(...)`) whenever a hover is in play.
 
 ## Formatting & linting
 

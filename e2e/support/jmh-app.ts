@@ -89,7 +89,16 @@ export class JmhApp {
    * `toBeInViewport()`.
    */
   async clickBenchmarkClassLink(className: string): Promise<void> {
-    await this.page.locator('ul.nav ul.nav').getByText(className, { exact: true }).click();
+    await this.benchmarkClassLink(className).click();
+  }
+
+  /**
+   * The same sidebar entry as a Locator, for the gestures `clickBenchmarkClassLink`
+   * doesn't perform -- on the filters branch a double-click on it re-selects every
+   * method of that class.
+   */
+  benchmarkClassLink(className: string): Locator {
+    return this.page.locator('ul.nav ul.nav').getByText(className, { exact: true });
   }
 
   /** One benchmark class's row in the "Benchmarks" sidebar, with its icons and (on the filters branch) its filter tree. */
