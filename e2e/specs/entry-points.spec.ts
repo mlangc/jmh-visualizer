@@ -86,8 +86,9 @@ test('?topBar= replaces or removes the navigation bar', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'JMH Visualizer', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: /^JMH Visualizer \d/ })).toHaveCount(0);
 
-  // 'off': no navbar -- and Footer.jsx appears in its place, which is the only way the
-  // app ever shows its version number.
+  // 'off': no navbar. Footer.jsx keys off the same setting from the other side --
+  // it renders for anything *but* 'default', so it appears here and in the custom
+  // headline case below, and never alongside the navbar.
   await page.goto('/?topBar=off');
   await expectStartScreen(page); // the report screens still work without it
   await expect(page.getByRole('link', { name: 'JMH Visualizer', exact: true })).toHaveCount(0);
@@ -97,6 +98,7 @@ test('?topBar= replaces or removes the navigation bar', async ({ page }) => {
   await page.goto('/?topBar=Our%20Nightly%20Benchmarks');
   await expect(page.getByRole('heading', { name: 'Our Nightly Benchmarks', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'JMH Visualizer', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /^JMH Visualizer \d/ })).toBeVisible();
 
   expect(dialogs).toEqual([]);
   expect(pageErrors).toEqual([]);

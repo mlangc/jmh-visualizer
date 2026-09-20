@@ -8,9 +8,13 @@ import { watchDialogsAndErrors } from '../support/page-watchers';
 // suite ever moves the pointer into a chart, so all of that -- the score/min/max/error
 // figures, the per-run rows, the computed "Change" row -- renders only here.
 //
-// The tooltips also hold the only *derived* numbers the app shows: TwoRunsChartTooltip
-// subtracts the two runs' scores and errors itself, and both bar tooltips re-format
-// every figure through util.js's formatNumber.
+// Below each bar tooltip's table sits a "Raw Data" section, where every measurement
+// iteration gets a mini bar chart of its own labelled by `BarTooltipLabel` -- a second
+// custom component behind a recharts render prop, and the only place per-iteration
+// scores appear at all.
+//
+// The two-run tooltip is also the only place the app derives a number inside a
+// tooltip: it subtracts the two runs' scores and errors itself to build its Change row.
 
 const LINKED_HASH_PAIR = [
   'linked-hash-first-vs-iter-next-benchmark.json',
@@ -50,6 +54,13 @@ test("hovering a bar shows that benchmark method's scores per param value", asyn
     ]
   });
 
+  // The same "Raw Data" section, here on scores below 1: `BarTooltipLabel` formats
+  // them with a bare Number.toLocaleString(), which rounds to 3 decimals, so all ten
+  // iterations (2 bars x 5) label themselves '0'. Pinned as it is -- it's the kind of
+  // wart a rewrite resolves silently, one way or the other.
+  await expect(page.getByRole('heading', { name: 'Raw Data', exact: true })).toBeVisible();
+  await expect(page.getByText('0', { exact: true })).toHaveCount(11); // + the chart's own '0' axis tick
+
   expect(dialogs).toEqual([]);
   expect(pageErrors).toEqual([]);
 });
@@ -70,6 +81,13 @@ test('a single-bar chart drops the param column from its tooltip', async ({ page
     // Rounded and locale-formatted, exactly as the bar labels are (report-assertions.ts).
     rows: [['60,050', '59,176', '60,600', '433', 'ops/s']]
   });
+
+  // ...and below the table, this method's individual measurement iterations. These
+  // values occur nowhere else on the page -- not in the table above, not on any bar.
+  await expect(page.getByRole('heading', { name: 'Raw Data', exact: true })).toBeVisible();
+  for (const iterationScore of ['59,889', '60,417', '60,206']) {
+    await expect(page.getByText(iterationScore, { exact: true })).toBeVisible();
+  }
 
   expect(dialogs).toEqual([]);
   expect(pageErrors).toEqual([]);
@@ -112,9 +130,9 @@ test('the multi-run chart tooltip lists every benchmark of the hovered run', asy
   await app.loadBundledExample('multi');
   await app.clickAllRunsButton(); // Summary -> Compare, i.e. MultiRunView
 
-  // QuickBenchmark is the smallest class in the example: 2 methods, so 2 lines and a
-  // 2-row tooltip. The line chart is keyed by run, not by method, so the tooltip is
-  // headed with the run name and lists every method's score for it.
+  // QuickBenchmark has 2 methods, so 2 lines and a 2-row tooltip. The line chart is
+  // keyed by run, not by method, so the tooltip is headed with the run name and lists
+  // every method's score for that run.
   const chart = app.benchmarkSection('QuickBenchmark').locator('.recharts-wrapper').first();
   await hoverFirstRunColumn(page, chart);
   await expectChartTooltip(page, {

@@ -71,12 +71,15 @@ export async function hoverBarRow(page: Page, chart: Locator, barLabel: string):
  *
  * Deliberately *between* the lines rather than on one: `LineChartView` renders its
  * `<Tooltip>` only while `activeLine` is null and swaps it for the hovered line's own
- * value labels otherwise, so landing on a line shows no tooltip at all.
+ * value labels otherwise, so landing on a line shows no tooltip at all — and a hover
+ * that misses this way fails as a full test timeout, not as a clear assertion. The
+ * vertical fraction is therefore picked to sit as far from either line as the chart
+ * allows for the data the spec uses, rather than merely somewhere that works today.
  */
 export async function hoverFirstRunColumn(page: Page, chart: Locator): Promise<void> {
   await chart.scrollIntoViewIfNeeded();
   const chartBox = await boundingBoxOf(chart);
-  await movePointerTo(page, chartBox.x + chartBox.width * 0.15, chartBox.y + chartBox.height * 0.2);
+  await movePointerTo(page, chartBox.x + chartBox.width * 0.15, chartBox.y + chartBox.height * 0.36);
 }
 
 async function movePointerTo(page: Page, x: number, y: number): Promise<void> {

@@ -260,9 +260,10 @@ test.describe('expectChartTooltip falsification checks', () => {
     await hoverBarRow(page, page.locator('.recharts-wrapper').first(), '7.949607915875453e-10 s/op');
     await expectChartTooltip(page, ENTRY_ITERATOR_NEXT_TOOLTIP); // confirm the real state first
 
-    // Clicking takes the pointer out of the chart, which closes the tooltip, and puts
-    // every figure that was in it on the page as plain text -- so a routine looking
-    // page-wide rather than at the open tooltip would still pass here.
+    // Clicking takes the pointer out of the chart, which closes the tooltip -- and
+    // opens a panel holding every figure the expectation claims, as plain page text.
+    // This one only proves the routine needs a tooltip open at all (it stops at the
+    // heading); the next test is what proves it reads inside it.
     await page.getByRole('button', { name: 'Show JSON' }).click();
     await expect(expectChartTooltip(page, ENTRY_ITERATOR_NEXT_TOOLTIP, NEG_TIMEOUT)).rejects.toThrow();
   });
@@ -283,7 +284,43 @@ test.describe('expectChartTooltip falsification checks', () => {
       expectChartTooltip(page, { ...ENTRY_ITERATOR_NEXT_TOOLTIP, rows: otherMethodsRows }, NEG_TIMEOUT)
     ).rejects.toThrow();
   });
+
+  test('rejects the two-run tooltip with its rows swapped, or its Change row wrong', async ({ page }) => {
+    // The two-run tooltip is the one whose rows only mean anything in order -- the
+    // third is a difference the component computes from the first two, and is the only
+    // number in the suite the app derives inside a tooltip.
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReports([
+      'linked-hash-first-vs-iter-next-benchmark.json',
+      'linked-hash-first-vs-iter-next-on-battery-benchmark.json'
+    ]);
+    await app.clickAllRunsButton();
+    await hoverBarRow(page, page.locator('.recharts-wrapper').first(), '-50.461251425046214');
+    await expectChartTooltip(page, TWO_RUN_TOOLTIP);
+
+    const [firstRun, secondRun, change] = TWO_RUN_TOOLTIP.rows;
+    await expect(
+      expectChartTooltip(page, { ...TWO_RUN_TOOLTIP, rows: [secondRun, firstRun, change] }, NEG_TIMEOUT)
+    ).rejects.toThrow();
+
+    // Same rows, same order, one digit off in the derived change.
+    const wrongChange = [change[0], '+8.097644274694986e-10', ...change.slice(2)];
+    await expect(
+      expectChartTooltip(page, { ...TWO_RUN_TOOLTIP, rows: [firstRun, secondRun, wrongChange] }, NEG_TIMEOUT)
+    ).rejects.toThrow();
+  });
 });
+
+const TWO_RUN_TOOLTIP = {
+  heading: 'entryIteratorNext [size=10]',
+  columnHeaders: ['Run', 'Score', 'Error', 'Unit'],
+  rows: [
+    ['linked-hash-first-vs-iter-next-benchmark', '7.949607915875453e-10', '4.839336096106317e-11', 's/op'],
+    ['linked-hash-first-vs-iter-next-on-battery-benchmark', '1.6047252190570438e-9', '1.1407255575763956e-10', 's/op'],
+    ['Change', '+8.097644274694985e-10', '+6.567919479657639e-11', 's/op']
+  ]
+};
 
 async function loadLinkedHashBenchmark(page: Page): Promise<JmhApp> {
   const app = new JmhApp(page);

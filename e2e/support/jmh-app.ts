@@ -117,11 +117,18 @@ export class JmhApp {
    * Needed wherever more than one class is on screen -- `toggleScale()`,
    * `showDetails()` and the chart locators are all page-wide otherwise, which is fine
    * for the single-class fixtures and a strict-mode violation on the 18-class examples.
+   *
+   * The heading match is anchored at the start and must end on a word: the heading
+   * carries the class's mode badge and controls after the name, so it can't be matched
+   * exactly, but a bare substring match would silently return the wrong section for a
+   * name that is the tail of another one (`MultithreadedBenchmark` inside
+   * `StupidMultithreadedBenchmark` in example runs 2 and 3, `gc.alloc.rate` inside
+   * `gc.alloc.rate.norm` on the Details screen).
    */
   benchmarkSection(className: string): Locator {
     return this.page
       .locator('div')
-      .filter({ has: this.page.getByRole('heading', { name: className }) })
+      .filter({ has: this.page.getByRole('heading', { name: new RegExp(`^${escapeRegExp(className)}(\\s|$)`) }) })
       .last();
   }
 

@@ -119,7 +119,11 @@ export async function expectMultiRunWorkflow(
   expect(dialogs).toEqual([]);
   expect(pageErrors).toEqual([]);
 
-  // 8. Reset & Upload New -> start screen
+  // 8. Reset & Upload New -> start screen. For the file-upload caller the `dialogs`
+  // check below is load-bearing rather than boilerplate: `parseBenchmarks` armed
+  // `window.onbeforeunload`, and `onReset` clearing it again is the only reason its own
+  // navigation doesn't raise a "you will loose the current benchmarks" prompt.
+  // (The gist caller never arms it; entry-points.spec.ts pins the arming itself.)
   await app.resetAndUploadNew();
   await expectStartScreen(page);
 

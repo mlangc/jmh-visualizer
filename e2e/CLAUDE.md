@@ -73,7 +73,8 @@ is which.
   reads `json.files` off the `undefined` that resolves to.
 - `specs/chart-tooltips.spec.ts` — the hand-written tooltips recharts renders
   through its `content` prop, one per view type, and the only place the app
-  shows a benchmark's min/max/error or (in the two-run case) a score change it
+  shows a benchmark's min/max/error, its individual measurement iterations
+  (the "Raw Data" charts, labelled by `BarTooltipLabel`), or a score change it
   computes itself. Nothing else in the suite moves the pointer into a chart.
 - `specs/chart-controls.spec.ts` — Sort (never clicked before this spec) and
   "Show JSON" (only ever asserted present). Both exist twice over with
@@ -90,8 +91,12 @@ is which.
   no-op and a second one can never be focused.
 - `specs/detail-screen.spec.ts` — the Details screen below its metric list: a
   chart per metric in its own unit, the sidebar's benchmark-class `<select>`,
-  its screen-wide Scale control, the "Metrics" category link (a no-op that must
-  not blank the list), and the `No benchmark results for run X` branch — which
+  its screen-wide Sort and Scale controls (this being the only screen that
+  charts two metric *types* at once, it's also the only place `MetricType`'s
+  `increaseIsGood` is observable — Score sorts descending while
+  `·gc.alloc.rate` sorts ascending), the "Metrics" category link (which changes
+  nothing here and must not blank the list), and the `No benchmark results for
+  run X` branch — which
   needs a class missing from the selected run, so it runs on the multi-run
   example. Also the browser's own Back/Forward, the reason `store.js` registers
   a `history.listen` POP handler at all: Back leaves the screen, and Forward
@@ -327,8 +332,9 @@ would be covered by the same switch if a second one ever earns its own name.
   interacts straight after `uploadReport()` and then asserts on a label will
   fail in a way that looks like a filtering bug. Wait the labels out first
   (`await expect(chart.getByText(/s\/op/)).toHaveCount(4)`), which several specs
-  do as their first assertion anyway. Not pinned by a test of its own: it is a
-  real glitch, but a test for it would be a test of an animation race.
+  do as their first assertion anyway. It reproduces deterministically, so it
+  could be pinned; it deliberately isn't, because it's a defect rather than
+  behaviour, and one a React/recharts major may well change or fix.
 - **A tooltip changes what `.recharts-wrapper` matches.** `SingleRunChartTooltip`
   renders its "Raw Data" iteration charts as recharts charts of their own, so
   while one is open the page has several wrappers nested inside the first. Use

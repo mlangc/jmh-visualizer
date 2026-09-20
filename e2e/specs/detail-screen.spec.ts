@@ -45,7 +45,9 @@ test('the Details screen draws a chart per metric, each in its own unit', async 
   expect(pageErrors).toEqual([]);
 });
 
-test('the Details sidebar switches class, rescales every chart, and keeps its metric list', async ({ page }) => {
+test('the Details sidebar switches class, sorts and rescales every chart, and keeps its metric list', async ({
+  page
+}) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);
@@ -53,6 +55,38 @@ test('the Details sidebar switches class, rescales every chart, and keeps its me
   await app.loadBundledExample('single');
   await app.showDetailsFromSidebar('ListCreationBenchmark');
   await expect(page.locator('.recharts-wrapper')).toHaveCount(9); // Score + 8 '·gc.*' metrics
+
+  // The sidebar's Sort control, which reaches every metric's chart at once -- and each
+  // sorts in its own direction, since BarDataSet keys that on MetricType's
+  // `increaseIsGood`: more throughput is better, less allocation is. This screen is the
+  // only place two metric types are charted side by side, so it is the only place that
+  // difference is observable.
+  const methodOrder = (metricHeading: string) =>
+    app
+      .benchmarkSection(metricHeading)
+      .locator('.recharts-wrapper')
+      .first()
+      .locator('text')
+      .filter({ hasText: /^(arrayList|immutableList)/ });
+  const BY_NAME = ['arrayList', 'arrayList_preSized', 'arrayList_preSized_reUsed', 'immutableList'];
+  await expect(methodOrder('Score')).toHaveText(BY_NAME);
+  await expect(methodOrder('·gc.alloc.rate')).toHaveText(BY_NAME);
+
+  await app.toggleSortForAllCharts();
+  await expect(methodOrder('Score')).toHaveText([
+    'arrayList_preSized',
+    'arrayList_preSized_reUsed',
+    'arrayList',
+    'immutableList'
+  ]); // descending score
+  await expect(methodOrder('·gc.alloc.rate')).toHaveText([
+    'arrayList',
+    'arrayList_preSized_reUsed',
+    'immutableList',
+    'arrayList_preSized'
+  ]); // ascending allocation rate
+  await app.toggleSortForAllCharts();
+  await expect(methodOrder('Score')).toHaveText(BY_NAME);
 
   // Switching class without leaving the screen -- DetailSideBar's <select>, which is
   // the only way to get from one class's details to another's.
@@ -74,9 +108,10 @@ test('the Details sidebar switches class, rescales every chart, and keeps its me
   await expect(axisTicks).toHaveText(['0', '50', '100', '150', '200']);
   await expect(page.locator('[data-tooltip^="Sort by"]')).toHaveCount(1);
 
-  // The "Metrics" category link. TocList wires it to `actions.selectCategory`, which
-  // the Details screen ignores (its active category is hardcoded), so this is a no-op
-  // that must not blank the list out.
+  // The "Metrics" category link. TocList wires it to `actions.selectCategory`; the
+  // Details screen hardcodes its own active category, so clicking it changes nothing
+  // here (it does clear the Run screen's `focusedBundles` behind the scenes) and must
+  // above all not blank the list out.
   await page.getByText('Metrics', { exact: true }).click();
   await expect(page.locator('ul.nav ul.nav').getByText('Score', { exact: true })).toBeVisible();
   await expect(page.locator('.recharts-wrapper')).toHaveCount(1);
