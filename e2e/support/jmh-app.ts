@@ -92,6 +92,76 @@ export class JmhApp {
     await this.page.locator('ul.nav ul.nav').getByText(className, { exact: true }).click();
   }
 
+  /** One benchmark class's row in the "Benchmarks" sidebar, with its icons and (on the filters branch) its filter tree. */
+  private sidebarRow(className: string): Locator {
+    return this.page.locator('ul.nav ul.nav > li').filter({ has: this.page.getByText(className, { exact: true }) });
+  }
+
+  /**
+   * The rendered report for one benchmark class -- its heading, chart, and "Show JSON"
+   * panel. Single/Two/MultiRunBundle all wrap that in a plain <div> carrying no class
+   * or role of its own, so the only branch-independent handle is "the innermost <div>
+   * containing that class's heading": ancestors precede descendants in document order,
+   * so `.last()` is the innermost one. The Details screen's per-metric sections have
+   * the same shape, so this addresses those by their metric heading too.
+   *
+   * Needed wherever more than one class is on screen -- `toggleScale()`,
+   * `showDetails()` and the chart locators are all page-wide otherwise, which is fine
+   * for the single-class fixtures and a strict-mode violation on the 18-class examples.
+   */
+  benchmarkSection(className: string): Locator {
+    return this.page
+      .locator('div')
+      .filter({ has: this.page.getByRole('heading', { name: className }) })
+      .last();
+  }
+
+  /**
+   * Click a benchmark class's sidebar eye icon, adding it to / removing it from
+   * `focusedBundles` (RunScreen renders only the focused classes once any is focused).
+   *
+   * RunSideBar renders the eye and details icons as two unlabelled <span>s in that
+   * order ahead of the class-name link: no text, no role, and -- unlike the chart
+   * header's controls -- no `data-tooltip`, so their position within the row is the
+   * only handle. `sidenavi.css` keeps them `display:none` until the row is hovered,
+   * hence the hover first.
+   */
+  async focusBundle(className: string): Promise<void> {
+    await this.clickSidebarRowIcon(className, 0);
+  }
+
+  /** Click a benchmark class's sidebar details icon -- the sidebar's route to the screen `showDetails()` opens. */
+  async showDetailsFromSidebar(className: string): Promise<void> {
+    await this.clickSidebarRowIcon(className, 1);
+    await this.page.getByText('Back..').waitFor();
+  }
+
+  private async clickSidebarRowIcon(className: string, index: number): Promise<void> {
+    // sidenavi.css hides and reveals the icons per `li > div`, not per `li`, so both
+    // the hover and the lookup are scoped to that div -- on the filters branch the <li>
+    // also carries the filter tree, which puts its centre point (what `.hover()` aims
+    // at) well below the row, and its own spans into an unscoped `span` lookup.
+    const row = this.sidebarRow(className).locator('> div');
+    await row.hover();
+    await row.locator('> span').nth(index).click();
+  }
+
+  /**
+   * Flip SingleRunView's "Sync Axis Scales" toggle, which appears only once more than
+   * one bundle is focused. Driven through `Tooltipped.jsx`'s `data-tooltip` -- already
+   * a sanctioned hook, and it reports the toggle's state as well as accepting the
+   * click. Its `#scales-sync` id belongs to react-toggle's screenreader-only <input>,
+   * which isn't clickable and would be a fifth non-semantic hook for no gain.
+   */
+  async toggleAxisScalesSync(): Promise<void> {
+    await this.page.locator('[data-tooltip^="Sync Axis Scales"]').click();
+  }
+
+  /** The "Sync Axis Scales: on|off" / "No Axis Scale syncing possible ..." tooltip text, as the toggle reports it. */
+  axisScalesSyncTooltip(): Locator {
+    return this.page.locator('[data-tooltip*="Axis Scale"]');
+  }
+
   /**
    * Locate one control in a benchmark class's sidebar filter tree
    * (MethodParamCheckboxList.jsx), scoped to `className`'s own row and
@@ -113,9 +183,7 @@ export class JmhApp {
    * order.
    */
   benchmarkFilter(className: string, methodName: string, paramName?: string, paramValue?: string): Locator {
-    const bundleItem = this.page
-      .locator('ul.nav ul.nav > li')
-      .filter({ has: this.page.getByText(className, { exact: true }) });
+    const bundleItem = this.sidebarRow(className);
 
     if (paramName === undefined) {
       return bundleItem.getByRole('checkbox', { name: methodName, exact: true });
@@ -188,9 +256,41 @@ export class JmhApp {
    * ScaleButton). Scoped to a heading: DetailScreen renders its own
    * ScaleButton in the sidebar (outside any heading), so an unscoped
    * page-wide selector would silently hit the wrong control there.
+   *
+   * `className` narrows that to one class's header, which is required whenever
+   * several classes are on screen; it only flips *that* chart (SingleRunBundle keeps
+   * its own copy of the setting), unlike the sidebar control below.
    */
-  async toggleScale(): Promise<void> {
-    await this.page.getByRole('heading').locator('[data-tooltip^="Switch scale"]').click();
+  async toggleScale(className?: string): Promise<void> {
+    await this.chartHeaderControl('Switch scale', className).click();
+  }
+
+  /** Click a chart header's "Sort by Score/Name" control (Icons.jsx's SortButton). See `toggleScale`. */
+  async toggleSort(className?: string): Promise<void> {
+    await this.chartHeaderControl('Sort by', className).click();
+  }
+
+  private chartHeaderControl(tooltipPrefix: string, className?: string): Locator {
+    const scope = className === undefined ? this.page : this.benchmarkSection(className);
+    return scope.getByRole('heading').locator(`[data-tooltip^="${tooltipPrefix}"]`);
+  }
+
+  /**
+   * Click the sidebar's own Sort / Scale control (RunScreen's and DetailScreen's
+   * `buttons`), which drives `actions.sort`/`actions.logScale` — global state every
+   * chart on the screen follows, as opposed to the per-chart headers above.
+   *
+   * Same unlabelled `data-tooltip` icon as the header controls, and nothing
+   * distinguishes the two beyond where they sit: SplitPane renders the main view
+   * before the sidebar, so the sidebar's copy is the last one on the page.
+   */
+  async toggleSortForAllCharts(): Promise<void> {
+    await this.page.locator('[data-tooltip^="Sort by"]').last().click();
+  }
+
+  /** See `toggleSortForAllCharts` — the same sidebar control for the log/linear scale. */
+  async toggleScaleForAllCharts(): Promise<void> {
+    await this.page.locator('[data-tooltip^="Switch scale"]').last().click();
   }
 
   /**
@@ -212,11 +312,22 @@ export class JmhApp {
 
   /**
    * Click a chart header's "Show details" control (Icons.jsx's
-   * DetailsButton), navigating to the full-screen DetailScreen.
+   * DetailsButton), navigating to the full-screen DetailScreen. Pass
+   * `className` when more than one class is on screen — see `toggleScale`.
    */
-  async showDetails(): Promise<void> {
-    await this.page.getByRole('heading').locator('[data-tooltip^="Show details"]').click();
+  async showDetails(className?: string): Promise<void> {
+    await this.chartHeaderControl('Show details', className).click();
     await this.page.getByText('Back..').waitFor(); // confirms the DetailScreen navigation completed
+  }
+
+  /**
+   * Pick another benchmark class in DetailSideBar's `<select>`, staying on the Details
+   * screen. Not `selectMetric`'s dropdown: that one is the Run screen's metric picker,
+   * and the two screens never render both.
+   */
+  async selectDetailedBenchmarkClass(className: string): Promise<void> {
+    await this.page.locator('select').selectOption({ label: className });
+    await this.page.getByRole('heading', { name: new RegExp(`Details of .*${escapeRegExp(className)}$`) }).waitFor();
   }
 
   /** Click DetailScreen's "Back.." link, returning to the previous screen via history.goBack(). */

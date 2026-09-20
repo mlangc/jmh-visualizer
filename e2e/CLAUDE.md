@@ -22,7 +22,7 @@ is which.
   characterization test.
 - `specs/linked-hash-first-vs-iter-next-benchmark.spec.ts` — interaction
   test: on top of the initial render, clicks the log/linear scale toggle and
-  asserts the chart changes without error, then Show Details / Back and
+  asserts the x-axis' own ticks change (and change back), then Show Details / Back and
   asserts the fixture's secondary GC metrics (`gc.alloc.rate`,
   `gc.alloc.rate.norm`, `gc.count`, `gc.time`) are listed and navigation
   returns cleanly. Also holds a `@filters`-tagged test, excluded by default —
@@ -71,6 +71,39 @@ is which.
   URL/gist alerting and stranding the app on a blank screen. The gist case also
   pins a real bug — `fetchFromGists` alerts inside its own `.catch` and then
   reads `json.files` off the `undefined` that resolves to.
+- `specs/chart-tooltips.spec.ts` — the hand-written tooltips recharts renders
+  through its `content` prop, one per view type, and the only place the app
+  shows a benchmark's min/max/error or (in the two-run case) a score change it
+  computes itself. Nothing else in the suite moves the pointer into a chart.
+- `specs/chart-controls.spec.ts` — Sort (never clicked before this spec) and
+  "Show JSON" (only ever asserted present). Both exist twice over with
+  different reach — in each chart's header as that bundle's own state, and in
+  the sidebar as screen-wide `actions.sort`/`actions.logScale` — so the tests
+  tell the two apart on a second, untouched chart. Runs on the bundled example:
+  `BarDataSet` only sorts single-bar-group charts, which no vendored fixture
+  reorders visibly.
+- `specs/focused-bundles.spec.ts` — the sidebar eye icon (`focusedBundles`) and
+  the "Sync Axis Scales" toggle it unlocks once two classes are focused,
+  including the shared axis maximum it produces and the disabled state two
+  different benchmark modes force. Example-only for the same reason as gap 1's
+  breadth: each vendored fixture holds exactly one class, so focusing it is a
+  no-op and a second one can never be focused.
+- `specs/detail-screen.spec.ts` — the Details screen below its metric list: a
+  chart per metric in its own unit, the sidebar's benchmark-class `<select>`,
+  its screen-wide Scale control, the "Metrics" category link (a no-op that must
+  not blank the list), and the `No benchmark results for run X` branch — which
+  needs a class missing from the selected run, so it runs on the multi-run
+  example. Also the browser's own Back/Forward, the reason `store.js` registers
+  a `history.listen` POP handler at all: Back leaves the screen, and Forward
+  restores `#details` to the address bar but *not* the screen (the handler
+  undetails on any POP), pinned as-is.
+- `specs/entry-points.spec.ts` — what a shared link does before the app renders
+  anything: `?example=single|two|multi` and the pre-2018 `#singleRunExample`
+  hashes, the singular `?source=`/`?gist=` (only their plural forms were
+  covered), and `?topBar=off`/`?topBar=<headline>`, whose two non-default
+  branches also swap `DefaultTopBar` for `Footer`. Plus the `onbeforeunload`
+  guard, which only the upload path arms — loading an example leaves nothing of
+  the user's to lose, and doesn't.
 - `specs/harness.spec.ts` — tests the assertion routines back, proving they
   aren't vacuously green: `expectCostOfAllocRateNormReport` must reject on a
   blank page and on the three bundled examples (real JMH data the routine
@@ -84,7 +117,10 @@ is which.
   names and a wrong result count; `expectTwoRunCompare` must reject the
   *Summary* screen of the very same two runs (which also says "Comparing",
   also renders charts, and also names both runs) and a single wrong score
-  difference.
+  difference. `expectChartTooltip` must reject the very chart it describes
+  while nothing is hovered — with the "Show JSON" panel open, so every figure
+  it claims *is* on the page as text — and must reject another bar's scores
+  presented under the right heading.
 - `specs/single-run-via-url-and-gist.spec.ts` — the smoke spec's fixture,
   loaded via a single "Load from URL(s)"/"Load from Gist(s)" entry instead
   of file upload, against mocked network responses (see
@@ -123,6 +159,14 @@ is which.
   spec share. Categories and bar labels are checked for presence, not pairing:
   tying a label to its category needs recharts' internal class names, which
   this suite doesn't use.
+- `support/chart-tooltip-assertions.ts` — `expectChartTooltip()` plus
+  `hoverBarRow()`/`hoverFirstRunColumn()`. recharts derives a tooltip from the
+  pointer's position in the plot area rather than from the element under it, so
+  the hovers are raw mouse moves — aimed at a *named* bar's own value label, or
+  at the leftmost run's column where a line chart has no label to aim at. The
+  assertion reads the tooltip by role (heading + `<Table>`) and row by row: the
+  Run screens hold no table of their own, so nothing here needs recharts'
+  `.recharts-tooltip-wrapper`.
 - `support/start-screen-assertions.ts` — `expectStartScreen()`, shared by the
   start-screen spec and the post-reset check in the multi-run spec.
 - `support/summary-comparison-assertions.ts` —
@@ -149,12 +193,22 @@ is which.
   loaded at once", parameterized by each fixture's run name so it works
   unchanged across file upload, `?sources=`/`?gists=`, and the multi-file
   gist — used by `multi-run-summary-and-compare.spec.ts` and
-  `all-three-via-multi-file-gist.spec.ts`.
+  `all-three-via-multi-file-gist.spec.ts`. Its Compare step also pins
+  `MultiRunView`'s own header sentence, which counts *all* the runs, unlike the
+  Summary screen's (see `summary-header-assertions.ts`).
 - `support/jmh-app.ts` — page object; the only place that knows app-specific
   selectors (upload input, "Load … Example" links, "Load from URL(s)/Gist(s)"
-  dialogs, scale/details/back controls, the multi-run top nav and sidebar).
+  dialogs, sort/scale/details/back controls, the sidebar's eye and details
+  icons, the axis-sync toggle, the multi-run top nav and sidebar).
   `loadFromGists()` takes an optional `expectedRunCount` (defaults to
   `gistIds.length`) for a gist holding more than 1 file.
+  `benchmarkSection(name)` scopes a lookup to one benchmark class's report (or
+  one metric's section on the Details screen) — needed on the 18-class
+  examples, where the page-wide chart and header locators would otherwise be
+  strict-mode violations. `toggleSort`/`toggleScale` take that same name, while
+  `toggleSortForAllCharts`/`toggleScaleForAllCharts` drive the sidebar's copies
+  of those controls, which are the same unlabelled icon and are told apart only
+  by position (SplitPane renders the main view before the sidebar).
 - `support/gist-fixtures.ts` — the 3 real gists (owned by mlangc) that are
   1:1 in content with the 3 local fixtures below, used by the URL/Gist specs,
   plus `ALL_THREE_GIST_ID` — a placeholder ID (not a real gist yet) for a

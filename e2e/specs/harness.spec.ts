@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { expectBrandMenu } from '../support/brand-menu-assertions';
+import { expectChartTooltip, hoverBarRow } from '../support/chart-tooltip-assertions';
 import { JmhApp } from '../support/jmh-app';
 import {
   expectBenchmarkFiltersHavingAnEffect,
@@ -224,6 +225,72 @@ test.describe('expectTwoRunCompare falsification checks', () => {
     ).rejects.toThrow();
   });
 });
+
+test.describe('expectChartTooltip falsification checks', () => {
+  const ENTRY_ITERATOR_NEXT_TOOLTIP = {
+    heading: 'entryIteratorNext',
+    columnHeaders: ['size', 'Score', 'Min', 'Max', 'Error', 'Unit'],
+    rows: [
+      [
+        '10',
+        '7.949607915875453e-10',
+        '7.800958367831392e-10',
+        '8.069397348060598e-10',
+        '4.839336096106317e-11',
+        's/op'
+      ],
+      [
+        '100',
+        '8.664407435614395e-10',
+        '8.632972150952172e-10',
+        '8.696298531563925e-10',
+        '1.0424175520242776e-11',
+        's/op'
+      ]
+    ]
+  };
+
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectChartTooltip(page, ENTRY_ITERATOR_NEXT_TOOLTIP, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects on the very chart it describes, while nothing is hovered', async ({ page }) => {
+    await loadLinkedHashBenchmark(page);
+    await hoverBarRow(page, page.locator('.recharts-wrapper').first(), '7.949607915875453e-10 s/op');
+    await expectChartTooltip(page, ENTRY_ITERATOR_NEXT_TOOLTIP); // confirm the real state first
+
+    // Clicking takes the pointer out of the chart, which closes the tooltip, and puts
+    // every figure that was in it on the page as plain text -- so a routine looking
+    // page-wide rather than at the open tooltip would still pass here.
+    await page.getByRole('button', { name: 'Show JSON' }).click();
+    await expect(expectChartTooltip(page, ENTRY_ITERATOR_NEXT_TOOLTIP, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test("rejects another bar's numbers under the right heading", async ({ page }) => {
+    await loadLinkedHashBenchmark(page);
+    await hoverBarRow(page, page.locator('.recharts-wrapper').first(), '7.949607915875453e-10 s/op');
+    await expectChartTooltip(page, ENTRY_ITERATOR_NEXT_TOOLTIP);
+
+    // firstEntry's scores, still labelled entryIteratorNext and with the right shape:
+    // only a routine that reads the rows can tell these apart.
+    const otherMethodsRows = ENTRY_ITERATOR_NEXT_TOOLTIP.rows.map((row) => [
+      row[0],
+      '1.6888394101249562e-9',
+      ...row.slice(2)
+    ]);
+    await expect(
+      expectChartTooltip(page, { ...ENTRY_ITERATOR_NEXT_TOOLTIP, rows: otherMethodsRows }, NEG_TIMEOUT)
+    ).rejects.toThrow();
+  });
+});
+
+async function loadLinkedHashBenchmark(page: Page): Promise<JmhApp> {
+  const app = new JmhApp(page);
+  await page.goto('/');
+  await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
+  return app;
+}
 
 async function loadLinkedHashMapBenchmarks(page: Page): Promise<JmhApp> {
   const app = new JmhApp(page);

@@ -53,12 +53,16 @@ test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and de
     await expect(chart.getByText(label, { exact: true })).toBeVisible();
   }
 
-  // Switch scale (log/linear): assert the chart actually changes and nothing errors
-  const beforeScale = await chart.textContent();
+  // Switch scale (log/linear): assert the axis itself changes, not merely that the
+  // chart's text differs -- a chart that rendered something different and wrong would
+  // also pass that. The x-axis is what the setting acts on: linear starts at 0 and
+  // steps evenly, log starts near the smallest score.
+  const axisTicks = chart.locator('text').filter({ hasText: /^[0-9][0-9.e-]*$/ });
+  await expect(axisTicks).toHaveText(['0', '5e-10', '1e-9', '1.5e-9']);
   await app.toggleScale();
-  await expect(async () => {
-    expect(await chart.textContent()).not.toBe(beforeScale);
-  }).toPass();
+  await expect(axisTicks).toHaveText(['8e-10', '9e-10', '1e-9']);
+  await app.toggleScale();
+  await expect(axisTicks).toHaveText(['0', '5e-10', '1e-9', '1.5e-9']);
   expect(dialogs).toEqual([]);
   expect(pageErrors).toEqual([]);
 

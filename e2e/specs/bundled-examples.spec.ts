@@ -82,6 +82,15 @@ test('the multi-run example offers all three runs and compares the last two', as
   // the fixtures, in summary-header.spec.ts -- it needs an app fix older builds lack,
   // and one @needs-fix-tagged test per fix is enough.
 
+  // Compare, i.e. MultiRunView: unlike the Summary above, it spans every loaded run.
+  // The line charts plot all three, which shows up as the x-axis' categories -- and
+  // only the examples' short run names fit there, the fixtures' long ones overlap and
+  // recharts drops one.
+  await app.clickAllRunsButton();
+  await expect(page.getByText(/Comparing\s*19\s*benchmark classes for\s*3\s*runs on metric 'Score'\./)).toBeVisible();
+  const firstChart = app.benchmarkSection('ListCreationBenchmark').locator('.recharts-wrapper').first();
+  await expect(firstChart.locator('text').filter({ hasText: /^run\d$/ })).toHaveText(['run1', 'run2', 'run3']);
+
   expect(dialogs).toEqual([]);
   expect(pageErrors).toEqual([]);
 });

@@ -87,6 +87,11 @@ export async function expectMultiRunWorkflow(
   const linkedHashHeading = page.getByRole('heading', { name: /LinkedHashFirstVsIterNextBenchmark/ });
   await expect(costHeading).toBeVisible();
   await expect(linkedHashHeading).toBeVisible();
+  // MultiRunView's own header sentence, which the Summary screen's (asserted in
+  // summary-header.spec.ts) replaces: this one counts *all* the runs, not the last two.
+  // React splits it across the class-count <Badge>, hence the one whitespace-tolerant
+  // regex rather than element-by-element matching.
+  await expect(page.getByText(/Comparing\s*2\s*benchmark classes for\s*3\s*runs on metric 'Score'\./)).toBeVisible();
   await expect(page.getByText(/Ignoring deviations below/)).toHaveCount(0);
 
   // 7. sidebar scroll-to-section round trip. Class insertion order follows
