@@ -1,10 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
-function parseFlag(name: string): boolean {
+function parseFlag(name: string, defaultValue: boolean = false): boolean {
   const value = process.env[name];
 
   if (value === undefined) {
-    return false;
+    return defaultValue;
   }
 
   const normalizedValue = value.trim().toLowerCase();
@@ -17,7 +17,7 @@ function parseFlag(name: string): boolean {
   }
 }
 
-const INCLUDE_FILTERS = parseFlag('INCLUDE_FILTERS');
+const INCLUDE_FILTERS = parseFlag('INCLUDE_FILTERS', true);
 // Opts *out* of tests that need an app fix this suite ships alongside -- set it when
 // pointing APP_BUILD_DIR at a build that predates the fix. The two tag axes are
 // independent: @filters/@no-filters says which branch's UI is under test, @needs-fix
