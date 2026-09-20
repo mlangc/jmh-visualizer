@@ -25,7 +25,7 @@ is which.
   asserts the x-axis' own ticks change (and change back), then Show Details / Back and
   asserts the fixture's secondary GC metrics (`gc.alloc.rate`,
   `gc.alloc.rate.norm`, `gc.count`, `gc.time`) are listed and navigation
-  returns cleanly. Also holds a `@filters`-tagged test, excluded by default —
+  returns cleanly. Also holds a `@filters`-tagged test, included by default —
   see Constraints and `INCLUDE_FILTERS` below.
 - `specs/multi-run-summary-and-compare.spec.ts` — uploads all 3 fixtures
   together, then delegates to `support/multi-run-workflow.ts`'s shared
@@ -278,28 +278,28 @@ git worktree add <path> <branch>
 APP_BUILD_DIR=<path>/build npm test
 ```
 
-`INCLUDE_FILTERS` (env var; `1`/`true`/`yes` to opt in, `0`/`false`/`no`,
-empty or unset to skip — anything else aborts the run) opts into
-`@filters`-tagged specs —
-tests for the benchmark/param filter checkboxes added on
-`add-filters-for-large-result-files`. That UI doesn't exist on `master`, so
-these specs are excluded by default (`grepInvert` in `playwright.config.ts`)
-and only make sense run against a build of that branch — combine with
-`APP_BUILD_DIR` the same way as above:
+`INCLUDE_FILTERS` (env var; `1`/`true`/`yes` to opt in, `0`/`false`/`no` to
+opt out, empty or unset to default to **on** — anything else aborts the run)
+gates the `@filters`-tagged specs — tests for the benchmark/param filter
+checkboxes originally added on `add-filters-for-large-result-files`, now
+merged into `main`. Since a default build already has that UI, these specs
+run by default; set it to `0`/`false`/`no` to exclude them, which only makes
+sense against a build that predates the filters UI (a `master` build, or an
+older `main` commit) — combine with `APP_BUILD_DIR` the same way as above:
 
 ```bash
-INCLUDE_FILTERS=1 APP_BUILD_DIR=<path-to-filters-branch>/build npm test
+INCLUDE_FILTERS=0 APP_BUILD_DIR=<path-to-pre-filters-build>/build npm test
 ```
 
-The same `grepInvert` toggle also excludes the mirror-image `@no-filters`
-tag whenever `INCLUDE_FILTERS` is set — `harness.spec.ts`'s "rejects filters
-are not implemented" falsification check, which only holds against a
-`master` build (the filters branch actually implements them, so the check
-would fail there for the right reason but for the wrong test).
+The same `grepInvert` toggle excludes the mirror-image `@no-filters` tag
+whenever `INCLUDE_FILTERS` resolves to `true` (the default) —
+`harness.spec.ts`'s "rejects filters are not implemented" falsification
+check, which only holds against a build that doesn't implement filters (set
+`INCLUDE_FILTERS=0` to run it).
 
 `SKIP_NEEDS_FIX` (env var, same parsing as `INCLUDE_FILTERS`) opts *out* of
 `@needs-fix`-tagged tests — tests that need an app fix this suite ships
-alongside. Unlike `@filters`, they run by default: the fix is in this branch's
+alongside. Like `@filters`, they run by default: the fix is in this branch's
 `src/`, so the default build has it. Set the flag when `APP_BUILD_DIR` points
 at a build that predates the fix (an older branch, `master` before the fix
 lands, a bisect):
@@ -308,11 +308,11 @@ lands, a bisect):
 SKIP_NEEDS_FIX=1 APP_BUILD_DIR=<path-to-older-build>/build npm test
 ```
 
-The two tag axes are independent and combine — checking the filters branch
-before the fix is merged there needs both:
+The two tag axes are independent and combine — checking an old `master`
+build that predates both the filters UI and the fix needs both:
 
 ```bash
-INCLUDE_FILTERS=1 SKIP_NEEDS_FIX=1 APP_BUILD_DIR=<filters-branch>/build npm test
+INCLUDE_FILTERS=0 SKIP_NEEDS_FIX=1 APP_BUILD_DIR=<old-master-build>/build npm test
 ```
 
 The only fix currently tagged is `SummaryScreen.jsx` passing the full run-name
@@ -374,17 +374,17 @@ extends to `src/`'s older patterns.
 - **Exact-pinned deps, no retries** — a characterization suite is for signal;
   a silent dependency bump or a retry-hidden flake both defeat the purpose.
   `@biomejs/biome` is pinned the same way.
-- Every spec must pass unmodified on both `master` and
-  `add-filters-for-large-result-files` — it characterizes *shared* behaviour,
-  not branch-only UI. Two deliberate exceptions, both tagged and both
-  switchable from the environment. First, `@filters`-tagged tests
-  characterize the filter checkboxes that only exist on
-  `add-filters-for-large-result-files`. They're excluded by default (opt in
-  with `INCLUDE_FILTERS=1`, see Commands above), so plain `npm test` still
-  passes unmodified against a `master` build. `@no-filters` is this
-  exception's mirror image: a falsification check that only holds against
-  `master` (see Commands above), excluded the other way by the same
-  `INCLUDE_FILTERS` toggle.
+- Every spec must pass unmodified on both `master` and `main` (which carries
+  the filter checkboxes, merged in from `add-filters-for-large-result-files`)
+  — it characterizes *shared* behaviour, not branch-only UI. Two deliberate
+  exceptions, both tagged and both switchable from the environment. First,
+  `@filters`-tagged tests characterize the filter checkboxes that only exist
+  on `main`. They run by default (opt out with `INCLUDE_FILTERS=0`, see
+  Commands above), so plain `npm test` passes unmodified against a `main`
+  build; testing against an older, pre-filters `master` build needs
+  `INCLUDE_FILTERS=0`. `@no-filters` is this exception's mirror image: a
+  falsification check that only holds against a build without filters,
+  excluded the other way by the same `INCLUDE_FILTERS` toggle.
 - Second, `@needs-fix` cuts the other way: those tests describe behaviour only a build
   carrying this branch's `src/` fix has, so they run by default and get
   excluded with `SKIP_NEEDS_FIX=1` when testing an older build (see Commands
