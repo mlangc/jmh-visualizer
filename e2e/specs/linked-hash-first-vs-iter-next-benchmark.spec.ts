@@ -1,0 +1,105 @@
+import { expect, test } from '@playwright/test';
+import { JmhApp } from '../support/jmh-app';
+import {
+  expectBenchmarkFiltersHavingAnEffect,
+  expectFiltersBeingPresent
+} from '../support/linked-hash-first-vs-iter-next-filters-assertions';
+import { watchDialogsAndErrors } from '../support/page-watchers';
+
+// The suite's first interaction-driven spec: beyond static presence, it
+// drives the scale toggle and the details/back navigation and checks their
+// effects. Uses this fixture (not cost-of-alloc-rate-norm-benchmark.json)
+// because it has populated secondaryMetrics (gc.* profiling data) to exercise
+// the Details screen with.
+test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and details/back navigation', async ({
+  page
+}) => {
+  // assert none fired after each interaction below
+  const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+  const app = new JmhApp(page);
+  await page.goto('/');
+  await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
+
+  const chart = page.locator('.recharts-wrapper');
+  const header = page.getByRole('heading', { name: /LinkedHashFirstVsIterNextBenchmark/ });
+
+  // initial render: benchmark class, mode badge, both methods
+  await expect(
+    page.locator('ul.nav ul.nav').getByText('LinkedHashFirstVsIterNextBenchmark', { exact: true })
+  ).toBeVisible();
+  await expect(header).toBeVisible();
+  await expect(header.getByText('Average Time')).toBeVisible();
+  await expect(chart.getByText('entryIteratorNext')).toBeVisible();
+  await expect(chart.getByText('firstEntry')).toBeVisible();
+
+  // wait for the bar labels to finish animating in (~540ms) before taking the
+  // pre-toggle baseline below — an early baseline would make the post-toggle
+  // diff trivially true (labels absent vs present) rather than a real
+  // linear-vs-log scale comparison
+  // 4, not 2: this fixture has 2 param values (size=10/100) per method, so
+  // each of the 2 methods renders as 2 bars — one label per bar
+  await expect(chart.getByText(/s\/op/)).toHaveCount(4);
+
+  // ...and by value. These scores are all < 1, so util.js's round/formatNumber leave
+  // them unrounded and they render in full precision — the opposite branch from
+  // cost-of-alloc-rate-norm's locale-formatted '60,050 ops/s' (report-assertions.ts).
+  for (const label of [
+    '7.949607915875453e-10 s/op',
+    '1.6888394101249562e-9 s/op',
+    '8.664407435614395e-10 s/op',
+    '1.816618712295571e-9 s/op'
+  ]) {
+    await expect(chart.getByText(label, { exact: true })).toBeVisible();
+  }
+
+  // Switch scale (log/linear): assert the axis itself changes, not merely that the
+  // chart's text differs -- a chart that rendered something different and wrong would
+  // also pass that. The x-axis is what the setting acts on: linear starts at 0 and
+  // steps evenly, log starts near the smallest score.
+  const axisTicks = chart.locator('text').filter({ hasText: /^[0-9][0-9.e-]*$/ });
+  await expect(axisTicks).toHaveText(['0', '5e-10', '1e-9', '1.5e-9']);
+  await app.toggleScale();
+  await expect(axisTicks).toHaveText(['8e-10', '9e-10', '1e-9']);
+  await app.toggleScale();
+  await expect(axisTicks).toHaveText(['0', '5e-10', '1e-9', '1.5e-9']);
+  expect(dialogs).toEqual([]);
+  expect(pageErrors).toEqual([]);
+
+  // Show details: navigate to the per-metric Details screen and check the
+  // fixture's secondary GC metrics are all listed (firstEntry contributes
+  // gc.time; entryIteratorNext doesn't, so this also proves the union across
+  // both methods is shown, not just one method's metrics)
+  await app.showDetails();
+  await expect(page.getByRole('heading', { name: /Details of/ })).toBeVisible();
+  const metricsNav = page.locator('ul.nav ul.nav');
+  for (const metric of ['Score', 'gc.alloc.rate', 'gc.alloc.rate.norm', 'gc.count', 'gc.time']) {
+    await expect(metricsNav.getByText(metric, { exact: true })).toBeVisible();
+  }
+
+  // Back: confirm we're back on the original report screen
+  await app.goBack();
+  await expect(page.getByText('Back..')).toHaveCount(0);
+  await expect(
+    page.locator('ul.nav ul.nav').getByText('LinkedHashFirstVsIterNextBenchmark', { exact: true })
+  ).toBeVisible();
+  await expect(page.getByRole('heading').locator('[data-tooltip^="Show details"]')).toBeVisible();
+
+  expect(dialogs).toEqual([]);
+  expect(pageErrors).toEqual([]);
+});
+
+test('linked-hash-first-vs-iter-next-benchmark.json supports filters', {
+  tag: '@filters'
+}, async ({ page }) => {
+  const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+  const app = new JmhApp(page);
+  await page.goto('/');
+  await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
+  await expectFiltersBeingPresent(page);
+  await expectBenchmarkFiltersHavingAnEffect(page);
+
+  expect(dialogs).toEqual([]);
+  expect(pageErrors).toEqual([]);
+});

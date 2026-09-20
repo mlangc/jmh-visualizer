@@ -1,0 +1,340 @@
+import { expect, type Page, test } from '@playwright/test';
+import { expectBrandMenu } from '../support/brand-menu-assertions';
+import { expectChartTooltip, hoverBarRow } from '../support/chart-tooltip-assertions';
+import { JmhApp } from '../support/jmh-app';
+import {
+  expectBenchmarkFiltersHavingAnEffect,
+  expectFiltersBeingPresent
+} from '../support/linked-hash-first-vs-iter-next-filters-assertions';
+import { expectCostOfAllocRateNormReport } from '../support/report-assertions';
+import { expectStartScreen } from '../support/start-screen-assertions';
+import {
+  expectDeclinedBenchmarks,
+  expectImprovedBenchmarks,
+  expectUnchangedBenchmarks,
+  LINKED_HASH_PAIR_ROWS,
+  LINKED_HASH_PAIR_ROWS_MINUS_SURVIVOR,
+  LINKED_HASH_PAIR_SURVIVING_ROW
+} from '../support/summary-comparison-assertions';
+import { expectSummaryHeader } from '../support/summary-header-assertions';
+import { expectTwoRunCompare, LINKED_HASH_PAIR_COMPARE } from '../support/two-run-compare-assertions';
+
+// This timeout is used for negative assertions, where failure means success.
+// Using the default value makes these tests slow. Using a value that is too low
+// risks making these tests pass for the wrong reason.
+const NEG_TIMEOUT = { timeout: 1_000 };
+
+// This suite tests the assertion routines themselves, not the app. Every
+// routine here must reject on a blank page, and must reject on a real page
+// whose state doesn't match the claim -- wrong table data for the two
+// data-dependent routines below, the wrong screen for expectStartScreen, etc.
+test.describe('expectCostOfAllocRateNormReport falsification checks', () => {
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectCostOfAllocRateNormReport(page, NEG_TIMEOUT)).rejects.toThrow();
+    await expect(page.getByText('JMH Visualizer')).toHaveCount(0);
+  });
+
+  for (const kind of ['single', 'two', 'multi'] as const) {
+    test(`rejects on the bundled ${kind}-run example`, async ({ page }) => {
+      await page.goto('/');
+      await new JmhApp(page).loadBundledExample(kind);
+      await expect(page.locator('.recharts-wrapper').first()).toBeVisible(); // a chart *did* render
+      await expect(expectCostOfAllocRateNormReport(page, NEG_TIMEOUT)).rejects.toThrow();
+    });
+  }
+});
+
+// expectDeclinedBenchmarks/expectImprovedBenchmarks/expectUnchangedBenchmarks
+// (summary-comparison-assertions.ts) share one expectComparisonRows routine,
+// so falsifying expectDeclinedBenchmarks/expectImprovedBenchmarks/
+// expectUnchangedBenchmarks here covers all three.
+test.describe('expectComparisonRows falsification checks', () => {
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectDeclinedBenchmarks(page, LINKED_HASH_PAIR_ROWS, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects when the claimed table has no rows at all', async ({ page }) => {
+    await loadLinkedHashMapBenchmarks(page);
+
+    // Confirm the real state first -- regular-then-on-battery always declines.
+    await expectDeclinedBenchmarks(page, LINKED_HASH_PAIR_ROWS);
+
+    // With 0 improved rows, SummaryTable.jsx renders no "Improved Benchmarks"
+    // heading at all (and no second <table>), so this rejects at the very
+    // first assertion (the heading lookup) -- it proves the heading lookup is
+    // parameterized by table name, not that the *rows* are looked up inside
+    // the right table (the next test covers that).
+    await expect(expectImprovedBenchmarks(page, LINKED_HASH_PAIR_ROWS, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects when a row belongs to a different table on the same page, despite a matching row count', async ({
+    page
+  }) => {
+    const app = await loadLinkedHashMapBenchmarks(page);
+
+    // At the slider's 50% max, both a real Declined and a real Unchanged
+    // table exist on the same page -- confirm the real state first.
+    await app.moveMinDeviationSliderToMax();
+    await expectDeclinedBenchmarks(page, [LINKED_HASH_PAIR_SURVIVING_ROW]);
+    await expectUnchangedBenchmarks(page, LINKED_HASH_PAIR_ROWS_MINUS_SURVIVOR);
+
+    // Right row count (3) for the Unchanged heading, but the first entry
+    // actually lives in the Declined table on this same page -- only the
+    // `following-sibling::table[1]` scoping in expectComparisonRows can
+    // reject this; a page-wide (unscoped) row lookup would find it and pass.
+    const rowFromTheOtherTable = [LINKED_HASH_PAIR_SURVIVING_ROW, ...LINKED_HASH_PAIR_ROWS_MINUS_SURVIVOR.slice(0, 2)];
+    await expect(expectUnchangedBenchmarks(page, rowFromTheOtherTable, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects when a row has the wrong params', async ({ page }) => {
+    await loadLinkedHashMapBenchmarks(page);
+
+    // Confirm the real state first -- otherwise a routine that regressed to
+    // rejecting at the heading check (rather than the per-row loop this test
+    // means to exercise) would still pass here, proving nothing.
+    await expectDeclinedBenchmarks(page, LINKED_HASH_PAIR_ROWS);
+
+    // Same method/row count as the real Declined table (so the heading match
+    // alone can't reject this), but the last entry's params don't exist --
+    // proving the per-row loop, not just the heading's row count, is checked.
+    const rowsWithOneWrongParams = [...LINKED_HASH_PAIR_ROWS.slice(0, 3), { method: 'firstEntry', params: 'size=999' }];
+    await expect(expectDeclinedBenchmarks(page, rowsWithOneWrongParams, NEG_TIMEOUT)).rejects.toThrow();
+  });
+});
+
+test.describe('start screen falsification checks', () => {
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectStartScreen(page, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects if benchmarks are already loaded', async ({ page }) => {
+    await loadLinkedHashMapBenchmarks(page);
+    await expect(expectStartScreen(page, NEG_TIMEOUT)).rejects.toThrow();
+  });
+});
+
+test.describe('brand menu falsification checks', () => {
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectBrandMenu(page, { ...NEG_TIMEOUT, visible: true })).rejects.toThrow();
+  });
+
+  test('rejects if the menu is hidden, but expected to be visible', async ({ page }) => {
+    await page.goto('/');
+    await expect(expectBrandMenu(page, { ...NEG_TIMEOUT, visible: true })).rejects.toThrow();
+  });
+
+  test('rejects if the menu is visible, but expected to be hidden', async ({ page }) => {
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.toggleBrandMenu();
+    await expect(expectBrandMenu(page, { ...NEG_TIMEOUT, visible: false })).rejects.toThrow();
+  });
+});
+
+test.describe('linked-hash-first-vs-iter-next-filters falsification checks', () => {
+  async function expectNoFilters(page: Page): Promise<void> {
+    await expect(expectFiltersBeingPresent(page, NEG_TIMEOUT)).rejects.toThrow();
+    await expect(expectBenchmarkFiltersHavingAnEffect(page, NEG_TIMEOUT)).rejects.toThrow();
+  }
+
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expectNoFilters(page);
+  });
+
+  test('rejects on a start page', async ({ page }) => {
+    await page.goto('/');
+    await expectNoFilters(page);
+  });
+
+  test('rejects if wrong benchmarks are loaded', async ({ page }) => {
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReport('cost-of-alloc-rate-norm-benchmark.json');
+    await expectNoFilters(page);
+  });
+
+  test('rejects filters are not implemented', { tag: '@no-filters' }, async ({ page }) => {
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
+    await expectNoFilters(page);
+  });
+});
+
+test.describe('expectSummaryHeader falsification checks', () => {
+  const REAL_HEADER = {
+    results: 4,
+    benchmarkClasses: 1,
+    runName1: 'linked-hash-first-vs-iter-next-benchmark',
+    runName2: 'linked-hash-first-vs-iter-next-on-battery-benchmark'
+  };
+
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectSummaryHeader(page, REAL_HEADER, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects when the compared runs are named in the wrong order', async ({ page }) => {
+    await loadLinkedHashMapBenchmarks(page);
+
+    // Confirm the real state first -- otherwise a routine that stopped matching run
+    // names at all would still pass this.
+    await expectSummaryHeader(page, REAL_HEADER);
+
+    const swapped = { ...REAL_HEADER, runName1: REAL_HEADER.runName2, runName2: REAL_HEADER.runName1 };
+    await expect(expectSummaryHeader(page, swapped, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects when the compared-results count is wrong', async ({ page }) => {
+    await loadLinkedHashMapBenchmarks(page);
+    await expectSummaryHeader(page, REAL_HEADER);
+
+    // Right run names, wrong badge count -- proves the counts are part of the match,
+    // not decoration around the names.
+    await expect(expectSummaryHeader(page, { ...REAL_HEADER, results: 3 }, NEG_TIMEOUT)).rejects.toThrow();
+  });
+});
+
+test.describe('expectTwoRunCompare falsification checks', () => {
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectTwoRunCompare(page, LINKED_HASH_PAIR_COMPARE, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects on the Summary screen of the very same two runs', async ({ page }) => {
+    // Same runs, same data, wrong screen: the Summary screen also says "Comparing",
+    // also renders charts, and also names both runs -- so only a routine that keys on
+    // the Compare screen's own sentence and its diff chart can reject this.
+    await loadLinkedHashMapBenchmarks(page);
+    await expect(expectTwoRunCompare(page, LINKED_HASH_PAIR_COMPARE, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects when a score difference is wrong', async ({ page }) => {
+    const app = await loadLinkedHashMapBenchmarks(page);
+    await app.clickAllRunsButton();
+    await expectTwoRunCompare(page, LINKED_HASH_PAIR_COMPARE);
+
+    const wrongDiffs = [...LINKED_HASH_PAIR_COMPARE.scoreDiffs.slice(0, 3), '-99.9'];
+    await expect(
+      expectTwoRunCompare(page, { ...LINKED_HASH_PAIR_COMPARE, scoreDiffs: wrongDiffs }, NEG_TIMEOUT)
+    ).rejects.toThrow();
+  });
+});
+
+test.describe('expectChartTooltip falsification checks', () => {
+  const ENTRY_ITERATOR_NEXT_TOOLTIP = {
+    heading: 'entryIteratorNext',
+    columnHeaders: ['size', 'Score', 'Min', 'Max', 'Error', 'Unit'],
+    rows: [
+      [
+        '10',
+        '7.949607915875453e-10',
+        '7.800958367831392e-10',
+        '8.069397348060598e-10',
+        '4.839336096106317e-11',
+        's/op'
+      ],
+      [
+        '100',
+        '8.664407435614395e-10',
+        '8.632972150952172e-10',
+        '8.696298531563925e-10',
+        '1.0424175520242776e-11',
+        's/op'
+      ]
+    ]
+  };
+
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    await expect(expectChartTooltip(page, ENTRY_ITERATOR_NEXT_TOOLTIP, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test('rejects on the very chart it describes, while nothing is hovered', async ({ page }) => {
+    await loadLinkedHashBenchmark(page);
+    await hoverBarRow(page, page.locator('.recharts-wrapper').first(), '7.949607915875453e-10 s/op');
+    await expectChartTooltip(page, ENTRY_ITERATOR_NEXT_TOOLTIP); // confirm the real state first
+
+    // Clicking takes the pointer out of the chart, which closes the tooltip -- and
+    // opens a panel holding every figure the expectation claims, as plain page text.
+    // This one only proves the routine needs a tooltip open at all (it stops at the
+    // heading); the next test is what proves it reads inside it.
+    await page.getByRole('button', { name: 'Show JSON' }).click();
+    await expect(expectChartTooltip(page, ENTRY_ITERATOR_NEXT_TOOLTIP, NEG_TIMEOUT)).rejects.toThrow();
+  });
+
+  test("rejects another bar's numbers under the right heading", async ({ page }) => {
+    await loadLinkedHashBenchmark(page);
+    await hoverBarRow(page, page.locator('.recharts-wrapper').first(), '7.949607915875453e-10 s/op');
+    await expectChartTooltip(page, ENTRY_ITERATOR_NEXT_TOOLTIP);
+
+    // firstEntry's scores, still labelled entryIteratorNext and with the right shape:
+    // only a routine that reads the rows can tell these apart.
+    const otherMethodsRows = ENTRY_ITERATOR_NEXT_TOOLTIP.rows.map((row) => [
+      row[0],
+      '1.6888394101249562e-9',
+      ...row.slice(2)
+    ]);
+    await expect(
+      expectChartTooltip(page, { ...ENTRY_ITERATOR_NEXT_TOOLTIP, rows: otherMethodsRows }, NEG_TIMEOUT)
+    ).rejects.toThrow();
+  });
+
+  test('rejects the two-run tooltip with its rows swapped, or its Change row wrong', async ({ page }) => {
+    // The two-run tooltip is the one whose rows only mean anything in order -- the
+    // third is a difference the component computes from the first two, and is the only
+    // number in the suite the app derives inside a tooltip.
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReports([
+      'linked-hash-first-vs-iter-next-benchmark.json',
+      'linked-hash-first-vs-iter-next-on-battery-benchmark.json'
+    ]);
+    await app.clickAllRunsButton();
+    await hoverBarRow(page, page.locator('.recharts-wrapper').first(), '-50.461251425046214');
+    await expectChartTooltip(page, TWO_RUN_TOOLTIP);
+
+    const [firstRun, secondRun, change] = TWO_RUN_TOOLTIP.rows;
+    await expect(
+      expectChartTooltip(page, { ...TWO_RUN_TOOLTIP, rows: [secondRun, firstRun, change] }, NEG_TIMEOUT)
+    ).rejects.toThrow();
+
+    // Same rows, same order, one digit off in the derived change.
+    const wrongChange = [change[0], '+8.097644274694986e-10', ...change.slice(2)];
+    await expect(
+      expectChartTooltip(page, { ...TWO_RUN_TOOLTIP, rows: [firstRun, secondRun, wrongChange] }, NEG_TIMEOUT)
+    ).rejects.toThrow();
+  });
+});
+
+const TWO_RUN_TOOLTIP = {
+  heading: 'entryIteratorNext [size=10]',
+  columnHeaders: ['Run', 'Score', 'Error', 'Unit'],
+  rows: [
+    ['linked-hash-first-vs-iter-next-benchmark', '7.949607915875453e-10', '4.839336096106317e-11', 's/op'],
+    ['linked-hash-first-vs-iter-next-on-battery-benchmark', '1.6047252190570438e-9', '1.1407255575763956e-10', 's/op'],
+    ['Change', '+8.097644274694985e-10', '+6.567919479657639e-11', 's/op']
+  ]
+};
+
+async function loadLinkedHashBenchmark(page: Page): Promise<JmhApp> {
+  const app = new JmhApp(page);
+  await page.goto('/');
+  await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
+  return app;
+}
+
+async function loadLinkedHashMapBenchmarks(page: Page): Promise<JmhApp> {
+  const app = new JmhApp(page);
+  await page.goto('/');
+  await app.uploadReports([
+    'linked-hash-first-vs-iter-next-benchmark.json',
+    'linked-hash-first-vs-iter-next-on-battery-benchmark.json'
+  ]);
+  return app;
+}
