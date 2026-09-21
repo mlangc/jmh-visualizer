@@ -1,7 +1,6 @@
-FROM node:18-alpine as build-deps
+FROM node:22-alpine as build-deps
 
 WORKDIR /usr/src/app
-ENV NODE_OPTIONS=--openssl-legacy-provider
 COPY package.json package-lock.json ./
 RUN npm install
 COPY . ./

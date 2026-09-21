@@ -11,12 +11,9 @@
 - Test: `npm run test` (mocha 12, via `@babel/register`)
 - `npm run check` = lint + test; `npm run release` = check + release-build
 
-All webpack scripts (`build`/`watch`/`release-build`) need
-`NODE_OPTIONS=--openssl-legacy-provider` set when you invoke them — it's
-*not* baked into the npm scripts themselves — because this is webpack 4 +
-Node's newer OpenSSL. Without it, `npm run build` fails with
-`ERR_OSSL_EVP_UNSUPPORTED`. e.g. `NODE_OPTIONS=--openssl-legacy-provider npm
-run build`.
+Webpack is on 5.x — no `NODE_OPTIONS=--openssl-legacy-provider` needed
+anymore (that was a webpack-4-with-modern-OpenSSL workaround; webpack 5's
+default hasher doesn't touch Node's crypto module).
 
 `e2e/` is a separate, isolated Playwright/TS black-box test suite (own
 `package.json`/`node_modules`, own `biome.json`) — see `e2e/CLAUDE.md`. The
@@ -86,11 +83,9 @@ bodies empty by default.
   specific failure mode no longer applies, but the pin itself stays until
   Step 2.f does the deliberate 2.x migration.
 - Open Dependabot PRs needing real migration work, not just a version bump:
-  - #45 — css-loader/html-webpack-plugin bumps require webpack 5; project is
-    still on webpack 4.
-  - #42 — `d3-scale-chromatic` 3.x is ESM-only (risky under webpack4); this
-    is now unblocked (Babel 7 lands proper ESM/syntax support) but not yet
-    done — see Step 2.e of the modernization plan.
+  - #42 — `d3-scale-chromatic` 3.x is ESM-only; unblocked now (Babel 7 +
+    webpack 5 both land proper ESM support) but not yet done — see Step 2.e
+    of the modernization plan.
 - Several other minor/patch Dependabot bumps have already been applied
   safely (via `npm update` / `npm install --no-save`, within their existing
   `package.json` ranges), each verified with a real build.

@@ -29,11 +29,12 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader'
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.png$/,
-        loader: 'url-loader?limit=100000'
+        loader: 'url-loader',
+        options: { limit: 100000 }
       },
       {
         test: /\.jpg$/,
@@ -41,11 +42,13 @@ module.exports = {
       },
       {
         test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+        loader: 'url-loader',
+        options: { limit: 10000, mimetype: 'application/font-woff' }
       },
       {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url-loader?limit=10000&mimetype=application/octet-stream'
+        loader: 'url-loader',
+        options: { limit: 10000, mimetype: 'application/octet-stream' }
       },
       {
         test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
@@ -53,7 +56,8 @@ module.exports = {
       },
       {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url-loader?limit=10000&mimetype=image/svg+xml'
+        loader: 'url-loader',
+        options: { limit: 10000, mimetype: 'image/svg+xml' }
       }
     ]
   },
@@ -67,21 +71,27 @@ module.exports = {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
       }
     }),
-    new CopyWebpackPlugin([
-      {
-        from: 'favicons',
-        to: 'favicons'
-      }
-    ]),
-    new CopyWebpackPlugin([
-      {
-        from: 'provided.js'
-      }
-    ]),
-    new CopyWebpackPlugin([
-      {
-        from: 'settings.js'
-      }
-    ])
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'favicons',
+          to: 'favicons'
+        }
+      ]
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'provided.js'
+        }
+      ]
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'settings.js'
+        }
+      ]
+    })
   ]
 };
