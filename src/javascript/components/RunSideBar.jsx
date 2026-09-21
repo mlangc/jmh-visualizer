@@ -6,8 +6,7 @@ import React from 'react';
 import FormControl from 'react-bootstrap/lib/FormControl';
 import FormGroup from 'react-bootstrap/lib/FormGroup';
 import InputGroup from 'react-bootstrap/lib/InputGroup';
-import EyeIcon from 'react-icons/lib/fa/eye';
-import DetailsIcon from 'react-icons/lib/fa/search-plus';
+import { FaSearchPlus as DetailsIcon, FaEye as EyeIcon } from 'react-icons/fa';
 import { actions, methodKey } from 'store/store.js';
 
 // Side bar for SingleRunView, TwoRunViews, etc...

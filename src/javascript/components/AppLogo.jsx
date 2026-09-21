@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 
-import FaAlignLeft from 'react-icons/lib/fa/align-left';
+import { FaAlignLeft } from 'react-icons/fa';
 
 export default class MyLogo extends Component {
   static propTypes = {

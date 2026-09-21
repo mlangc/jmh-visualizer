@@ -2,7 +2,7 @@ import { blue, green } from 'functions/colors.js';
 import React from 'react';
 import Alert from 'react-bootstrap/lib/Alert';
 import Dropzone from 'react-dropzone';
-import UploadIcon from 'react-icons/lib/fa/cloud-upload';
+import { FaCloudUploadAlt as UploadIcon } from 'react-icons/fa';
 import { actions } from 'store/store.js';
 
 // Dopzone for JSON files to upload

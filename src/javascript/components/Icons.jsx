@@ -1,11 +1,13 @@
 import Tooltipped from 'components/lib/Tooltipped.jsx';
 import { yellow } from 'functions/colors.js';
-import ScaleIcon from 'react-icons/lib/fa/balance-scale';
-import BugIcon from 'react-icons/lib/fa/bug';
-import LinkIcon from 'react-icons/lib/fa/external-link';
-import GithubIcon from 'react-icons/lib/fa/github';
-import DetailsIcon from 'react-icons/lib/fa/search-plus';
-import SortIcon from 'react-icons/lib/fa/sort-amount-desc';
+import {
+  FaBug as BugIcon,
+  FaSearchPlus as DetailsIcon,
+  FaGithub as GithubIcon,
+  FaExternalLinkAlt as LinkIcon,
+  FaBalanceScale as ScaleIcon,
+  FaSortAmountDown as SortIcon
+} from 'react-icons/fa';
 import { actions } from 'store/store.js';
 
 export { BugIcon, GithubIcon, LinkIcon };

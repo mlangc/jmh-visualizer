@@ -40,7 +40,7 @@
     "react-bootstrap": "^0.32.4",
     "react-dom": "^16.8.6",
     "react-dropzone": "^3.13.4",
-    "react-icons": "^2.2.7",
+    "react-icons": "^5.7.0",
     "react-scroll": "^1.8.1",
     "react-spinkit": "^3.0.0",
     "react-toggle": "^4.0.2",

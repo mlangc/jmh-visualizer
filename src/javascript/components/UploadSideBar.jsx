@@ -2,7 +2,7 @@ import LoadFromGistsDialog from 'components/LoadFromGistsDialog.jsx';
 import LoadFromUrlsDialog from 'components/LoadFromUrlsDialog.jsx';
 import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
-import PointingHandIcon from 'react-icons/lib/fa/hand-o-right';
+import { FaHandPointRight as PointingHandIcon } from 'react-icons/fa';
 import { actions } from 'store/store.js';
 
 //Sidebar for the upload view

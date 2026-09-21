@@ -5,7 +5,7 @@ import React from 'react';
 import FormControl from 'react-bootstrap/lib/FormControl';
 import FormGroup from 'react-bootstrap/lib/FormGroup';
 import InputGroup from 'react-bootstrap/lib/InputGroup';
-import BackIcon from 'react-icons/lib/md/keyboard-backspace';
+import { MdKeyboardBackspace as BackIcon } from 'react-icons/md';
 import { actions } from 'store/store.js';
 
 export default class DetailSideBar extends React.Component {
