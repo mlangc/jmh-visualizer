@@ -1,9 +1,9 @@
 {
+  "presets": [["@babel/preset-env", { "modules": false }], "@babel/preset-react"],
+  "plugins": [["@babel/plugin-transform-runtime", { "corejs": 3 }]],
   "env": {
     "testing": {
-        "presets": ["es2015"]
+      "presets": [["@babel/preset-env", { "modules": "commonjs" }], "@babel/preset-react"]
     }
-  },
-  "plugins": ["transform-runtime"],
-  "presets": [ ["es2015", { "loose": false, "modules": false}], "react", "stage-0", "stage-2"]
+  }
 }
