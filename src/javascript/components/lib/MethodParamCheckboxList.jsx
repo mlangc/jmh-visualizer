@@ -1,8 +1,6 @@
-import React from 'react';
+import Tooltipped from 'components/lib/Tooltipped.jsx';
 import PropTypes from 'prop-types';
-
-import { actions, methodKey, paramValueKey } from 'store/store.js'
-import Tooltipped from 'components/lib/Tooltipped.jsx'
+import { actions, methodKey, paramValueKey } from 'store/store.js';
 
 // Per-method and (nested) per-param-value checkboxes for one benchmark bundle.
 // Shared by RunSideBar (one instance per benchmark class) and DetailSideBar
@@ -21,7 +19,6 @@ const suppressTextSelectOnMultiClick = (e) => {
 };
 
 export default function MethodParamCheckboxList({ bundleKey, bundle, deselectedMethods, deselectedParamValues }) {
-
   if (!bundle || bundle.methodNames.length === 0) {
     return null;
   }
@@ -29,116 +26,158 @@ export default function MethodParamCheckboxList({ bundleKey, bundle, deselectedM
   const paramListCreator = (methodName, methodInstances, methodEnabled) => {
     const paramNames = [];
     const valuesByParamName = {};
-    methodInstances.forEach(benchmarkMethod => (benchmarkMethod.params || []).forEach(([paramName, value]) => {
-      if (!valuesByParamName[paramName]) {
-        valuesByParamName[paramName] = new Set();
-        paramNames.push(paramName);
-      }
-      valuesByParamName[paramName].add(value);
-    }));
+    methodInstances.forEach((benchmarkMethod) => {
+      (benchmarkMethod.params || []).forEach(([paramName, value]) => {
+        if (!valuesByParamName[paramName]) {
+          valuesByParamName[paramName] = new Set();
+          paramNames.push(paramName);
+        }
+        valuesByParamName[paramName].add(value);
+      });
+    });
     if (paramNames.length === 0) {
       return null;
     }
     return (
       <ul className="param-list">
-        { paramNames.map(paramName => {
+        {paramNames.map((paramName) => {
           const values = Array.from(valuesByParamName[paramName]);
           const singleValue = values.length === 1;
 
-          const anyValueDeselected = values.some(value => deselectedParamValues.has(paramValueKey(bundleKey, methodName, paramName, value)));
+          const anyValueDeselected = values.some((value) =>
+            deselectedParamValues.has(paramValueKey(bundleKey, methodName, paramName, value))
+          );
           const paramNameDoubleClickEnabled = methodEnabled && !singleValue && anyValueDeselected;
-          const paramNameSpan = <span
-            className="param-name"
-            onClick={ (e) => e.stopPropagation() }
-            onMouseDown={ suppressTextSelectOnMultiClick }
-            onDoubleClick={ paramNameDoubleClickEnabled ? (e) => {
-              e.stopPropagation();
-              actions.selectAllParamValues(bundleKey, methodName, paramName, values);
-            } : undefined }>
-            { paramName }
-          </span>;
+          const paramNameSpan = (
+            <span
+              className="param-name"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={suppressTextSelectOnMultiClick}
+              onDoubleClick={
+                paramNameDoubleClickEnabled
+                  ? (e) => {
+                      e.stopPropagation();
+                      actions.selectAllParamValues(bundleKey, methodName, paramName, values);
+                    }
+                  : undefined
+              }
+            >
+              {paramName}
+            </span>
+          );
 
           return (
-            <li key={ paramName }>
-              { paramNameDoubleClickEnabled
-                ? <Tooltipped tooltip="Double-click to select all values" position="left">{ paramNameSpan }</Tooltipped>
-                : paramNameSpan }
+            <li key={paramName}>
+              {paramNameDoubleClickEnabled ? (
+                <Tooltipped tooltip="Double-click to select all values" position="left">
+                  {paramNameSpan}
+                </Tooltipped>
+              ) : (
+                paramNameSpan
+              )}
               <ul className="param-value-list">
-                { values.map(value => {
+                {values.map((value) => {
                   const key = paramValueKey(bundleKey, methodName, paramName, value);
                   const checked = singleValue || !deselectedParamValues.has(key);
                   const disabled = singleValue || !methodEnabled;
 
-                  const otherValues = values.filter(aValue => aValue !== value);
-                  const isOnlyValueSelected = checked && otherValues.every(aValue => deselectedParamValues.has(paramValueKey(bundleKey, methodName, paramName, aValue)));
+                  const otherValues = values.filter((aValue) => aValue !== value);
+                  const isOnlyValueSelected =
+                    checked &&
+                    otherValues.every((aValue) =>
+                      deselectedParamValues.has(paramValueKey(bundleKey, methodName, paramName, aValue))
+                    );
                   const valueDoubleClickEnabled = !disabled && !isOnlyValueSelected;
 
-                  const valueLabel = <label
-                    onClick={ (e) => e.stopPropagation() }
-                    onMouseDown={ suppressTextSelectOnMultiClick }
-                    onDoubleClick={ valueDoubleClickEnabled ? (e) => {
-                      e.stopPropagation();
-                      actions.selectOnlyParamValue(bundleKey, methodName, paramName, value, values);
-                    } : undefined }
-                    className={ disabled ? 'param-value-fixed' : undefined }>
-                    <input
-                      type="checkbox"
-                      checked={ checked }
-                      disabled={ disabled }
-                      onChange={ () => actions.toggleParamValue(bundleKey, methodName, paramName, value) } />
-                    { ' ' }{ value }
-                  </label>;
+                  const valueLabel = (
+                    <label
+                      onClick={(e) => e.stopPropagation()}
+                      onMouseDown={suppressTextSelectOnMultiClick}
+                      onDoubleClick={
+                        valueDoubleClickEnabled
+                          ? (e) => {
+                              e.stopPropagation();
+                              actions.selectOnlyParamValue(bundleKey, methodName, paramName, value, values);
+                            }
+                          : undefined
+                      }
+                      className={disabled ? 'param-value-fixed' : undefined}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={disabled}
+                        onChange={() => actions.toggleParamValue(bundleKey, methodName, paramName, value)}
+                      />{' '}
+                      {value}
+                    </label>
+                  );
 
                   return (
-                    <li key={ key }>
-                      { valueDoubleClickEnabled
-                        ? <Tooltipped tooltip="Double-click to select only this value" position="left">{ valueLabel }</Tooltipped>
-                        : valueLabel }
+                    <li key={key}>
+                      {valueDoubleClickEnabled ? (
+                        <Tooltipped tooltip="Double-click to select only this value" position="left">
+                          {valueLabel}
+                        </Tooltipped>
+                      ) : (
+                        valueLabel
+                      )}
                     </li>
                   );
-                }) }
+                })}
               </ul>
             </li>
           );
-        }) }
+        })}
       </ul>
     );
   };
 
   return (
     <ul className="method-list">
-      { bundle.methodNames.map(methodName => {
+      {bundle.methodNames.map((methodName) => {
         const key = methodKey(bundleKey, methodName);
         const checked = !deselectedMethods.has(key);
-        const methodInstances = bundle.benchmarkMethods.filter(benchmarkMethod => benchmarkMethod.name === methodName);
+        const methodInstances = bundle.benchmarkMethods.filter(
+          (benchmarkMethod) => benchmarkMethod.name === methodName
+        );
 
-        const otherMethodNames = bundle.methodNames.filter(aMethodName => aMethodName !== methodName);
-        const isOnlyMethodSelected = checked && otherMethodNames.every(aMethodName => deselectedMethods.has(methodKey(bundleKey, aMethodName)));
+        const otherMethodNames = bundle.methodNames.filter((aMethodName) => aMethodName !== methodName);
+        const isOnlyMethodSelected =
+          checked && otherMethodNames.every((aMethodName) => deselectedMethods.has(methodKey(bundleKey, aMethodName)));
         const methodDoubleClickEnabled = bundle.methodNames.length > 1 && !isOnlyMethodSelected;
 
-        const methodLabel = <label
-          onClick={ (e) => e.stopPropagation() }
-          onMouseDown={ suppressTextSelectOnMultiClick }
-          onDoubleClick={ methodDoubleClickEnabled ? (e) => {
-            e.stopPropagation();
-            actions.selectOnlyMethod(bundleKey, methodName, bundle.methodNames);
-          } : undefined }>
-          <input
-            type="checkbox"
-            checked={ checked }
-            onChange={ () => actions.toggleMethod(bundleKey, methodName) } />
-          { ' ' }{ methodName }
-        </label>;
+        const methodLabel = (
+          <label
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={suppressTextSelectOnMultiClick}
+            onDoubleClick={
+              methodDoubleClickEnabled
+                ? (e) => {
+                    e.stopPropagation();
+                    actions.selectOnlyMethod(bundleKey, methodName, bundle.methodNames);
+                  }
+                : undefined
+            }
+          >
+            <input type="checkbox" checked={checked} onChange={() => actions.toggleMethod(bundleKey, methodName)} />{' '}
+            {methodName}
+          </label>
+        );
 
         return (
-          <li key={ key }>
-            { methodDoubleClickEnabled
-              ? <Tooltipped tooltip="Double-click to select only this method" position="left">{ methodLabel }</Tooltipped>
-              : methodLabel }
-            { paramListCreator(methodName, methodInstances, checked) }
+          <li key={key}>
+            {methodDoubleClickEnabled ? (
+              <Tooltipped tooltip="Double-click to select only this method" position="left">
+                {methodLabel}
+              </Tooltipped>
+            ) : (
+              methodLabel
+            )}
+            {paramListCreator(methodName, methodInstances, checked)}
           </li>
         );
-      }) }
+      })}
     </ul>
   );
 }
@@ -147,5 +186,5 @@ MethodParamCheckboxList.propTypes = {
   bundleKey: PropTypes.string.isRequired,
   bundle: PropTypes.object,
   deselectedMethods: PropTypes.object.isRequired,
-  deselectedParamValues: PropTypes.object.isRequired,
+  deselectedParamValues: PropTypes.object.isRequired
 };

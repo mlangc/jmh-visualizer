@@ -1,91 +1,94 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
-import Badge from 'react-bootstrap/lib/Badge'
+import Badge from 'react-bootstrap/lib/Badge';
 
-import Toggle from 'react-toggle'
-import "react-toggle/style.css"
+import Toggle from 'react-toggle';
+import 'react-toggle/style.css';
 
-import Tooltipped from 'components/lib/Tooltipped.jsx'
-import TocElement from 'components/TocElement.jsx'
-import SingleRunBundle from 'components/single/SingleRunBundle.jsx'
-import { getUniqueBenchmarkModesAccrossBundles } from 'functions/parse.js'
+import Tooltipped from 'components/lib/Tooltipped.jsx';
+import SingleRunBundle from 'components/single/SingleRunBundle.jsx';
+import TocElement from 'components/TocElement.jsx';
+import { getUniqueBenchmarkModesAccrossBundles } from 'functions/parse.js';
 
 export default class SingleRunView extends React.Component {
+  static propTypes = {
+    runName: PropTypes.string.isRequired,
+    benchmarkBundles: PropTypes.array.isRequired,
+    focusedBundles: PropTypes.object.isRequired,
+    metricExtractor: PropTypes.object.isRequired,
+    chartConfig: PropTypes.object.isRequired
+  };
 
-    static propTypes = {
-        runName: PropTypes.string.isRequired,
-        benchmarkBundles: PropTypes.array.isRequired,
-        focusedBundles: PropTypes.object.isRequired,
-        metricExtractor: PropTypes.object.isRequired,
-        chartConfig: PropTypes.object.isRequired,
+  constructor(props) {
+    super(props);
+    this.state = {
+      axisScalesSync: true
     };
+  }
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            axisScalesSync: true
-        };
-    }
+  changeScalesSync() {
+    this.setState({
+      axisScalesSync: !this.state.axisScalesSync
+    });
+  }
 
-    changeScalesSync() {
-        this.setState({
-            axisScalesSync: !this.state.axisScalesSync,
-        });
-    }
+  render() {
+    const { runName, focusedBundles, benchmarkBundles, metricExtractor, chartConfig } = this.props;
+    const { axisScalesSync } = this.state;
 
-    render() {
-        const { runName, focusedBundles, benchmarkBundles, metricExtractor, chartConfig } = this.props;
-        const { axisScalesSync } = this.state;
-
-        let synchronizeAxisScalesToggle;
-        let dataMax;
-        if (focusedBundles.size > 1) {
-            const benchmarkModes = getUniqueBenchmarkModesAccrossBundles(benchmarkBundles, metricExtractor);
-            const axisScalesSyncPossible = benchmarkModes.length == 1;
-            const switchTooltip = axisScalesSyncPossible ? `Sync Axis Scales: ${axisScalesSync ? 'on' : 'off'}` : `No Axis Scale syncing possible because of multiple benchmark modes: ${benchmarkModes}!`;
-            synchronizeAxisScalesToggle = <div>
-                <Tooltipped tooltip={ switchTooltip } position='bottom'>
-                    <Toggle
-                        id='scales-sync'
-                        checked={ axisScalesSyncPossible && axisScalesSync }
-                        disabled={ !axisScalesSyncPossible }
-                        onChange={ this.changeScalesSync.bind(this) } />
-                </Tooltipped>
-            </div>;
-            if (axisScalesSync && axisScalesSyncPossible) {
-                dataMax = 0;
-                benchmarkBundles.forEach(benchmarkBundle => benchmarkBundle.allBenchmarks().forEach(benchmark => {
-                    dataMax = Math.max(dataMax, metricExtractor.extractMinMax(benchmark)[1]);
-                }));
-            }
-        }
-
-        const elements = [];
-        elements.push(
-            <div key='summary'>
-                <Badge>
-                    { benchmarkBundles.length }
-                </Badge>
-                { ` different benchmark classes for single run '${runName}' and metric '${metricExtractor.metricKey}' detected!` }
-                <span style={ { position: 'absolute', right: 20 } }>{ synchronizeAxisScalesToggle }</span>
-            </div>
-        );
-
-        benchmarkBundles.forEach(bundle => {
-            elements.push(<TocElement key={ bundle.key } name={ bundle.key }>
-                <SingleRunBundle
-                    benchmarkBundle={ bundle }
-                    metricExtractor={ metricExtractor }
-                    chartConfig={ chartConfig }
-                    dataMax={ dataMax } />
-            </TocElement>);
-        });
-
-
-        return <div>
-            { elements }
+    let synchronizeAxisScalesToggle;
+    let dataMax;
+    if (focusedBundles.size > 1) {
+      const benchmarkModes = getUniqueBenchmarkModesAccrossBundles(benchmarkBundles, metricExtractor);
+      const axisScalesSyncPossible = benchmarkModes.length === 1;
+      const switchTooltip = axisScalesSyncPossible
+        ? `Sync Axis Scales: ${axisScalesSync ? 'on' : 'off'}`
+        : `No Axis Scale syncing possible because of multiple benchmark modes: ${benchmarkModes}!`;
+      synchronizeAxisScalesToggle = (
+        <div>
+          <Tooltipped tooltip={switchTooltip} position="bottom">
+            <Toggle
+              id="scales-sync"
+              checked={axisScalesSyncPossible && axisScalesSync}
+              disabled={!axisScalesSyncPossible}
+              onChange={this.changeScalesSync.bind(this)}
+            />
+          </Tooltipped>
         </div>
+      );
+      if (axisScalesSync && axisScalesSyncPossible) {
+        dataMax = 0;
+        benchmarkBundles.forEach((benchmarkBundle) => {
+          benchmarkBundle.allBenchmarks().forEach((benchmark) => {
+            dataMax = Math.max(dataMax, metricExtractor.extractMinMax(benchmark)[1]);
+          });
+        });
+      }
     }
 
+    const elements = [];
+    elements.push(
+      <div key="summary">
+        <Badge>{benchmarkBundles.length}</Badge>
+        {` different benchmark classes for single run '${runName}' and metric '${metricExtractor.metricKey}' detected!`}
+        <span style={{ position: 'absolute', right: 20 }}>{synchronizeAxisScalesToggle}</span>
+      </div>
+    );
+
+    benchmarkBundles.forEach((bundle) => {
+      elements.push(
+        <TocElement key={bundle.key} name={bundle.key}>
+          <SingleRunBundle
+            benchmarkBundle={bundle}
+            metricExtractor={metricExtractor}
+            chartConfig={chartConfig}
+            dataMax={dataMax}
+          />
+        </TocElement>
+      );
+    });
+
+    return <div>{elements}</div>;
+  }
 }

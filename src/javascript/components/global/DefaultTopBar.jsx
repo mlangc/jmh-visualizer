@@ -1,20 +1,16 @@
-import React from 'react';
-
-import Navbar from 'react-bootstrap/lib/Navbar'
-import Nav from 'react-bootstrap/lib/Nav'
-import NavItem from 'react-bootstrap/lib/NavItem'
-import Dropdown from 'react-bootstrap/lib/Dropdown'
-import MenuItem from 'react-bootstrap/lib/MenuItem'
-import Popover from 'react-bootstrap/lib/Popover'
-import OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger'
-
-import { LinkIcon } from 'components/Icons.jsx'
-
 import AppLogo from 'components/AppLogo.jsx';
 import DoingWorkSpinner from 'components/DoingWorkSpinner.jsx';
+import { LinkIcon } from 'components/Icons.jsx';
+import React from 'react';
+import Dropdown from 'react-bootstrap/lib/Dropdown';
+import MenuItem from 'react-bootstrap/lib/MenuItem';
+import Nav from 'react-bootstrap/lib/Nav';
+import Navbar from 'react-bootstrap/lib/Navbar';
+import NavItem from 'react-bootstrap/lib/NavItem';
+import OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
+import Popover from 'react-bootstrap/lib/Popover';
 
 export default class DefaultTopBar extends React.Component {
-
   onReset() {
     window.onbeforeunload = null;
     window.location = window.location.href.split('#')[0].split('?')[0];
@@ -22,40 +18,50 @@ export default class DefaultTopBar extends React.Component {
 
   render() {
     const aboutPopover = (
-      <Popover id="popover-trigger-click-root-close" title={ `About JMH Visualizer - ${process.env.version}` }>
+      <Popover id="popover-trigger-click-root-close" title={`About JMH Visualizer - ${process.env.version}`}>
         <p>
-          <i>JMH Visualizer</i> will render charts out of your <a href="http://openjdk.java.net/projects/code-tools/jmh/" target="_blank" rel="noopener noreferrer">JMH Benchmarks</a>. All it needs
-          are your benchmark results in JSON format.
-          </p>
+          <i>JMH Visualizer</i> will render charts out of your{' '}
+          <a href="http://openjdk.java.net/projects/code-tools/jmh/" target="_blank" rel="noopener noreferrer">
+            JMH Benchmarks
+          </a>
+          . All it needs are your benchmark results in JSON format.
+        </p>
       </Popover>
     );
 
-    const showReset = providedBenchmarks.length == 0; // eslint-disable-line no-undef
+    const showReset = providedBenchmarks.length === 0;
 
     return (
-      <Navbar inverse={ true } fluid={ true } style={ { marginBottom: '0px' } }>
+      <Navbar inverse={true} fluid={true} style={{ marginBottom: '0px' }}>
         <Navbar.Header>
           <Navbar.Brand>
             <Dropdown id="logo-dropdown">
               <AppLogo bsRole="toggle" />
               <Dropdown.Menu>
-                { showReset > 0 &&
-                  <MenuItem onSelect={ this.onReset }> Reset & Upload New</MenuItem>
-                }
-                { showReset > 0 &&
-                  <MenuItem divider />
-                }
-                <MenuItem href="https://github.com/jzillmann/jmh-visualizer/issues" target="_blank"><LinkIcon />{ ' Feedback & Bug Reports ' }</MenuItem>
-                <MenuItem href="http://github.com/jzillmann/jmh-visualizer" target="_blank"><LinkIcon />{ ' Code @ Github ' }</MenuItem>
+                {showReset > 0 && <MenuItem onSelect={this.onReset}> Reset & Upload New</MenuItem>}
+                {showReset > 0 && <MenuItem divider />}
+                <MenuItem href="https://github.com/jzillmann/jmh-visualizer/issues" target="_blank">
+                  <LinkIcon />
+                  {' Feedback & Bug Reports '}
+                </MenuItem>
+                <MenuItem href="http://github.com/jzillmann/jmh-visualizer" target="_blank">
+                  <LinkIcon />
+                  {' Code @ Github '}
+                </MenuItem>
                 <MenuItem divider />
-                <MenuItem href="http://openjdk.java.net/projects/code-tools/jmh/" target="_blank"><LinkIcon />{ ' JMH ' }</MenuItem>
-                <MenuItem href="http://hg.openjdk.java.net/code-tools/jmh/file/tip/jmh-samples/src/main/java/org/openjdk/jmh/samples/" target="_blank"><LinkIcon />{ ' JMH Samples' }</MenuItem>
+                <MenuItem href="http://openjdk.java.net/projects/code-tools/jmh/" target="_blank">
+                  <LinkIcon />
+                  {' JMH '}
+                </MenuItem>
+                <MenuItem
+                  href="http://hg.openjdk.java.net/code-tools/jmh/file/tip/jmh-samples/src/main/java/org/openjdk/jmh/samples/"
+                  target="_blank"
+                >
+                  <LinkIcon />
+                  {' JMH Samples'}
+                </MenuItem>
                 <MenuItem divider />
-                <OverlayTrigger
-                  trigger="click"
-                  rootClose
-                  placement="bottom"
-                  overlay={ aboutPopover }>
+                <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={aboutPopover}>
                   <MenuItem eventKey="3"> About</MenuItem>
                 </OverlayTrigger>
               </Dropdown.Menu>

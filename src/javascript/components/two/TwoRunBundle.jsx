@@ -1,21 +1,18 @@
-import React from 'react';
+import ChartHeader from 'components/ChartHeader.jsx';
+import { DetailsButton, SortButton } from 'components/Icons.jsx';
+import DiffBarChartView from 'components/two/DiffBarChartView.jsx';
 import PropTypes from 'prop-types';
-
-import Collapse from 'react-bootstrap/lib/Collapse'
-import Button from 'react-bootstrap/lib/Button'
-
-import ChartHeader from 'components/ChartHeader.jsx'
-import { DetailsButton, SortButton } from 'components/Icons.jsx'
-import DiffBarChartView from 'components/two/DiffBarChartView.jsx'
+import React from 'react';
+import Button from 'react-bootstrap/lib/Button';
+import Collapse from 'react-bootstrap/lib/Collapse';
 
 // The view for a bunch of benchmarks, usually all of a benchmark class
 export default class TwoRunBundle extends React.Component {
-
   static propTypes = {
     runNames: PropTypes.array.isRequired,
     benchmarkBundle: PropTypes.object.isRequired,
     metricExtractor: PropTypes.object.isRequired,
-    chartConfig: PropTypes.object.isRequired,
+    chartConfig: PropTypes.object.isRequired
   };
 
   constructor(props) {
@@ -23,7 +20,7 @@ export default class TwoRunBundle extends React.Component {
     this.state = {
       sort: props.chartConfig.sort,
       showJson1: false,
-      showJson2: false,
+      showJson2: false
     };
   }
 
@@ -32,7 +29,6 @@ export default class TwoRunBundle extends React.Component {
       this.setState({ sort: nextProps.chartConfig.sort });
     }
   }
-
 
   toggleSort() {
     this.setState({
@@ -60,10 +56,10 @@ export default class TwoRunBundle extends React.Component {
 
     const benchmarks1 = benchmarkBundle.benchmarksFromRun(0);
     const benchmarks2 = benchmarkBundle.benchmarksFromRun(1);
-    let newBenchmarks = [];
-    let removedBenchmarks = [];
+    const newBenchmarks = [];
+    const removedBenchmarks = [];
     let hasSomethingToCompare = false;
-    benchmarkBundle.benchmarkMethods.forEach(benchmarkMethod => {
+    benchmarkBundle.benchmarkMethods.forEach((benchmarkMethod) => {
       if (benchmarkMethod.benchmarks[0] === null || !metricExtractor.hasMetric(benchmarkMethod.benchmarks[0])) {
         newBenchmarks.push(benchmarkMethod.name);
       } else if (benchmarkMethod.benchmarks[1] === null || !metricExtractor.hasMetric(benchmarkMethod.benchmarks[1])) {
@@ -73,61 +69,61 @@ export default class TwoRunBundle extends React.Component {
       }
     });
 
-    var scoresChart = hasSomethingToCompare ?
+    var scoresChart = hasSomethingToCompare ? (
       <DiffBarChartView
-        runNames={ runNames }
-        benchmarkBundle={ benchmarkBundle }
-        metricExtractor={ metricExtractor }
-        sort={ sort }
-      /> : null;
+        runNames={runNames}
+        benchmarkBundle={benchmarkBundle}
+        metricExtractor={metricExtractor}
+        sort={sort}
+      />
+    ) : null;
 
     return (
       <div>
-        <ChartHeader benchmarkBundle={ benchmarkBundle } metricExtractor={ metricExtractor } >
-          <DetailsButton key='details' benchmarkBundle={ benchmarkBundle } />
-          <SortButton key='sort' active={ sort } action={ this.toggleSort.bind(this) } />
+        <ChartHeader benchmarkBundle={benchmarkBundle} metricExtractor={metricExtractor}>
+          <DetailsButton key="details" benchmarkBundle={benchmarkBundle} />
+          <SortButton key="sort" active={sort} action={this.toggleSort.bind(this)} />
         </ChartHeader>
-        <div style={ { fontSize: '0.90em' } }>
-          { scoresChart }
-        </div>
-        { removedBenchmarks.length > 0 &&
+        <div style={{ fontSize: '0.90em' }}>{scoresChart}</div>
+        {removedBenchmarks.length > 0 && (
           <div>
             <b>Removed benchmarks:</b>
-            { ' ' + removedBenchmarks.join(', ') }
+            {` ${removedBenchmarks.join(', ')}`}
             <br />
             <br />
-          </div> }
-        { newBenchmarks.length > 0 &&
+          </div>
+        )}
+        {newBenchmarks.length > 0 && (
           <div>
             <b>New benchmarks:</b>
-            { ' ' + newBenchmarks.join(', ') }
+            {` ${newBenchmarks.join(', ')}`}
             <br />
             <br />
-          </div> }
-        <Button bsSize="small" onClick={ this.toggleShowJson1.bind(this) } active={ this.state.showJson1 }>
+          </div>
+        )}
+        <Button bsSize="small" onClick={this.toggleShowJson1.bind(this)} active={this.state.showJson1}>
           Show JSON 1
-              </Button>
-        <Button bsSize="small" onClick={ this.toggleShowJson2.bind(this) } active={ this.state.showJson2 } >
+        </Button>
+        <Button bsSize="small" onClick={this.toggleShowJson2.bind(this)} active={this.state.showJson2}>
           Show JSON 2
-              </Button>
-        <Collapse in={ showJson1 }>
+        </Button>
+        <Collapse in={showJson1}>
           <div>
-            <pre>{ JSON.stringify(benchmarks1, null, '\t') }</pre>
-            <Button bsStyle="primary" onClick={ this.toggleShowJson1.bind(this) }>
+            <pre>{JSON.stringify(benchmarks1, null, '\t')}</pre>
+            <Button bsStyle="primary" onClick={this.toggleShowJson1.bind(this)}>
               Collapse
-                  </Button>
+            </Button>
           </div>
-        </Collapse >
-        <Collapse in={ showJson2 }>
+        </Collapse>
+        <Collapse in={showJson2}>
           <div>
-            <pre>{ JSON.stringify(benchmarks2, null, '\t') }</pre>
-            <Button bsStyle="primary" onClick={ this.toggleShowJson2.bind(this) }>
+            <pre>{JSON.stringify(benchmarks2, null, '\t')}</pre>
+            <Button bsStyle="primary" onClick={this.toggleShowJson2.bind(this)}>
               Collapse
-                  </Button>
+            </Button>
           </div>
-        </Collapse >
-      </div >
+        </Collapse>
+      </div>
     );
   }
 }
-

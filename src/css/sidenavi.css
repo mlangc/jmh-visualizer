@@ -1,151 +1,154 @@
-.bs-docs-sidebar .nav>li>div>a {
-    color: inherit;
-} 
+.bs-docs-sidebar .nav > li > div > a {
+  color: inherit;
+}
 
 /* sidebar */
 .bs-docs-sidebar {
-    padding-left: 5px;
-    margin-top: 0px;
-    margin-bottom: 20px;
-    position: -webkit-sticky;
-    position: sticky;
-    top: 15px;
+  padding-left: 5px;
+  margin-top: 0px;
+  margin-bottom: 20px;
+  position: -webkit-sticky;
+  /* biome-ignore lint/suspicious/noDuplicateProperties: -webkit-sticky fallback for older Safari, overridden by sticky where supported */
+  position: sticky;
+  top: 15px;
 }
 
 /* all links */
-.bs-docs-sidebar .nav>li>div {
-    color: #999;
-    border-left: 2px solid transparent;
-    padding: 4px 10px;
-    font-size: 13px;
-    font-weight: 400;
-    white-space: nowrap;
+.bs-docs-sidebar .nav > li > div {
+  color: #999;
+  border-left: 2px solid transparent;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
 }
 
 /* nested links */
-.bs-docs-sidebar .nav .nav>li>div {
-    padding-top: 1px;
-    padding-bottom: 1px;
-    padding-left: 20px;
-    font-size: 12px;
-    white-space: nowrap;
+.bs-docs-sidebar .nav .nav > li > div {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 20px;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 /* active & hover links */
-.bs-docs-sidebar .nav>.active>div, 
-.bs-docs-sidebar .nav>li>div:hover, 
-.bs-docs-sidebar .nav>li>div:focus {
-    color: #563d7c;                 
-    text-decoration: none;          
-    background-color: transparent;  
-    border-left-color: #563d7c; 
+/* biome-ignore lint/style/noDescendingSpecificity: lower specificity than "nested links" above, but the two never share a property, so cascade order doesn't matter here */
+.bs-docs-sidebar .nav > .active > div,
+.bs-docs-sidebar .nav > li > div:hover,
+.bs-docs-sidebar .nav > li > div:focus {
+  color: #563d7c;
+  text-decoration: none;
+  background-color: transparent;
+  border-left-color: #563d7c;
 }
 
 /* all active links */
-.bs-docs-sidebar .nav>.active>div, 
-.bs-docs-sidebar .nav>.active:hover>div,
-.bs-docs-sidebar .nav>.active:focus>div {
-    font-weight: 700;
+/* biome-ignore lint/style/noDescendingSpecificity: lower specificity than "nested links" above, but the two never share a property, so cascade order doesn't matter here */
+.bs-docs-sidebar .nav > .active > div,
+.bs-docs-sidebar .nav > .active:hover > div,
+.bs-docs-sidebar .nav > .active:focus > div {
+  font-weight: 700;
 }
 
 /* nested active links */
-.bs-docs-sidebar .nav .nav>.active>div, 
-.bs-docs-sidebar .nav .nav>.active:hover>div,
-.bs-docs-sidebar .nav .nav>.active:focus>div {
-    font-weight: 500;
-    text-decoration: none;
+.bs-docs-sidebar .nav .nav > .active > div,
+.bs-docs-sidebar .nav .nav > .active:hover > div,
+.bs-docs-sidebar .nav .nav > .active:focus > div {
+  font-weight: 500;
+  text-decoration: none;
 }
 
 /* hide inactive nested list */
 .bs-docs-sidebar .nav ul.nav {
-    display: none;           
+  display: none;
 }
 /* show active nested list */
-.bs-docs-sidebar .nav >.active>ul.nav {
-    display: block;           
+.bs-docs-sidebar .nav > .active > ul.nav {
+  display: block;
 }
 
 /* Icons befor element (excludes the Tooltipped double-click hint wrapping the name link) */
-.bs-docs-sidebar .nav .nav>li>div>span:not([data-tooltip]) {
-    display:none;
+.bs-docs-sidebar .nav .nav > li > div > span:not([data-tooltip]) {
+  display: none;
 }
 
-.bs-docs-sidebar .nav .nav>li>div:hover>span:not([data-tooltip]),
-.bs-docs-sidebar .nav .nav>li.active>div:focus>span:not([data-tooltip]) {
-    display:inline;
+.bs-docs-sidebar .nav .nav > li > div:hover > span:not([data-tooltip]),
+.bs-docs-sidebar .nav .nav > li.active > div:focus > span:not([data-tooltip]) {
+  display: inline;
 }
 
-.bs-docs-sidebar .nav .nav>li>div>span:not([data-tooltip]):hover {
-    color: green;
+.bs-docs-sidebar .nav .nav > li > div > span:not([data-tooltip]):hover {
+  color: green;
 }
 
-.bs-docs-sidebar .nav .nav>li>div>span.focused:hover {
-    color: red;
-    cursor: pointer;
+.bs-docs-sidebar .nav .nav > li > div > span.focused:hover {
+  color: red;
+  cursor: pointer;
 }
 
-.bs-docs-sidebar .nav .nav>li>div>span.focused {
-    display:inline;
-    color: green;
+.bs-docs-sidebar .nav .nav > li > div > span.focused {
+  display: inline;
+  color: green;
 }
 
 /* method checkboxes nested under a benchmark bundle */
 .bs-docs-sidebar .nav .method-list {
-    list-style: none;
-    margin: 0;
-    padding-left: 32px;
+  list-style: none;
+  margin: 0;
+  padding-left: 32px;
 }
 
 .bs-docs-sidebar .nav .method-list li {
-    padding-top: 1px;
-    padding-bottom: 1px;
-    white-space: nowrap;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  white-space: nowrap;
 }
 
 .bs-docs-sidebar .nav .method-list label {
-    color: #999;
-    font-size: 11px;
-    font-weight: 400;
-    cursor: pointer;
-    margin-bottom: 0;
+  color: #999;
+  font-size: 11px;
+  font-weight: 400;
+  cursor: pointer;
+  margin-bottom: 0;
 }
 
 /* param name + value checkboxes nested under a method */
 .bs-docs-sidebar .nav .param-list {
-    list-style: none;
-    margin: 0;
-    padding-left: 12px;
+  list-style: none;
+  margin: 0;
+  padding-left: 12px;
 }
 
 .bs-docs-sidebar .nav .param-list .param-name {
-    color: #999;
-    font-size: 10px;
-    font-weight: 700;
-    white-space: nowrap;
+  color: #999;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .bs-docs-sidebar .nav .param-value-list {
-    list-style: none;
-    margin: 0;
-    padding-left: 12px;
+  list-style: none;
+  margin: 0;
+  padding-left: 12px;
 }
 
 .bs-docs-sidebar .nav .param-value-list li {
-    padding-top: 1px;
-    padding-bottom: 1px;
-    white-space: nowrap;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  white-space: nowrap;
 }
 
 .bs-docs-sidebar .nav .param-value-list label {
-    color: #999;
-    font-size: 10px;
-    font-weight: 400;
-    cursor: pointer;
-    margin-bottom: 0;
+  color: #999;
+  font-size: 10px;
+  font-weight: 400;
+  cursor: pointer;
+  margin-bottom: 0;
 }
 
 /* single-value params: shown for context, but can't be unchecked */
 .bs-docs-sidebar .nav .param-value-list label.param-value-fixed {
-    color: #bbb;
-    cursor: default;
+  color: #bbb;
+  cursor: default;
 }

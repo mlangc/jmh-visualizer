@@ -13,26 +13,18 @@ export const browns = [brown, '#cc9a70', '#e2c5ad'];
 export const violets = ['#b7337a', '#cc70a1', '#e9c1d7'];
 export const yellows = [yellow, '#ccc970', '#e2e0ad'];
 
-export const reds = ['#7b2c22', red, '#d47063']
+export const reds = ['#7b2c22', red, '#d47063'];
 
-
-export const barColors = [
-    ...blues,
-    ...greens,
-    ...browns,
-    ...violets,
-    ...yellows,
-    ...reds,
-];
+export const barColors = [...blues, ...greens, ...browns, ...violets, ...yellows, ...reds];
 
 export const lineColors = [];
 
-for (var i = 0; i <= 3; i++) {
-    lineColors.push(blues[i]);
-    lineColors.push(greens[i]);
-    lineColors.push(browns[i]);
-    lineColors.push(violets[i]);
-    lineColors.push(yellows[i]);
+for (let i = 0; i <= 3; i++) {
+  lineColors.push(blues[i]);
+  lineColors.push(greens[i]);
+  lineColors.push(browns[i]);
+  lineColors.push(violets[i]);
+  lineColors.push(yellows[i]);
 }
 
 export const tooltipBackground = '#efefef';

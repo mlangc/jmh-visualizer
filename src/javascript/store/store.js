@@ -1,270 +1,318 @@
-import createStore from 'react-waterfall'
-import { createBrowserHistory } from 'history'
-
-import { addSettingsFromParameters, getBenchmarksLoadFunctionForDefinedExamples, getBenchmarksLoadFunctionForSourceExamples } from 'store/processParameters.js';
-import Examples from 'models/Examples.js';
 import { exampleRun1 } from 'exampleBenchmark1.js';
 import { exampleRun2 } from 'exampleBenchmark2.js';
 import { exampleRun3 } from 'exampleBenchmark3.js';
+import { createBrowserHistory } from 'history';
 import BenchmarkRun from 'models/BenchmarkRun.js';
 import BenchmarkSelection from 'models/BenchmarkSelection.js';
+import Examples from 'models/Examples.js';
+import createStore from 'react-waterfall';
+import {
+  addSettingsFromParameters,
+  getBenchmarksLoadFunctionForDefinedExamples,
+  getBenchmarksLoadFunctionForSourceExamples
+} from 'store/processParameters.js';
 
 const history = createBrowserHistory();
 
 const examples = new Examples({
-    run1: new BenchmarkRun({
-        name: 'run1',
-        benchmarks: exampleRun1
-    }),
-    run2: new BenchmarkRun({
-        name: 'run2',
-        benchmarks: exampleRun2
-    }),
-    run3: new BenchmarkRun({
-        name: 'run3',
-        benchmarks: exampleRun3
-    })
+  run1: new BenchmarkRun({
+    name: 'run1',
+    benchmarks: exampleRun1
+  }),
+  run2: new BenchmarkRun({
+    name: 'run2',
+    benchmarks: exampleRun2
+  }),
+  run3: new BenchmarkRun({
+    name: 'run3',
+    benchmarks: exampleRun3
+  })
 });
 
 // Get default settings from settings.js and enrich with parameters
-const settings = defaultSettings;// eslint-disable-line no-undef
+const settings = defaultSettings;
 addSettingsFromParameters(settings);
 
 // Load benchmarks from defined source (provided || example || remote source)
 let benchmarkLoadFunction = null;
-if (providedBenchmarks.length > 0) { // eslint-disable-line no-undef
-    benchmarkLoadFunction = (initBenchmarksFunction) => initBenchmarksFunction(providedBenchmarks.map(runName => new BenchmarkRun({ // eslint-disable-line no-undef
-        name: runName,
-        benchmarks: providedBenchmarkStore[runName] // eslint-disable-line no-undef
-    })));
+if (providedBenchmarks.length > 0) {
+  benchmarkLoadFunction = (initBenchmarksFunction) =>
+    initBenchmarksFunction(
+      providedBenchmarks.map(
+        (runName) =>
+          new BenchmarkRun({
+            name: runName,
+            benchmarks: providedBenchmarkStore[runName]
+          })
+      )
+    );
 } else {
-    benchmarkLoadFunction = getBenchmarksLoadFunctionForDefinedExamples(examples);
-    if (!benchmarkLoadFunction) {
-        benchmarkLoadFunction = getBenchmarksLoadFunctionForSourceExamples();
-    }
+  benchmarkLoadFunction = getBenchmarksLoadFunctionForDefinedExamples(examples);
+  if (!benchmarkLoadFunction) {
+    benchmarkLoadFunction = getBenchmarksLoadFunctionForSourceExamples();
+  }
 }
 
 // Setup store
 const config = {
-    initialState: {
-        settings: settings,
-        initialLoading: benchmarkLoadFunction != null,
-        loading: false,
-        benchmarkRuns: [],
-        runSelection: [], // boolean[runs]
-        runView: null, // null || Summary || Compare
-        selectedMetric: 'Score',
-        detailedBenchmarkBundle: null,
-        activeCategory: 'Benchmarks',
-        focusedBundles: new Set(),
-        deselectedMethods: new Set(),
-        deselectedParamValues: new Set(),
-        chartConfig: {
-            sort: false,
-            logScale: false
-        }
+  initialState: {
+    settings: settings,
+    initialLoading: benchmarkLoadFunction != null,
+    loading: false,
+    benchmarkRuns: [],
+    runSelection: [], // boolean[runs]
+    runView: null, // null || Summary || Compare
+    selectedMetric: 'Score',
+    detailedBenchmarkBundle: null,
+    activeCategory: 'Benchmarks',
+    focusedBundles: new Set(),
+    deselectedMethods: new Set(),
+    deselectedParamValues: new Set(),
+    chartConfig: {
+      sort: false,
+      logScale: false
+    }
+  },
+  actionsCreators: {
+    uploadFiles: async (state, actions, files, trigger) =>
+      loadBenchmarksAsync(
+        state,
+        trigger,
+        () => actions.uploadFiles(files, true),
+        () => parseBenchmarks(files)
+      ),
+    initBenchmarks: (_state, _actions, benchmarkRuns) => {
+      return stateForBenchmarks(benchmarkRuns);
     },
-    actionsCreators: {
-        uploadFiles: async (state, actions, files, trigger) => loadBenchmarksAsync(state, trigger, () => actions.uploadFiles(files, true), () => parseBenchmarks(files)),
-        initBenchmarks: (state, actions, benchmarkRuns) => {
-            return stateForBenchmarks(benchmarkRuns);
-        },
-        loadSingleRunExample: (state, actions, param, trigger) => loadBenchmarksAsync(state, trigger, () => actions.loadSingleRunExample(null, true), () => getExamples(examples.singleRunExample)),
-        loadTwoRunsExample: (state, actions, param, trigger) => loadBenchmarksAsync(state, trigger, () => actions.loadTwoRunsExample(null, true), () => getExamples(examples.twoRunsExample)),
-        loadMultiRunExample: (state, actions, param, trigger) => loadBenchmarksAsync(state, trigger, () => actions.loadMultiRunExample(null, true), () => getExamples(examples.multiRunExample)),
-        selectMetric: (state, actions, newSelectedMetric) => ({ selectedMetric: newSelectedMetric }),
-        focusBundle: (state, actions, benchmarkBundleName) => {
-            const clonedFocusedBundles = new Set(state.focusedBundles)
-            const alreadyFocused = clonedFocusedBundles.has(benchmarkBundleName);
-            if (alreadyFocused) {
-                clonedFocusedBundles.delete(benchmarkBundleName);
-            } else {
-                clonedFocusedBundles.add(benchmarkBundleName);
-            }
-            return { focusedBundles: clonedFocusedBundles };
-        },
-        toggleMethod: (state, actions, benchmarkBundleKey, methodName) => {
-            const key = methodKey(benchmarkBundleKey, methodName);
-            const clonedDeselectedMethods = new Set(state.deselectedMethods)
-            const alreadyDeselected = clonedDeselectedMethods.has(key);
-            if (alreadyDeselected) {
-                clonedDeselectedMethods.delete(key);
-            } else {
-                clonedDeselectedMethods.add(key);
-            }
-            return { deselectedMethods: clonedDeselectedMethods };
-        },
-        toggleParamValue: (state, actions, benchmarkBundleKey, methodName, paramName, value) => {
-            const key = paramValueKey(benchmarkBundleKey, methodName, paramName, value);
-            const clonedDeselectedParamValues = new Set(state.deselectedParamValues)
-            const alreadyDeselected = clonedDeselectedParamValues.has(key);
-            if (alreadyDeselected) {
-                clonedDeselectedParamValues.delete(key);
-            } else {
-                clonedDeselectedParamValues.add(key);
-                const benchmarkSelection = new BenchmarkSelection(state.benchmarkRuns, state.runSelection);
-                const bundle = benchmarkSelection.benchmarkBundles.find(aBundle => aBundle.key === benchmarkBundleKey);
-                const survives = bundle && bundle.benchmarkMethods.some(benchmarkMethod =>
-                    benchmarkMethod.name === methodName && !isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, clonedDeselectedParamValues));
-                if (!survives) {
-                    return {}; // would hide every instance of this method - refuse the toggle
-                }
-            }
-            return { deselectedParamValues: clonedDeselectedParamValues };
-        },
-        // Deselects every other method in the bundle, keeping only methodName selected.
-        selectOnlyMethod: (state, actions, benchmarkBundleKey, methodName, allMethodNames) => {
-            const clonedDeselectedMethods = new Set(state.deselectedMethods);
-            allMethodNames.forEach(otherMethodName => {
-                const key = methodKey(benchmarkBundleKey, otherMethodName);
-                if (otherMethodName === methodName) {
-                    clonedDeselectedMethods.delete(key);
-                } else {
-                    clonedDeselectedMethods.add(key);
-                }
-            });
-            return { deselectedMethods: clonedDeselectedMethods };
-        },
-        // Re-selects every method in the bundle.
-        selectAllMethods: (state, actions, benchmarkBundleKey, allMethodNames) => {
-            const clonedDeselectedMethods = new Set(state.deselectedMethods);
-            allMethodNames.forEach(methodName => clonedDeselectedMethods.delete(methodKey(benchmarkBundleKey, methodName)));
-            return { deselectedMethods: clonedDeselectedMethods };
-        },
-        // Deselects every other value of paramName (for methodName), keeping only value selected.
-        selectOnlyParamValue: (state, actions, benchmarkBundleKey, methodName, paramName, value, allValues) => {
-            const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
-            allValues.forEach(aValue => {
-                const key = paramValueKey(benchmarkBundleKey, methodName, paramName, aValue);
-                if (aValue === value) {
-                    clonedDeselectedParamValues.delete(key);
-                } else {
-                    clonedDeselectedParamValues.add(key);
-                }
-            });
-            const benchmarkSelection = new BenchmarkSelection(state.benchmarkRuns, state.runSelection);
-            const bundle = benchmarkSelection.benchmarkBundles.find(aBundle => aBundle.key === benchmarkBundleKey);
-            const survives = bundle && bundle.benchmarkMethods.some(benchmarkMethod =>
-                benchmarkMethod.name === methodName && !isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, clonedDeselectedParamValues));
-            if (!survives) {
-                return {}; // would hide every instance of this method - refuse the change
-            }
-            return { deselectedParamValues: clonedDeselectedParamValues };
-        },
-        // Re-selects every value of paramName (for methodName).
-        selectAllParamValues: (state, actions, benchmarkBundleKey, methodName, paramName, allValues) => {
-            const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
-            allValues.forEach(value => clonedDeselectedParamValues.delete(paramValueKey(benchmarkBundleKey, methodName, paramName, value)));
-            return { deselectedParamValues: clonedDeselectedParamValues };
-        },
-        selectCategory: (state, actions, category) => {
-            return { activeCategory: category, focusedBundles: new Set() }
-        },
-        detailBenchmarkBundle: (state, actions, benchmarkBundleKey) => {
-            history.push('#details');
-            return { detailedBenchmarkBundle: benchmarkBundleKey };
-        },
-        undetailBenchmarkBundle: () => {
-            return { detailedBenchmarkBundle: null };
-        },
-        // expects array of boolean with length of total JMH runs + the runView ('Summary', 'Compare')
-        selectBenchmarkRuns: (state, action, runSelection, runView) => {
-            return { runSelection: runSelection, runView: runView };
-        },
-        sort: (state) => {
-            return { chartConfig: { ...state.chartConfig, sort: !state.chartConfig.sort } }
-        },
-        logScale: (state) => {
-            return { chartConfig: { ...state.chartConfig, logScale: !state.chartConfig.logScale } }
-        },
-        goBack: () => {
-            history.goBack();
-            return {};
-        }
+    loadSingleRunExample: (state, actions, _param, trigger) =>
+      loadBenchmarksAsync(
+        state,
+        trigger,
+        () => actions.loadSingleRunExample(null, true),
+        () => getExamples(examples.singleRunExample)
+      ),
+    loadTwoRunsExample: (state, actions, _param, trigger) =>
+      loadBenchmarksAsync(
+        state,
+        trigger,
+        () => actions.loadTwoRunsExample(null, true),
+        () => getExamples(examples.twoRunsExample)
+      ),
+    loadMultiRunExample: (state, actions, _param, trigger) =>
+      loadBenchmarksAsync(
+        state,
+        trigger,
+        () => actions.loadMultiRunExample(null, true),
+        () => getExamples(examples.multiRunExample)
+      ),
+    selectMetric: (_state, _actions, newSelectedMetric) => ({ selectedMetric: newSelectedMetric }),
+    focusBundle: (state, _actions, benchmarkBundleName) => {
+      const clonedFocusedBundles = new Set(state.focusedBundles);
+      const alreadyFocused = clonedFocusedBundles.has(benchmarkBundleName);
+      if (alreadyFocused) {
+        clonedFocusedBundles.delete(benchmarkBundleName);
+      } else {
+        clonedFocusedBundles.add(benchmarkBundleName);
+      }
+      return { focusedBundles: clonedFocusedBundles };
     },
-}
+    toggleMethod: (state, _actions, benchmarkBundleKey, methodName) => {
+      const key = methodKey(benchmarkBundleKey, methodName);
+      const clonedDeselectedMethods = new Set(state.deselectedMethods);
+      const alreadyDeselected = clonedDeselectedMethods.has(key);
+      if (alreadyDeselected) {
+        clonedDeselectedMethods.delete(key);
+      } else {
+        clonedDeselectedMethods.add(key);
+      }
+      return { deselectedMethods: clonedDeselectedMethods };
+    },
+    toggleParamValue: (state, _actions, benchmarkBundleKey, methodName, paramName, value) => {
+      const key = paramValueKey(benchmarkBundleKey, methodName, paramName, value);
+      const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
+      const alreadyDeselected = clonedDeselectedParamValues.has(key);
+      if (alreadyDeselected) {
+        clonedDeselectedParamValues.delete(key);
+      } else {
+        clonedDeselectedParamValues.add(key);
+        const benchmarkSelection = new BenchmarkSelection(state.benchmarkRuns, state.runSelection);
+        const bundle = benchmarkSelection.benchmarkBundles.find((aBundle) => aBundle.key === benchmarkBundleKey);
+        const survives = bundle?.benchmarkMethods.some(
+          (benchmarkMethod) =>
+            benchmarkMethod.name === methodName &&
+            !isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, clonedDeselectedParamValues)
+        );
+        if (!survives) {
+          return {}; // would hide every instance of this method - refuse the toggle
+        }
+      }
+      return { deselectedParamValues: clonedDeselectedParamValues };
+    },
+    // Deselects every other method in the bundle, keeping only methodName selected.
+    selectOnlyMethod: (state, _actions, benchmarkBundleKey, methodName, allMethodNames) => {
+      const clonedDeselectedMethods = new Set(state.deselectedMethods);
+      allMethodNames.forEach((otherMethodName) => {
+        const key = methodKey(benchmarkBundleKey, otherMethodName);
+        if (otherMethodName === methodName) {
+          clonedDeselectedMethods.delete(key);
+        } else {
+          clonedDeselectedMethods.add(key);
+        }
+      });
+      return { deselectedMethods: clonedDeselectedMethods };
+    },
+    // Re-selects every method in the bundle.
+    selectAllMethods: (state, _actions, benchmarkBundleKey, allMethodNames) => {
+      const clonedDeselectedMethods = new Set(state.deselectedMethods);
+      allMethodNames.forEach((methodName) => {
+        clonedDeselectedMethods.delete(methodKey(benchmarkBundleKey, methodName));
+      });
+      return { deselectedMethods: clonedDeselectedMethods };
+    },
+    // Deselects every other value of paramName (for methodName), keeping only value selected.
+    selectOnlyParamValue: (state, _actions, benchmarkBundleKey, methodName, paramName, value, allValues) => {
+      const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
+      allValues.forEach((aValue) => {
+        const key = paramValueKey(benchmarkBundleKey, methodName, paramName, aValue);
+        if (aValue === value) {
+          clonedDeselectedParamValues.delete(key);
+        } else {
+          clonedDeselectedParamValues.add(key);
+        }
+      });
+      const benchmarkSelection = new BenchmarkSelection(state.benchmarkRuns, state.runSelection);
+      const bundle = benchmarkSelection.benchmarkBundles.find((aBundle) => aBundle.key === benchmarkBundleKey);
+      const survives = bundle?.benchmarkMethods.some(
+        (benchmarkMethod) =>
+          benchmarkMethod.name === methodName &&
+          !isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, clonedDeselectedParamValues)
+      );
+      if (!survives) {
+        return {}; // would hide every instance of this method - refuse the change
+      }
+      return { deselectedParamValues: clonedDeselectedParamValues };
+    },
+    // Re-selects every value of paramName (for methodName).
+    selectAllParamValues: (state, _actions, benchmarkBundleKey, methodName, paramName, allValues) => {
+      const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
+      allValues.forEach((value) => {
+        clonedDeselectedParamValues.delete(paramValueKey(benchmarkBundleKey, methodName, paramName, value));
+      });
+      return { deselectedParamValues: clonedDeselectedParamValues };
+    },
+    selectCategory: (_state, _actions, category) => {
+      return { activeCategory: category, focusedBundles: new Set() };
+    },
+    detailBenchmarkBundle: (_state, _actions, benchmarkBundleKey) => {
+      history.push('#details');
+      return { detailedBenchmarkBundle: benchmarkBundleKey };
+    },
+    undetailBenchmarkBundle: () => {
+      return { detailedBenchmarkBundle: null };
+    },
+    // expects array of boolean with length of total JMH runs + the runView ('Summary', 'Compare')
+    selectBenchmarkRuns: (_state, _action, runSelection, runView) => {
+      return { runSelection: runSelection, runView: runView };
+    },
+    sort: (state) => {
+      return { chartConfig: { ...state.chartConfig, sort: !state.chartConfig.sort } };
+    },
+    logScale: (state) => {
+      return { chartConfig: { ...state.chartConfig, logScale: !state.chartConfig.logScale } };
+    },
+    goBack: () => {
+      history.goBack();
+      return {};
+    }
+  }
+};
 
 function stateForBenchmarks(benchmarkRuns) {
-    const runView = benchmarkRuns.length > 1 ? 'Summary' : null;
-    const runSelection = Array(benchmarkRuns.length).fill(true)
-    return { initialLoading: false, loading: false, benchmarkRuns: benchmarkRuns, runSelection: runSelection, runView: runView };
+  const runView = benchmarkRuns.length > 1 ? 'Summary' : null;
+  const runSelection = Array(benchmarkRuns.length).fill(true);
+  return {
+    initialLoading: false,
+    loading: false,
+    benchmarkRuns: benchmarkRuns,
+    runSelection: runSelection,
+    runView: runView
+  };
 }
 
-async function loadBenchmarksAsync(state, trigger, triggerFunction, getBenchmarksFunction) {
-    if (trigger) {
-        return { loading: true }
-    } else {
-        await triggerFunction();
-    }
+async function loadBenchmarksAsync(_state, trigger, triggerFunction, getBenchmarksFunction) {
+  if (trigger) {
+    return { loading: true };
+  } else {
+    await triggerFunction();
+  }
 
-    try {
-        const benchmarkRuns = await getBenchmarksFunction();
-        return stateForBenchmarks(benchmarkRuns);
-    } catch (error) {
-        return stateForBenchmarks([]);
-    }
+  try {
+    const benchmarkRuns = await getBenchmarksFunction();
+    return stateForBenchmarks(benchmarkRuns);
+  } catch (_error) {
+    return stateForBenchmarks([]);
+  }
 }
 
 export const { Provider, connect, actions } = createStore(config);
 
 export function methodKey(benchmarkBundleKey, methodName) {
-    return `${benchmarkBundleKey}::${methodName}`;
+  return `${benchmarkBundleKey}::${methodName}`;
 }
 
 export function paramValueKey(benchmarkBundleKey, methodName, paramName, value) {
-    return `${methodKey(benchmarkBundleKey, methodName)}::${paramName}=${value}`;
+  return `${methodKey(benchmarkBundleKey, methodName)}::${paramName}=${value}`;
 }
 
 // Whether a specific parameterized BenchmarkMethod instance is hidden because one of its param values got deselected
 export function isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, deselectedParamValues) {
-    if (!benchmarkMethod.params) {
-        return false;
-    }
-    return benchmarkMethod.params.some(([paramName, value]) => deselectedParamValues.has(paramValueKey(benchmarkBundleKey, benchmarkMethod.name, paramName, value)));
+  if (!benchmarkMethod.params) {
+    return false;
+  }
+  return benchmarkMethod.params.some(([paramName, value]) =>
+    deselectedParamValues.has(paramValueKey(benchmarkBundleKey, benchmarkMethod.name, paramName, value))
+  );
 }
 
-history.listen((location, action) => {
-    if (action === 'POP') {
-        actions.undetailBenchmarkBundle();
-    }
+history.listen((_location, action) => {
+  if (action === 'POP') {
+    actions.undetailBenchmarkBundle();
+  }
 });
 
 if (benchmarkLoadFunction) {
-    setTimeout(() => benchmarkLoadFunction(actions.initBenchmarks), 0);
+  setTimeout(() => benchmarkLoadFunction(actions.initBenchmarks), 0);
 }
 
 function getExamples(benchmarkRuns) {
-    return new Promise((resolve) => setTimeout(() => resolve(benchmarkRuns), 0));
+  return new Promise((resolve) => setTimeout(() => resolve(benchmarkRuns), 0));
 }
 
 function parseBenchmarks(files) {
-    return new Promise((resolve, reject) => {
-
-        const benchmarkRuns = [];
-        files.forEach((file) => {
-            const reader = new FileReader();
-            const runName = file.name.replace('.json', '');
-            reader.onload = function (evt) {
-                try {
-                    var parsedBenchmarks = JSON.parse(evt.target.result);
-                    const benchmarkRun = new BenchmarkRun({
-                        name: runName,
-                        benchmarks: parsedBenchmarks
-                    });
-                    benchmarkRuns.push(benchmarkRun);
-                    if (benchmarkRuns.length == files.length) {
-                        benchmarkRuns.sort((a, b) => a.name.localeCompare(b.name));
-                        window.onbeforeunload = function () {
-                            return "You will loose the current benchmarks.";
-                        };
-                        resolve(benchmarkRuns);
-                    }
-                } catch (e) {
-                    alert(e); //error in the above string(in this case,yes)!
-                    reject(e);
-                }
-            };
-            reader.readAsText(file);
-        });
+  return new Promise((resolve, reject) => {
+    const benchmarkRuns = [];
+    files.forEach((file) => {
+      const reader = new FileReader();
+      const runName = file.name.replace('.json', '');
+      reader.onload = (evt) => {
+        try {
+          const parsedBenchmarks = JSON.parse(evt.target.result);
+          const benchmarkRun = new BenchmarkRun({
+            name: runName,
+            benchmarks: parsedBenchmarks
+          });
+          benchmarkRuns.push(benchmarkRun);
+          if (benchmarkRuns.length === files.length) {
+            benchmarkRuns.sort((a, b) => a.name.localeCompare(b.name));
+            window.onbeforeunload = () => 'You will loose the current benchmarks.';
+            resolve(benchmarkRuns);
+          }
+        } catch (e) {
+          alert(e); //error in the above string(in this case,yes)!
+          reject(e);
+        }
+      };
+      reader.readAsText(file);
     });
+  });
 }

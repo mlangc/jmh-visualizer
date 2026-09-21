@@ -1,27 +1,27 @@
-import React, { Component } from 'react';
+import { blue, green, red } from 'functions/colors.js';
+import { formatNumber } from 'functions/util.js';
 import PropTypes from 'prop-types';
-import Table from 'react-bootstrap/lib/Table'
-
-import { formatNumber } from 'functions/util.js'
-import { blue, red, green } from 'functions/colors.js'
+import { Component } from 'react';
+import Table from 'react-bootstrap/lib/Table';
 
 export default class TwoRunsChartTooltip extends Component {
-
   static propTypes = {
     label: PropTypes.any,
     runNames: PropTypes.array,
     roundScores: PropTypes.bool,
-    payload: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.any,
-      payload: PropTypes.any,
-      value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      unit: PropTypes.any,
-    })),
+    payload: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.any,
+        payload: PropTypes.any,
+        value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+        unit: PropTypes.any
+      })
+    )
   };
 
   render() {
     const { label, payload, runNames, roundScores } = this.props;
-    if (payload == null || payload.length == 0) {
+    if (payload == null || payload.length === 0) {
       return null;
     }
     const score1 = payload[0].payload.score1stRun;
@@ -33,17 +33,20 @@ export default class TwoRunsChartTooltip extends Component {
     const scoreUnit = payload[0].payload.scoreUnit;
 
     return (
-      <div style={ { width: Math.max(230, label.length * 9) } }>
-        <div style={ { textAlign: 'center' } }>
-          <h4><u>{ label }</u></h4>
-          <b><div style={ { color: payload[0].payload.scoreDiff > 0 ? green : red } }> { payload[0].payload.scoreDiff + ' %' } </div></b>
+      <div style={{ width: Math.max(230, label.length * 9) }}>
+        <div style={{ textAlign: 'center' }}>
+          <h4>
+            <u>{label}</u>
+          </h4>
+          <b>
+            <div style={{ color: payload[0].payload.scoreDiff > 0 ? green : red }}>
+              {' '}
+              {`${payload[0].payload.scoreDiff} %`}{' '}
+            </div>
+          </b>
         </div>
-        <div style={ { textAlign: 'center' } }>
-          <Table
-            striped
-            bordered
-            condensed
-            hover>
+        <div style={{ textAlign: 'center' }}>
+          <Table striped bordered condensed hover>
             <thead>
               <tr>
                 <th>Run</th>
@@ -54,22 +57,22 @@ export default class TwoRunsChartTooltip extends Component {
             </thead>
             <tbody>
               <tr>
-                <td>{ runNames[0] }</td>
-                <td style={ { color: blue } }>{ formatNumber(score1, roundScores) }</td>
-                <td style={ { color: red } }>{ formatNumber(scoreError1, roundScores) }</td>
-                <td>{ scoreUnit }</td>
+                <td>{runNames[0]}</td>
+                <td style={{ color: blue }}>{formatNumber(score1, roundScores)}</td>
+                <td style={{ color: red }}>{formatNumber(scoreError1, roundScores)}</td>
+                <td>{scoreUnit}</td>
               </tr>
               <tr>
-                <td>{ runNames[1] }</td>
-                <td style={ { color: blue } }>{ formatNumber(score2, roundScores) }</td>
-                <td style={ { color: red } }>{ formatNumber(scoreError2, roundScores) }</td>
-                <td>{ scoreUnit }</td>
+                <td>{runNames[1]}</td>
+                <td style={{ color: blue }}>{formatNumber(score2, roundScores)}</td>
+                <td style={{ color: red }}>{formatNumber(scoreError2, roundScores)}</td>
+                <td>{scoreUnit}</td>
               </tr>
               <tr>
                 <td>Change</td>
-                <td>{ (scoreChange > 0 ? '+' : '') + formatNumber(scoreChange, roundScores) }</td>
-                <td>{ (scoreErrorChange > 0 ? '+' : '') + formatNumber(scoreErrorChange, roundScores) }</td>
-                <td>{ scoreUnit }</td>
+                <td>{(scoreChange > 0 ? '+' : '') + formatNumber(scoreChange, roundScores)}</td>
+                <td>{(scoreErrorChange > 0 ? '+' : '') + formatNumber(scoreErrorChange, roundScores)}</td>
+                <td>{scoreUnit}</td>
               </tr>
             </tbody>
           </Table>

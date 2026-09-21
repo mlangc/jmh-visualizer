@@ -1,52 +1,43 @@
-import React from 'react';
+import TocElement from 'components/TocElement.jsx';
+import TwoRunBundle from 'components/two/TwoRunBundle.jsx';
 import PropTypes from 'prop-types';
-
-import Badge from 'react-bootstrap/lib/Badge'
-
-import TocElement from 'components/TocElement.jsx'
-import TwoRunBundle from 'components/two/TwoRunBundle.jsx'
+import React from 'react';
+import Badge from 'react-bootstrap/lib/Badge';
 
 export default class TwoRunsView extends React.Component {
+  static propTypes = {
+    runNames: PropTypes.array.isRequired,
+    benchmarkBundles: PropTypes.array.isRequired,
+    metricExtractor: PropTypes.object.isRequired,
+    chartConfig: PropTypes.object.isRequired
+  };
 
-    static propTypes = {
-        runNames: PropTypes.array.isRequired,
-        benchmarkBundles: PropTypes.array.isRequired,
-        metricExtractor: PropTypes.object.isRequired,
-        chartConfig: PropTypes.object.isRequired,
-    };
+  render() {
+    const { runNames, benchmarkBundles, metricExtractor, chartConfig } = this.props;
 
-    render() {
-        const { runNames, benchmarkBundles, metricExtractor, chartConfig } = this.props;
+    const elements = [];
+    elements.push(
+      <div key="summary">
+        Comparing <Badge>{benchmarkBundles.length}</Badge> benchmark classes for &#39;
+        {runNames[0]}&#39; and &#39;
+        {runNames[1]}&#39; on metric &#39;
+        {metricExtractor.metricKey}&#39;.
+      </div>
+    );
 
-        const elements = [];
-        elements.push(
-            <div key='summary'>
-                Comparing
-              { ' ' }
-                <Badge>
-                    { benchmarkBundles.length }
-                </Badge> benchmark classes for &#39;
-              { runNames[0] }&#39; and &#39;
-              { runNames[1] }&#39; on metric &#39;
-              { metricExtractor.metricKey }&#39;.
-            </div>
-        );
+    benchmarkBundles.forEach((benchmarkBundle) => {
+      elements.push(
+        <TocElement key={benchmarkBundle.key} name={benchmarkBundle.key}>
+          <TwoRunBundle
+            runNames={runNames}
+            benchmarkBundle={benchmarkBundle}
+            metricExtractor={metricExtractor}
+            chartConfig={chartConfig}
+          />
+        </TocElement>
+      );
+    });
 
-        benchmarkBundles.forEach(benchmarkBundle => {
-            elements.push(<TocElement key={ benchmarkBundle.key } name={ benchmarkBundle.key }>
-                <TwoRunBundle
-                    runNames={ runNames }
-                    benchmarkBundle={ benchmarkBundle }
-                    metricExtractor={ metricExtractor }
-                    chartConfig={ chartConfig }
-                />
-            </TocElement>);
-        });
-
-
-        return <div>
-            { elements }
-        </div>
-    }
-
+    return <div>{elements}</div>;
+  }
 }

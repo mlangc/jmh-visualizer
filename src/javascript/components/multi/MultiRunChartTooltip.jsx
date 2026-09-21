@@ -1,48 +1,48 @@
-import React, { Component } from 'react';
+import { blue, red } from 'functions/colors.js';
+import { formatNumber } from 'functions/util.js';
 import PropTypes from 'prop-types';
-import Table from 'react-bootstrap/lib/Table'
-
-import { formatNumber } from 'functions/util.js'
-import { blue, red } from 'functions/colors.js'
+import { Component } from 'react';
+import Table from 'react-bootstrap/lib/Table';
 
 // Tooltip for LineChartView
 export default class MultiRunChartTooltip extends Component {
-
   static propTypes = {
     label: PropTypes.any,
     roundScores: PropTypes.bool,
-    payload: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.any,
-      payload: PropTypes.any,
-      value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      unit: PropTypes.any,
-    })),
+    payload: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.any,
+        payload: PropTypes.any,
+        value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+        unit: PropTypes.any
+      })
+    )
   };
 
   render() {
     const { label, payload, roundScores } = this.props;
-    if (payload.length == 0) {
+    if (payload.length === 0) {
       return null;
     }
-    const tableRows = payload.map(dataPoint => <tr key={ dataPoint.name }>
-      <td>{ dataPoint.name }</td>
-      <td style={ { color: blue } }>{ formatNumber(dataPoint.value, roundScores) }</td>
-      <td style={ { color: blue } }>{ formatNumber(dataPoint.payload[dataPoint.name + '-minMax'][0], roundScores) }</td>
-      <td style={ { color: blue } }>{ formatNumber(dataPoint.payload[dataPoint.name + '-minMax'][1], roundScores) }</td>
-      <td style={ { color: red } }>{ formatNumber(dataPoint.payload[dataPoint.name + '-scoreError'], roundScores) }</td>
-      <td>{ dataPoint.payload.scoreUnit }</td>
-    </tr>);
+    const tableRows = payload.map((dataPoint) => (
+      <tr key={dataPoint.name}>
+        <td>{dataPoint.name}</td>
+        <td style={{ color: blue }}>{formatNumber(dataPoint.value, roundScores)}</td>
+        <td style={{ color: blue }}>{formatNumber(dataPoint.payload[`${dataPoint.name}-minMax`][0], roundScores)}</td>
+        <td style={{ color: blue }}>{formatNumber(dataPoint.payload[`${dataPoint.name}-minMax`][1], roundScores)}</td>
+        <td style={{ color: red }}>{formatNumber(dataPoint.payload[`${dataPoint.name}-scoreError`], roundScores)}</td>
+        <td>{dataPoint.payload.scoreUnit}</td>
+      </tr>
+    ));
     return (
       <div>
-        <div style={ { textAlign: 'center' } }>
-          <h4><u>{ label }</u></h4>
+        <div style={{ textAlign: 'center' }}>
+          <h4>
+            <u>{label}</u>
+          </h4>
         </div>
-        <div style={ { textAlign: 'center' } }>
-          <Table
-            striped
-            bordered
-            condensed
-            hover>
+        <div style={{ textAlign: 'center' }}>
+          <Table striped bordered condensed hover>
             <thead>
               <tr>
                 <th>Benchmark</th>
@@ -53,9 +53,7 @@ export default class MultiRunChartTooltip extends Component {
                 <th>Unit</th>
               </tr>
             </thead>
-            <tbody>
-              { tableRows }
-            </tbody>
+            <tbody>{tableRows}</tbody>
           </Table>
         </div>
       </div>

@@ -5,9 +5,10 @@
 - Build (dev): `npm run build` (webpack --mode development)
 - Watch: `npm run watch`
 - Release build: `npm run release-build`
-- Lint: `npm run lint`
-- Test: `npm run test` (mocha 5.2.0, uses the deprecated `--compilers` flag —
-  don't bump mocha without also fixing this, see below)
+- Lint: `npm run lint` (Biome — formatting + lint, no writes; `npm run
+  format` from a package.json script isn't wired up, use `npx biome check
+  --write src test webpack.config.js` to apply fixes)
+- Test: `npm run test` (mocha 12, via `@babel/register`)
 - `npm run check` = lint + test; `npm run release` = check + release-build
 
 All webpack scripts (`build`/`watch`/`release-build`) need
@@ -18,11 +19,11 @@ Node's newer OpenSSL. Without it, `npm run build` fails with
 run build`.
 
 `e2e/` is a separate, isolated Playwright/TS black-box test suite (own
-`package.json`/`node_modules`) — see `e2e/CLAUDE.md`. It's excluded in the
-root `.eslintignore`: ESLint 4 doesn't ignore nested `node_modules` the way
-newer versions do, so without that exclusion `npm run lint` (and `check`/
-`release`) crashes trying to resolve `.eslintrc` files inside `e2e`'s own
-dependency tree.
+`package.json`/`node_modules`, own `biome.json`) — see `e2e/CLAUDE.md`. The
+root Biome config (`biome.json`) deliberately only targets `src`, `test` and
+`webpack.config.js` (not a bare `.`) — Biome 2.x treats `e2e/biome.json` as a
+conflicting nested root config otherwise, and there's no reason to run the
+root linter over e2e's independently-versioned Biome setup anyway.
 
 ## Commit message style
 
@@ -73,25 +74,23 @@ bodies empty by default.
 
 ## Known dependency landmines
 
-- `recharts` 1.8.5 → 1.8.6 (patch bump, looks safe) breaks the build: 1.8.6
-  bumps its internal `core-js` dependency to `^3.4.2`, but this project's
-  `webpack.config.js` overrides `resolve.modules` to an absolute path at the
-  top-level `node_modules` only, so webpack can't resolve the nested
-  `recharts/node_modules/core-js@3`. Stay pinned at `^1.3.1` (currently
-  resolving to 1.8.5) until this is deliberately fixed. **Hit for real once**
-  already: a "version bumps" commit on a feature branch drifted the
-  *lockfile* resolution to 1.8.6 without touching the declared range, so
-  `npm ci` silently reproduced the exact webpack failure above. Fixed there
-  with a lockfile-only commit pinning the resolution back to 1.8.5. If a
-  `package-lock.json` update ever bumps `recharts` past 1.8.5, re-pin it the
-  same way.
+- `recharts` stays pinned at `^1.3.1` (currently resolving to 1.8.5) — the
+  modernization plan (`plans/2026-09-21-MODERNIZATION-PLAN.md`, Step 2.f)
+  jumps straight to recharts 2.x in its own isolated, high-risk commit, so
+  don't let a stray `package-lock.json` update drift it to 1.8.6 or later
+  1.x in the meantime. Historically this pin was also load-bearing for a
+  webpack resolution bug (`resolve.modules` forced an absolute top-level
+  `node_modules` path, so webpack couldn't reach `recharts/node_modules/
+  core-js@3`, which 1.8.6 requires) — that override is gone as of the Babel
+  7 bump (webpack now does its normal nested-`node_modules` walk), so that
+  specific failure mode no longer applies, but the pin itself stays until
+  Step 2.f does the deliberate 2.x migration.
 - Open Dependabot PRs needing real migration work, not just a version bump:
-  - #47/#48 — mocha 5→10: hard-pinned nested `minimatch`/`minimist` copies,
-    plus mocha 6+ dropped `--compilers` (used in the `test` npm script).
   - #45 — css-loader/html-webpack-plugin bumps require webpack 5; project is
     still on webpack 4.
-  - #42 — `d3-scale-chromatic` 3.x is ESM-only (risky under webpack4/Babel6);
-    `recharts` 2.x is a breaking rewrite.
+  - #42 — `d3-scale-chromatic` 3.x is ESM-only (risky under webpack4); this
+    is now unblocked (Babel 7 lands proper ESM/syntax support) but not yet
+    done — see Step 2.e of the modernization plan.
 - Several other minor/patch Dependabot bumps have already been applied
   safely (via `npm update` / `npm install --no-save`, within their existing
   `package.json` ranges), each verified with a real build.
