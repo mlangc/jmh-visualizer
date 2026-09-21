@@ -36,6 +36,12 @@ message content only — Claude Code's own attribution trailer
 (`Co-Authored-By:` / `Claude-Session:`), when the session's settings call for
 it, still gets appended mechanically and doesn't count as "body prose."
 
+One narrow exception: when working from a tracked implementation plan (e.g.
+`plans/*.md`), the body may contain a bare reference to that plan and
+nothing else — no descriptive prose, no bullet list. A plan may state this
+requirement itself (see its own Ground rules); absent that, still keep
+bodies empty by default.
+
 ## Architecture quick map
 
 - State: `src/javascript/store/store.js`, a `react-waterfall` store (single
