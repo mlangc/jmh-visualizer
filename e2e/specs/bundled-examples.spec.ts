@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { JmhApp } from '../support/jmh-app';
 import { watchDialogsAndErrors } from '../support/page-watchers';
+import { wrapAgnostic } from '../support/regex-util';
 import { expectSummaryHeader } from '../support/summary-header-assertions';
 
 // The three bundled examples (exampleBenchmark{1,2,3}.js) are app source the migration
@@ -37,9 +38,11 @@ test('the single-run example renders every benchmark class in the report', async
     await expect(chartLabels.filter({ hasText: new RegExp(`\\s${unit.replace('/', '\\/')}$`) }).first()).toBeVisible();
   }
 
-  // Parameterized benchmarks group their bars by param value.
-  for (const category of ['a_milis =10', 'a_milis =20']) {
-    await expect(chartLabels.filter({ hasText: new RegExp(`^${category}$`) }).first()).toBeVisible();
+  // Parameterized benchmarks group their bars by param value. Recharts may wrap this
+  // label onto two lines if it doesn't fit the axis's available width, so match with
+  // the whitespace around it left flexible rather than pinning one exact rendering.
+  for (const category of ['a_milis = 10', 'a_milis = 20']) {
+    await expect(chartLabels.filter({ hasText: wrapAgnostic(category) }).first()).toBeVisible();
   }
 
   expect(dialogs).toEqual([]);

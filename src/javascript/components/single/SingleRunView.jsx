@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import Badge from 'react-bootstrap/lib/Badge';
+import Badge from 'react-bootstrap/Badge';
 
 import Toggle from 'react-toggle';
 import 'react-toggle/style.css';
@@ -69,7 +69,7 @@ export default class SingleRunView extends React.Component {
 
     const elements = [];
     elements.push(
-      <div key="summary">
+      <div key="summary" style={{ position: 'relative' }}>
         <Badge>{benchmarkBundles.length}</Badge>
         {` different benchmark classes for single run '${runName}' and metric '${metricExtractor.metricKey}' detected!`}
         <span style={{ position: 'absolute', right: 20 }}>{synchronizeAxisScalesToggle}</span>

@@ -1,7 +1,7 @@
 import LoadFromGistsDialog from 'components/LoadFromGistsDialog.jsx';
 import LoadFromUrlsDialog from 'components/LoadFromUrlsDialog.jsx';
 import React from 'react';
-import Modal from 'react-bootstrap/lib/Modal';
+import Modal from 'react-bootstrap/Modal';
 import { FaHandPointRight as PointingHandIcon } from 'react-icons/fa';
 import { actions } from 'store/store.js';
 
@@ -49,7 +49,7 @@ export default class UploadSideBar extends React.Component {
     return (
       <div style={{ whiteSpace: 'nowrap' }}>
         <div>
-          <div className="btn btn-default" style={{ position: 'relative' }}>
+          <div className="btn btn-secondary" style={{ position: 'relative' }}>
             Open File Dialog
             <input
               type="file"

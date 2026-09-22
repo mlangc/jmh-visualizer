@@ -3,8 +3,8 @@ import { DetailsButton, ScaleButton, SortButton } from 'components/Icons.jsx';
 import BarChartView from 'components/single/BarChartView.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
-import Button from 'react-bootstrap/lib/Button';
-import Collapse from 'react-bootstrap/lib/Collapse';
+import Button from 'react-bootstrap/Button';
+import Collapse from 'react-bootstrap/Collapse';
 
 // The view for a bunch of benchmarks, usually all of a benchmark class
 export default class SingleRunBundle extends React.Component {
@@ -71,13 +71,13 @@ export default class SingleRunBundle extends React.Component {
             chartConfig={{ sort: sort, logScale: logScale }}
           />
         </div>
-        <Button bsSize="small" onClick={this.toggleShowJson.bind(this)}>
+        <Button size="sm" onClick={this.toggleShowJson.bind(this)}>
           Show JSON
         </Button>
         <Collapse in={showJson}>
           <div>
             <pre>{JSON.stringify(benchmarks, null, '\t')}</pre>
-            <Button bsStyle="primary" onClick={this.toggleShowJson.bind(this)}>
+            <Button variant="primary" onClick={this.toggleShowJson.bind(this)}>
               Collapse
             </Button>
           </div>

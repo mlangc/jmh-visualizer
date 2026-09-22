@@ -1,7 +1,7 @@
-import Button from 'react-bootstrap/lib/Button';
-import ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
-import MenuItem from 'react-bootstrap/lib/MenuItem';
-import SplitButton from 'react-bootstrap/lib/SplitButton';
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Dropdown from 'react-bootstrap/Dropdown';
+import SplitButton from 'react-bootstrap/SplitButton';
 
 import { actions, connect } from 'store/store.js';
 
@@ -61,8 +61,8 @@ const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchma
     return (
       <Button
         key={index}
-        bsStyle={isActive ? 'primary' : 'default'}
-        bsSize="small"
+        variant={isActive ? 'primary' : 'secondary'}
+        size="sm"
         onClick={() => selectSingleRun(benchmarkRuns, runView, index)}
       >
         {benchmarkRuns[index].name}
@@ -72,16 +72,16 @@ const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchma
   let allButton;
   if (runViews.length > 1) {
     const runViewMenuItems = runViews.map((runViewLabel) => (
-      <MenuItem key={runViewLabel} onClick={() => selectAll(runSelection, runViewLabel)}>
+      <Dropdown.Item key={runViewLabel} role="menuitem" onClick={() => selectAll(runSelection, runViewLabel)}>
         {runViewLabel}
-      </MenuItem>
+      </Dropdown.Item>
     ));
     allButton = (
       <SplitButton
         id="all"
         title={runView}
-        bsStyle={showAll ? 'primary' : 'default'}
-        bsSize="small"
+        variant={showAll ? 'primary' : 'secondary'}
+        size="sm"
         onClick={() => selectAllWithPossibleSwitchView(runSelection, runView)}
       >
         {runViewMenuItems}
@@ -89,7 +89,7 @@ const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchma
     );
   } else {
     allButton = (
-      <Button bsStyle={showAll ? 'primary' : 'default'} bsSize="small" onClick={() => selectAll(runSelection, runView)}>
+      <Button variant={showAll ? 'primary' : 'secondary'} size="sm" onClick={() => selectAll(runSelection, runView)}>
         {runViews[0]}
       </Button>
     );

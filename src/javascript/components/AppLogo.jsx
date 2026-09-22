@@ -1,28 +1,24 @@
 import PropTypes from 'prop-types';
-import { Component } from 'react';
+import { forwardRef } from 'react';
 
 import { FaAlignLeft } from 'react-icons/fa';
 
-export default class MyLogo extends Component {
-  static propTypes = {
-    onClick: PropTypes.func
+// Dropdown.Toggle's `as` needs the DOM node forwarded for menu positioning.
+const AppLogo = forwardRef(({ onClick, ...props }, ref) => {
+  const handleClick = (e) => {
+    e.preventDefault();
+    onClick(e);
   };
 
-  constructor(props, context) {
-    super(props, context);
-    this.handleClick = this.handleClick.bind(this);
-  }
+  return (
+    <a href="" ref={ref} onClick={handleClick} {...props}>
+      <FaAlignLeft /> JMH Visualizer
+    </a>
+  );
+});
 
-  handleClick(e) {
-    e.preventDefault();
-    this.props.onClick(e);
-  }
+AppLogo.propTypes = {
+  onClick: PropTypes.func
+};
 
-  render() {
-    return (
-      <a href="" onClick={this.handleClick}>
-        <FaAlignLeft /> JMH Visualizer
-      </a>
-    );
-  }
-}
+export default AppLogo;

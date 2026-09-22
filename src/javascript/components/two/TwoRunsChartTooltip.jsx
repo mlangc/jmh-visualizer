@@ -2,7 +2,7 @@ import { blue, green, red } from 'functions/colors.js';
 import { formatNumber } from 'functions/util.js';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
-import Table from 'react-bootstrap/lib/Table';
+import Table from 'react-bootstrap/Table';
 
 export default class TwoRunsChartTooltip extends Component {
   static propTypes = {
@@ -46,7 +46,7 @@ export default class TwoRunsChartTooltip extends Component {
           </b>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <Table striped bordered condensed hover>
+          <Table striped bordered size="sm" hover>
             <thead>
               <tr>
                 <th>Run</th>

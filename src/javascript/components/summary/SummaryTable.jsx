@@ -1,6 +1,6 @@
 import Tooltipped from 'components/lib/Tooltipped.jsx';
 import { green, red, yellow } from 'functions/colors.js';
-import Table from 'react-bootstrap/lib/Table';
+import Table from 'react-bootstrap/Table';
 import { FaLocationArrow as UpIcon } from 'react-icons/fa';
 import { actions } from 'store/store.js';
 

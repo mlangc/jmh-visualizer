@@ -1,8 +1,8 @@
 import Slider from '@appigram/react-rangeslider';
-import Badge from 'react-bootstrap/lib/Badge';
-import Col from 'react-bootstrap/lib/Col';
-import Grid from 'react-bootstrap/lib/Grid';
-import Row from 'react-bootstrap/lib/Row';
+import Badge from 'react-bootstrap/Badge';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
 import '@appigram/react-rangeslider/lib/index.css';
 
 import SummaryChangeChart from 'components/summary/SummaryChangeChart.jsx';
@@ -20,7 +20,7 @@ const SummaryHeader = ({
   changeMinDeviationFunction
 }) => {
   return (
-    <Grid fluid={true}>
+    <Container fluid={true}>
       <Row>
         <Col md={6}>
           <div style={{ display: 'flex' }}>
@@ -51,7 +51,7 @@ const SummaryHeader = ({
           <SummaryHistogramChart benchmarkDiffs={benchmarkDiffs} />
         </Col>
       </Row>
-    </Grid>
+    </Container>
   );
 };
 

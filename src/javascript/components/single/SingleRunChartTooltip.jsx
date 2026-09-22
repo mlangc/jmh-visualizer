@@ -3,7 +3,7 @@ import { blue, red } from 'functions/colors.js';
 import { formatNumber, round } from 'functions/util.js';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
-import Table from 'react-bootstrap/lib/Table';
+import Table from 'react-bootstrap/Table';
 import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts';
 
 export default class SingleRunChartTooltip extends Component {
@@ -147,7 +147,7 @@ export default class SingleRunChartTooltip extends Component {
             <h4>{label}</h4>
           </u>
         </div>
-        <Table striped bordered condensed hover>
+        <Table striped bordered size="sm" hover>
           <thead>
             <tr>{tableHeaders}</tr>
           </thead>

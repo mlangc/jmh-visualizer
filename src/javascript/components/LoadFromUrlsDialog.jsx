@@ -1,11 +1,9 @@
 import React from 'react';
 
-import Button from 'react-bootstrap/lib/Button';
-import Col from 'react-bootstrap/lib/Col';
-import ControlLabel from 'react-bootstrap/lib/ControlLabel';
-import Form from 'react-bootstrap/lib/Form';
-import FormControl from 'react-bootstrap/lib/FormControl';
-import FormGroup from 'react-bootstrap/lib/FormGroup';
+import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
 
 export default class LoadFromUrlsDialog extends React.Component {
   constructor(props, context) {
@@ -49,32 +47,32 @@ export default class LoadFromUrlsDialog extends React.Component {
 
   render() {
     return (
-      <Form horizontal>
-        <FormGroup controlId="url1">
-          <Col componentClass={ControlLabel} sm={2}>
+      <Form>
+        <Form.Group as={Row} controlId="url1">
+          <Form.Label column sm={2}>
             {' '}
             URL 1
-          </Col>
+          </Form.Label>
           <Col sm={10}>
-            <FormControl type="text" onChange={this.handleUrl1Change} />
+            <Form.Control type="text" onChange={this.handleUrl1Change} />
           </Col>
-        </FormGroup>
-        <FormGroup controlId="url2">
-          <Col componentClass={ControlLabel} sm={2}>
+        </Form.Group>
+        <Form.Group as={Row} controlId="url2">
+          <Form.Label column sm={2}>
             {' '}
             URL 2 (optional)
-          </Col>
+          </Form.Label>
           <Col sm={10}>
-            <FormControl type="text" onChange={this.handleUrl2Change} />
+            <Form.Control type="text" onChange={this.handleUrl2Change} />
           </Col>
-        </FormGroup>
-        <FormGroup>
-          <Col smOffset={2} sm={10}>
+        </Form.Group>
+        <Form.Group as={Row}>
+          <Col sm={{ span: 10, offset: 2 }}>
             <Button onClick={this.handleSubmit} disabled={!this.state.url1}>
               Load
             </Button>
           </Col>
-        </FormGroup>
+        </Form.Group>
       </Form>
     );
   }

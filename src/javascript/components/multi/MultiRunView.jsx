@@ -2,7 +2,7 @@ import MultiRunBundle from 'components/multi/MultiRunBundle.jsx';
 import TocElement from 'components/TocElement.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
-import Badge from 'react-bootstrap/lib/Badge';
+import Badge from 'react-bootstrap/Badge';
 
 export default class MultiRunView extends React.Component {
   static propTypes = {

@@ -1,6 +1,6 @@
 import { blue, green } from 'functions/colors.js';
 import React from 'react';
-import Alert from 'react-bootstrap/lib/Alert';
+import Alert from 'react-bootstrap/Alert';
 import Dropzone from 'react-dropzone';
 import { FaCloudUploadAlt as UploadIcon } from 'react-icons/fa';
 import { actions } from 'store/store.js';
@@ -43,7 +43,7 @@ export default class UploadMainView extends React.Component {
           <UploadIcon width={100} height={100} />
         </h2>
         <br />
-        <Alert bsStyle="warning">
+        <Alert variant="warning">
           <div>
             <blockquote style={{ fontSize: 14, paddingLeft: 0, marginBottom: 5 }}>
               <i>

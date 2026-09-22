@@ -2,6 +2,12 @@
   color: inherit;
 }
 
+/* Bootstrap 5's .nav is a flex row (flex-wrap) by default; this sidebar is a
+   vertical tree built from plain <ul>/<li> markup, not react-bootstrap's Nav. */
+.bs-docs-sidebar .nav {
+  display: block;
+}
+
 /* sidebar */
 .bs-docs-sidebar {
   padding-left: 5px;

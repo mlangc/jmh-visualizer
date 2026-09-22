@@ -2,9 +2,9 @@ import MethodParamCheckboxList from 'components/lib/MethodParamCheckboxList.jsx'
 import TocList from 'components/TocList.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
-import FormControl from 'react-bootstrap/lib/FormControl';
-import FormGroup from 'react-bootstrap/lib/FormGroup';
-import InputGroup from 'react-bootstrap/lib/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
+import FormGroup from 'react-bootstrap/FormGroup';
+import InputGroup from 'react-bootstrap/InputGroup';
 import { MdKeyboardBackspace as BackIcon } from 'react-icons/md';
 import { actions } from 'store/store.js';
 
@@ -36,10 +36,11 @@ export default class DetailSideBar extends React.Component {
         </a>
         <br />
         <br />
-        <FormGroup bsSize="small" controlId="theForm">
+        <FormGroup controlId="theForm">
           <InputGroup>
             <FormControl
-              componentClass="select"
+              as="select"
+              size="sm"
               onChange={(event) => actions.detailBenchmarkBundle(event.target.value)}
               defaultValue={benchmarkBundle.key}
             >

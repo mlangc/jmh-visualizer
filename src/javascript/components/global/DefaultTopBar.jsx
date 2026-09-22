@@ -2,13 +2,11 @@ import AppLogo from 'components/AppLogo.jsx';
 import DoingWorkSpinner from 'components/DoingWorkSpinner.jsx';
 import { LinkIcon } from 'components/Icons.jsx';
 import React from 'react';
-import Dropdown from 'react-bootstrap/lib/Dropdown';
-import MenuItem from 'react-bootstrap/lib/MenuItem';
-import Nav from 'react-bootstrap/lib/Nav';
-import Navbar from 'react-bootstrap/lib/Navbar';
-import NavItem from 'react-bootstrap/lib/NavItem';
-import OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
-import Popover from 'react-bootstrap/lib/Popover';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 
 export default class DefaultTopBar extends React.Component {
   onReset() {
@@ -18,60 +16,67 @@ export default class DefaultTopBar extends React.Component {
 
   render() {
     const aboutPopover = (
-      <Popover id="popover-trigger-click-root-close" title={`About JMH Visualizer - ${process.env.version}`}>
-        <p>
-          <i>JMH Visualizer</i> will render charts out of your{' '}
-          <a href="http://openjdk.java.net/projects/code-tools/jmh/" target="_blank" rel="noopener noreferrer">
-            JMH Benchmarks
-          </a>
-          . All it needs are your benchmark results in JSON format.
-        </p>
+      <Popover id="popover-trigger-click-root-close">
+        <Popover.Header as="h3">{`About JMH Visualizer - ${process.env.version}`}</Popover.Header>
+        <Popover.Body>
+          <p>
+            <i>JMH Visualizer</i> will render charts out of your{' '}
+            <a href="http://openjdk.java.net/projects/code-tools/jmh/" target="_blank" rel="noopener noreferrer">
+              JMH Benchmarks
+            </a>
+            . All it needs are your benchmark results in JSON format.
+          </p>
+        </Popover.Body>
       </Popover>
     );
 
     const showReset = providedBenchmarks.length === 0;
 
     return (
-      <Navbar inverse={true} fluid={true} style={{ marginBottom: '0px' }}>
-        <Navbar.Header>
-          <Navbar.Brand>
-            <Dropdown id="logo-dropdown">
-              <AppLogo bsRole="toggle" />
-              <Dropdown.Menu>
-                {showReset > 0 && <MenuItem onSelect={this.onReset}> Reset & Upload New</MenuItem>}
-                {showReset > 0 && <MenuItem divider />}
-                <MenuItem href="https://github.com/jzillmann/jmh-visualizer/issues" target="_blank">
-                  <LinkIcon />
-                  {' Feedback & Bug Reports '}
-                </MenuItem>
-                <MenuItem href="http://github.com/jzillmann/jmh-visualizer" target="_blank">
-                  <LinkIcon />
-                  {' Code @ Github '}
-                </MenuItem>
-                <MenuItem divider />
-                <MenuItem href="http://openjdk.java.net/projects/code-tools/jmh/" target="_blank">
-                  <LinkIcon />
-                  {' JMH '}
-                </MenuItem>
-                <MenuItem
-                  href="http://hg.openjdk.java.net/code-tools/jmh/file/tip/jmh-samples/src/main/java/org/openjdk/jmh/samples/"
-                  target="_blank"
-                >
-                  <LinkIcon />
-                  {' JMH Samples'}
-                </MenuItem>
-                <MenuItem divider />
-                <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={aboutPopover}>
-                  <MenuItem eventKey="3"> About</MenuItem>
-                </OverlayTrigger>
-              </Dropdown.Menu>
-            </Dropdown>
-          </Navbar.Brand>
-        </Navbar.Header>
+      <Navbar bg="dark" data-bs-theme="dark" style={{ marginBottom: '0px' }}>
+        <Navbar.Brand>
+          <Dropdown id="logo-dropdown">
+            <Dropdown.Toggle as={AppLogo} id="logo-dropdown-toggle" />
+            <Dropdown.Menu>
+              {showReset > 0 && (
+                <Dropdown.Item role="menuitem" onClick={this.onReset}>
+                  {' '}
+                  Reset & Upload New
+                </Dropdown.Item>
+              )}
+              {showReset > 0 && <Dropdown.Divider />}
+              <Dropdown.Item role="menuitem" href="https://github.com/jzillmann/jmh-visualizer/issues" target="_blank">
+                <LinkIcon />
+                {' Feedback & Bug Reports '}
+              </Dropdown.Item>
+              <Dropdown.Item role="menuitem" href="http://github.com/jzillmann/jmh-visualizer" target="_blank">
+                <LinkIcon />
+                {' Code @ Github '}
+              </Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Item role="menuitem" href="http://openjdk.java.net/projects/code-tools/jmh/" target="_blank">
+                <LinkIcon />
+                {' JMH '}
+              </Dropdown.Item>
+              <Dropdown.Item
+                role="menuitem"
+                href="http://hg.openjdk.java.net/code-tools/jmh/file/tip/jmh-samples/src/main/java/org/openjdk/jmh/samples/"
+                target="_blank"
+              >
+                <LinkIcon />
+                {' JMH Samples'}
+              </Dropdown.Item>
+              <Dropdown.Divider />
+              <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={aboutPopover}>
+                <Dropdown.Item role="menuitem"> About</Dropdown.Item>
+              </OverlayTrigger>
+            </Dropdown.Menu>
+          </Dropdown>
+        </Navbar.Brand>
         <Nav>
-          <NavItem>
+          <Nav.Link as="div">
             <DoingWorkSpinner />
-          </NavItem>
+          </Nav.Link>
         </Nav>
       </Navbar>
     );

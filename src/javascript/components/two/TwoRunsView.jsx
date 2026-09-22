@@ -2,7 +2,7 @@ import TocElement from 'components/TocElement.jsx';
 import TwoRunBundle from 'components/two/TwoRunBundle.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
-import Badge from 'react-bootstrap/lib/Badge';
+import Badge from 'react-bootstrap/Badge';
 
 export default class TwoRunsView extends React.Component {
   static propTypes = {
