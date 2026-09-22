@@ -6,6 +6,24 @@ body {
   padding: 0;
 }
 
+/* Bootstrap 5's rem-based sizing assumes a 16px root font; Bootstrap 3 (the
+   look this app was designed around) assumed 14px. Most of Bootstrap 5's
+   component paddings/font-sizes are in rem, so scaling the root down brings
+   the whole UI's density back in line with the old Bootstrap 3 sizing
+   instead of everything reading noticeably larger. */
+html {
+  font-size: 14px;
+}
+
+/* Dropdown.Toggle always adds the `dropdown-toggle` class to its `as`
+   component, and Bootstrap 5's CSS draws a caret via `::after` on that class
+   unconditionally. Bootstrap 3 only drew a caret when the markup explicitly
+   included a <b class="caret">, which AppLogo never did, so the brand's
+   dropdown never had one. */
+#logo-dropdown-toggle::after {
+  display: none;
+}
+
 /* Bootstrap 5 turns this on globally; react-scroll already does its own JS-driven
    smooth scrolling for in-app navigation, and the two fighting over the same scroll
    made programmatic scrolls (e.g. focusing a sidebar row) unreliable. */
