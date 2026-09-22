@@ -70,7 +70,7 @@ export default class SingleRunView extends React.Component {
     const elements = [];
     elements.push(
       <div key="summary" style={{ position: 'relative' }}>
-        <Badge>{benchmarkBundles.length}</Badge>
+        <Badge bg="secondary">{benchmarkBundles.length}</Badge>
         {` different benchmark classes for single run '${runName}' and metric '${metricExtractor.metricKey}' detected!`}
         <span style={{ position: 'absolute', right: 20 }}>{synchronizeAxisScalesToggle}</span>
       </div>

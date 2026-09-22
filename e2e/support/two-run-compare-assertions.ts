@@ -1,11 +1,11 @@
 import { expect, type Page } from '@playwright/test';
-import { escapeRegExp } from './regex-util';
+import { escapeRegExp, wrapAgnostic } from './regex-util';
 
 export type TwoRunCompareExpectation = {
   runName1: string;
   runName2: string;
   benchmarkClasses: number;
-  /** Bar categories, as `DiffBarDataSet` names them: `method[param=value]`, or plain `method`. */
+  /** Bar categories, as `DiffBarDataSet` names them: `method [param=value]`, or plain `method`. */
   categories: string[];
   /** The per-bar `scoreDiff` labels (`DiffLabel`), as rendered — unrounded for scores < 1. */
   scoreDiffs: string[];
@@ -42,7 +42,10 @@ export async function expectTwoRunCompare(
     await expect(chart.getByText(legendEntry, { exact: true })).toBeVisible(opts);
   }
   for (const category of categories) {
-    await expect(chart.getByText(category, { exact: true })).toBeVisible(opts);
+    // Recharts may wrap this tick label onto two lines if it doesn't fit the axis's
+    // available width, so match with the whitespace around it left flexible rather
+    // than pinning one exact rendering.
+    await expect(chart.getByText(wrapAgnostic(category))).toBeVisible(opts);
   }
   for (const scoreDiff of scoreDiffs) {
     await expect(chart.getByText(scoreDiff, { exact: true })).toBeVisible(opts);
@@ -60,10 +63,10 @@ export const LINKED_HASH_PAIR_COMPARE: TwoRunCompareExpectation = {
   runName2: 'linked-hash-first-vs-iter-next-on-battery-benchmark',
   benchmarkClasses: 1,
   categories: [
-    'entryIteratorNext[size=10]',
-    'entryIteratorNext[size=100]',
-    'firstEntry[size=10]',
-    'firstEntry[size=100]'
+    'entryIteratorNext [size=10]',
+    'entryIteratorNext [size=100]',
+    'firstEntry [size=10]',
+    'firstEntry [size=100]'
   ],
   scoreDiffs: ['-50.461251425046214', '-45.50971985573979', '-48.6616917209557', '-45.201265463656654']
 };

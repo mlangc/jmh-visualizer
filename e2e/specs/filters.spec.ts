@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { JmhApp } from '../support/jmh-app';
 import { watchDialogsAndErrors } from '../support/page-watchers';
+import { wrapAgnostic } from '../support/regex-util';
 import { expectDeclinedBenchmarks, LINKED_HASH_PAIR_ROWS } from '../support/summary-comparison-assertions';
 
 // The filter checkboxes beyond what `linked-hash-first-vs-iter-next-benchmark.spec.ts`
@@ -136,21 +137,27 @@ test('filters reach the two-run Compare screen but not the Summary', { tag: '@fi
   await app.clickAllRunsButton(); // both runs selected -> Summary becomes Compare
   const chart = page.locator('.recharts-wrapper').first();
   const categories = chart.locator('text').filter({ hasText: /\[size=/ });
+  // Recharts may wrap these tick labels onto two lines if they don't fit the axis's
+  // available width, so match with the whitespace before `[` left flexible rather
+  // than pinning one exact rendering.
   await expect(categories).toHaveText([
-    'entryIteratorNext[size=10]',
-    'entryIteratorNext[size=100]',
-    'firstEntry[size=10]',
-    'firstEntry[size=100]'
+    wrapAgnostic('entryIteratorNext [size=10]'),
+    wrapAgnostic('entryIteratorNext [size=100]'),
+    wrapAgnostic('firstEntry [size=10]'),
+    wrapAgnostic('firstEntry [size=100]')
   ]);
 
   // `deselectedMethods` is global state RunScreen applies for any run count, so the
   // diff chart loses the method just like a single-run chart would.
   await app.benchmarkFilter(LINKED_HASH, 'firstEntry').click();
-  await expect(categories).toHaveText(['entryIteratorNext[size=10]', 'entryIteratorNext[size=100]']);
+  await expect(categories).toHaveText([
+    wrapAgnostic('entryIteratorNext [size=10]'),
+    wrapAgnostic('entryIteratorNext [size=100]')
+  ]);
   await expect(chart.getByText('-48.6616917209557')).toBeHidden();
 
   await app.benchmarkFilter(LINKED_HASH, 'entryIteratorNext', 'size', '10').click();
-  await expect(categories).toHaveText(['entryIteratorNext[size=100]']);
+  await expect(categories).toHaveText([wrapAgnostic('entryIteratorNext [size=100]')]);
 
   // ...and the Summary screen ignores all of it -- it never filters, so the tables
   // still compare all 4 method/param combinations.

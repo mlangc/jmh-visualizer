@@ -18,7 +18,7 @@ export default class TwoRunsView extends React.Component {
     const elements = [];
     elements.push(
       <div key="summary">
-        Comparing <Badge>{benchmarkBundles.length}</Badge> benchmark classes for &#39;
+        Comparing <Badge bg="secondary">{benchmarkBundles.length}</Badge> benchmark classes for &#39;
         {runNames[0]}&#39; and &#39;
         {runNames[1]}&#39; on metric &#39;
         {metricExtractor.metricKey}&#39;.

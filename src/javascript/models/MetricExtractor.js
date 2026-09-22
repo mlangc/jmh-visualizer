@@ -5,22 +5,18 @@ export default class MetricExtractor {
   }
 
   getMetricObject(_benchmark) {
-    // eslint-disable-line no-unused-vars
     throw new TypeError('Do not call abstract method foo from child.');
   }
 
   extractType(_benchmark) {
-    // eslint-disable-line no-unused-vars
     throw new TypeError('Do not call abstract method foo from child.');
   }
 
   hasHistogram(_benchmark) {
-    // eslint-disable-line no-unused-vars
     throw new TypeError('Do not call abstract method foo from child.');
   }
 
   hasMetric(benchmark) {
-    // eslint-disable-line no-unused-vars
     return !!this.getMetricObject(benchmark);
   }
 
@@ -45,12 +41,10 @@ export default class MetricExtractor {
   }
 
   extractRawDataScores(_benchmark) {
-    // eslint-disable-line no-unused-vars
     throw new TypeError('Do not call abstract method foo from child.');
   }
 
   extractMinMax(benchmark) {
-    // eslint-disable-line no-unused-vars
     const score = this.extractScore(benchmark);
     let min = score;
     let max = score;

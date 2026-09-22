@@ -6,6 +6,13 @@ body {
   padding: 0;
 }
 
+/* Bootstrap 5 turns this on globally; react-scroll already does its own JS-driven
+   smooth scrolling for in-app navigation, and the two fighting over the same scroll
+   made programmatic scrolls (e.g. focusing a sidebar row) unreliable. */
+:root {
+  scroll-behavior: auto;
+}
+
 a {
   cursor: pointer;
 }
@@ -36,6 +43,6 @@ a {
 }
 
 .btn.btn-primary:active {
-  /* biome-ignore lint/complexity/noImportantStyles: overrides Bootstrap 3's higher-specificity :active rule */
+  /* biome-ignore lint/complexity/noImportantStyles: overrides Bootstrap's higher-specificity :active rule */
   background-color: #337ab7 !important;
 }

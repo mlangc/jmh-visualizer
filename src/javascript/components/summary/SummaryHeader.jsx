@@ -27,9 +27,9 @@ const SummaryHeader = ({
             <SummaryChangeChart benchmarkDiffs={benchmarkDiffs} minDeviation={minDeviation} />
             <SummaryChangeLevelChart benchmarkDiffs={benchmarkDiffs} minDeviation={minDeviation} />
           </div>
-          Comparing <Badge>{benchmarkDiffs.length}</Badge>
+          Comparing <Badge bg="secondary">{benchmarkDiffs.length}</Badge>
           {' results out of '}
-          <Badge>{numberOfBenchmarkBundles}</Badge> benchmark classes for &#39;
+          <Badge bg="secondary">{numberOfBenchmarkBundles}</Badge> benchmark classes for &#39;
           {runName1}&#39; and &#39;
           {runName2}&#39; on metric &#39;
           {metricKey}&#39;.

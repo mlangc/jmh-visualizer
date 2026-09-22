@@ -264,7 +264,7 @@ npm run format                              # biome check --write, applies safe 
 Needs a built app to serve. From the repo root:
 
 ```bash
-NODE_OPTIONS=--openssl-legacy-provider npm run build   # writes ../build
+npm run build   # writes ../build
 ```
 
 `APP_BUILD_DIR` (env var, default `../build`) is just the path to whatever
@@ -274,7 +274,9 @@ checkout: build it in a `git worktree` and point `APP_BUILD_DIR` there.
 
 ```bash
 git worktree add <path> <branch>
-( cd <path> && npm ci && NODE_OPTIONS=--openssl-legacy-provider npm run build )
+# Add NODE_OPTIONS=--openssl-legacy-provider before `npm run build` if <branch>
+# predates the webpack 5 upgrade (webpack 4 + Node's newer OpenSSL).
+( cd <path> && npm ci && npm run build )
 APP_BUILD_DIR=<path>/build npm test
 ```
 
@@ -342,24 +344,31 @@ would be covered by the same switch if a second one ever earns its own name.
 
 ## Formatting & linting
 
-[Biome](https://biomejs.dev) (`biome.json`), scoped to this directory only —
-`src/` isn't covered yet. Bundles formatting, linting (`recommended` preset),
-and import sorting into one `check` command (`npm run lint`/`npm run
-format`). `fixtures/*.json` are excluded: those are vendored, unmodified JMH
-tool output (note the `"key" : value` space-before-colon — that's JMH's own
-JSON writer, not a style choice), and reformatting them would trade that
-authenticity for a purely cosmetic diff.
+[Biome](https://biomejs.dev) (`biome.json`), scoped to this directory only.
+Bundles formatting, linting (`recommended` preset), and import sorting into
+one `check` command (`npm run lint`/`npm run format`). `fixtures/*.json` are
+excluded: those are vendored, unmodified JMH tool output (note the `"key" :
+value` space-before-colon — that's JMH's own JSON writer, not a style
+choice), and reformatting them would trade that authenticity for a purely
+cosmetic diff.
 
-Formatter settings (2-space indent, single quotes, semicolons, no trailing
-commas, 120-col width) were picked to match `src/`'s own dominant
-conventions where one exists, so extending Biome to `src/` later stays a
-small diff — indent width is the one exception (`src/` splits ~58/68 files
-at 4-space with no discernible pattern; 2-space was a deliberate call to
-match Biome/Prettier's own default instead). The lint preset is
-`recommended` as-is; nothing's been relaxed yet since it hasn't produced any
-noise here (all violations to date: one rule, `useImportType`, always
-safe-fixable). Expect some of `recommended` to need relaxing once Biome
-extends to `src/`'s older patterns.
+`src/`/`test/` are now covered too, by their own standalone root
+`../biome.json` — not this one, and not a shared/extended config. Biome 2.x
+treats a nested `biome.json` (this one) as a conflicting root when the outer
+one scans a bare `.`, so the outer config path-scopes itself explicitly
+(`files.includes: ["src/**", "test/**", "webpack.config.js"]`) rather than
+unifying the two. The two configs' formatter settings (2-space indent,
+single quotes, semicolons, no trailing commas, 120-col width) were kept in
+sync deliberately — this directory's settings were picked years earlier to
+match `src/`'s own dominant conventions where one existed, so extending
+Biome to `src/` later stayed a small diff, as intended. Indent width was the
+one exception (`src/` split ~58/68 files at 4-space with no discernible
+pattern; 2-space was a deliberate call to match Biome/Prettier's own default
+instead). The lint preset is `recommended` in both, with a small set of
+rules turned off in the root config for `src/`'s patterns (see
+`../biome.json`) — nothing's been relaxed here since it hasn't produced any
+noise in this directory (all violations to date: one rule, `useImportType`,
+always safe-fixable).
 
 ## Constraints
 

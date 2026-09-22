@@ -3,7 +3,7 @@ import Tooltipped from 'components/lib/Tooltipped.jsx';
 import TocList from 'components/TocList.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
-import FormControl from 'react-bootstrap/FormControl';
+import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { FaSearchPlus as DetailsIcon, FaEye as EyeIcon } from 'react-icons/fa';
@@ -110,8 +110,7 @@ export default class RunSideBar extends React.Component {
         <FormGroup controlId="formControlsSelectMultiple">
           <InputGroup>
             <Tooltipped tooltip="No secondary metrics found!!" position="bottom" disabled={metrics.length > 1}>
-              <FormControl
-                as="select"
+              <Form.Select
                 size="sm"
                 onChange={(event) => {
                   actions.selectMetric(event.target.value);
@@ -120,7 +119,7 @@ export default class RunSideBar extends React.Component {
                 disabled={metrics.length < 2}
               >
                 {metricsOptions}
-              </FormControl>
+              </Form.Select>
             </Tooltipped>
           </InputGroup>
         </FormGroup>

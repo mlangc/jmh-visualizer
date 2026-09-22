@@ -6,12 +6,10 @@ export default class SecondaryMetricExtractor extends MetricExtractor {
   }
 
   extractType(_benchmark) {
-    // eslint-disable-line no-unused-vars
     return this.metricKey;
   }
 
   hasHistogram(_benchmark) {
-    // eslint-disable-line no-unused-vars
     return false;
   }
 

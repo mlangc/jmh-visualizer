@@ -71,21 +71,16 @@ bodies empty by default.
 
 ## Known dependency landmines
 
-- `recharts` stays pinned at `^1.3.1` (currently resolving to 1.8.5) — the
+- `recharts` is on 2.x (`^2.15.4`), a deliberate stop short of 3.x — the
   modernization plan (`plans/2026-09-21-MODERNIZATION-PLAN.md`, Step 2.f)
-  jumps straight to recharts 2.x in its own isolated, high-risk commit, so
-  don't let a stray `package-lock.json` update drift it to 1.8.6 or later
-  1.x in the meantime. Historically this pin was also load-bearing for a
-  webpack resolution bug (`resolve.modules` forced an absolute top-level
-  `node_modules` path, so webpack couldn't reach `recharts/node_modules/
-  core-js@3`, which 1.8.6 requires) — that override is gone as of the Babel
-  7 bump (webpack now does its normal nested-`node_modules` walk), so that
-  specific failure mode no longer applies, but the pin itself stays until
-  Step 2.f does the deliberate 2.x migration.
-- Open Dependabot PRs needing real migration work, not just a version bump:
-  - #42 — `d3-scale-chromatic` 3.x is ESM-only; unblocked now (Babel 7 +
-    webpack 5 both land proper ESM support) but not yet done — see Step 2.e
-    of the modernization plan.
+  treats 3.x as a second breaking rewrite, out of scope for now. The old
+  1.8.5/1.8.6 landmine (a webpack `resolve.modules` absolute path couldn't
+  reach `recharts/node_modules/core-js@3`) no longer applies: that override
+  was changed to a bare `'node_modules'` string as part of the webpack 5
+  bump, restoring webpack's normal nested-lookup resolution.
+- `d3-scale-chromatic` is on 3.x — its ESM-only packaging (previously
+  blocked under webpack 4/Babel 6) resolves cleanly now that both are
+  modernized.
 - Several other minor/patch Dependabot bumps have already been applied
   safely (via `npm update` / `npm install --no-save`, within their existing
   `package.json` ranges), each verified with a real build.

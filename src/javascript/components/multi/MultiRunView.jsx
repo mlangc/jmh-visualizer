@@ -18,7 +18,7 @@ export default class MultiRunView extends React.Component {
     const elements = [];
     elements.push(
       <div key="summary">
-        Comparing <Badge>{benchmarkBundles.length}</Badge> benchmark classes for
+        Comparing <Badge bg="secondary">{benchmarkBundles.length}</Badge> benchmark classes for
         {` ${runNames.length}`} runs on metric &#39;
         {metricExtractor.metricKey}&#39;.
       </div>

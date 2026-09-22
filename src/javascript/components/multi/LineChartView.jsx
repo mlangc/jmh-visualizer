@@ -38,7 +38,6 @@ export default class LineChartView extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    // eslint-disable-line no-unused-vars
     return (
       this.props.runNames[0] !== nextProps.runNames[0] ||
       this.props.benchmarkBundle.key !== nextProps.benchmarkBundle.key ||
