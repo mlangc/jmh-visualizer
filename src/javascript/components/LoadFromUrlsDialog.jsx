@@ -68,7 +68,7 @@ export default class LoadFromUrlsDialog extends React.Component {
         </Form.Group>
         <Form.Group as={Row}>
           <Col sm={{ span: 10, offset: 2 }}>
-            <Button onClick={this.handleSubmit} disabled={!this.state.url1}>
+            <Button variant="secondary" onClick={this.handleSubmit} disabled={!this.state.url1}>
               Load
             </Button>
           </Col>

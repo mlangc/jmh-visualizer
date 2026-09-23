@@ -101,10 +101,10 @@ export default class TwoRunBundle extends React.Component {
             <br />
           </div>
         )}
-        <Button size="sm" onClick={this.toggleShowJson1.bind(this)} active={this.state.showJson1}>
+        <Button variant="secondary" size="sm" onClick={this.toggleShowJson1.bind(this)} active={this.state.showJson1}>
           Show JSON 1
         </Button>
-        <Button size="sm" onClick={this.toggleShowJson2.bind(this)} active={this.state.showJson2}>
+        <Button variant="secondary" size="sm" onClick={this.toggleShowJson2.bind(this)} active={this.state.showJson2}>
           Show JSON 2
         </Button>
         <Collapse in={showJson1}>

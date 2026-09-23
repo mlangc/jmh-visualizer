@@ -68,7 +68,7 @@ export default class LoadFromGistsDialog extends React.Component {
         </Form.Group>
         <Form.Group as={Row}>
           <Col sm={{ span: 10, offset: 2 }}>
-            <Button onClick={this.handleSubmit} disabled={!this.state.gist1}>
+            <Button variant="secondary" onClick={this.handleSubmit} disabled={!this.state.gist1}>
               Load
             </Button>
           </Col>

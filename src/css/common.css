@@ -15,6 +15,26 @@ html {
   font-size: 14px;
 }
 
+/* Bootstrap 5 defaults to the OS's native UI font (system-ui/-apple-system,
+   i.e. San Francisco on macOS, Segoe UI on Windows), while Bootstrap 3 (the
+   look this app was designed around) hard-coded Helvetica Neue/Arial. The
+   native UI fonts render visibly wider/looser at the same pixel size, which
+   reads as "less compact" even though font-size is identical. */
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Bootstrap 5's .badge sizes itself with `font-size: 0.75em`, so it scales
+   with whatever heading it's nested in (e.g. much bigger inside an <h3>
+   than in plain text). Bootstrap 3's badges used a fixed 12px and a fully
+   round pill shape (10px radius) regardless of context; restore both so
+   badges stay a constant, familiar size everywhere. */
+.badge {
+  font-size: 12px;
+  padding: 3px 7px;
+  border-radius: 10px;
+}
+
 /* Dropdown.Toggle always adds the `dropdown-toggle` class to its `as`
    component, and Bootstrap 5's CSS draws a caret via `::after` on that class
    unconditionally. Bootstrap 3 only drew a caret when the markup explicitly
