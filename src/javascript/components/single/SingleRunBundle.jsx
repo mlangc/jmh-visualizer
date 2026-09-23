@@ -71,7 +71,7 @@ export default class SingleRunBundle extends React.Component {
             chartConfig={{ sort: sort, logScale: logScale }}
           />
         </div>
-        <Button variant="secondary" size="sm" onClick={this.toggleShowJson.bind(this)}>
+        <Button variant="outline-secondary" size="sm" onClick={this.toggleShowJson.bind(this)}>
           Show JSON
         </Button>
         <Collapse in={showJson}>
