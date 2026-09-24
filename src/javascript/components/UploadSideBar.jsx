@@ -49,7 +49,7 @@ export default class UploadSideBar extends React.Component {
     return (
       <div style={{ whiteSpace: 'nowrap' }}>
         <div>
-          <div className="btn btn-secondary" style={{ position: 'relative' }}>
+          <div className="btn btn-outline-secondary" style={{ position: 'relative' }}>
             Open File Dialog
             <input
               type="file"

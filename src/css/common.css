@@ -15,13 +15,82 @@ html {
   font-size: 14px;
 }
 
-/* Bootstrap 5 defaults to the OS's native UI font (system-ui/-apple-system,
-   i.e. San Francisco on macOS, Segoe UI on Windows), while Bootstrap 3 (the
-   look this app was designed around) hard-coded Helvetica Neue/Arial. The
-   native UI fonts render visibly wider/looser at the same pixel size, which
-   reads as "less compact" even though font-size is identical. */
-body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+/* Bootstrap 5 defaults to the OS's native UI font (system-ui/-apple-system),
+   while Bootstrap 3 (the look this app was designed around) hard-coded
+   Helvetica Neue/Arial. Set it via the variable rather than on body, since
+   popovers and tooltips reset their font-family to this variable. The link
+   colors are Bootstrap 3's too; the dark theme (navbar) needs them repeated
+   because it redefines them. */
+:root,
+[data-bs-theme="dark"] {
+  --bs-font-sans-serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --bs-link-color: #337ab7;
+  --bs-link-color-rgb: 51, 122, 183;
+  --bs-link-hover-color: #23527c;
+  --bs-link-hover-color-rgb: 35, 82, 124;
+}
+
+/* Bootstrap 5 underlines all links, and renders links without href (which
+   this app uses for all its onClick-only links) in plain text color.
+   Bootstrap 3 showed both in link color, underlined only on hover. */
+a,
+a:not([href]):not([class]) {
+  color: rgba(var(--bs-link-color-rgb), 1);
+  text-decoration: none;
+}
+a:not([class]):hover {
+  color: rgba(var(--bs-link-hover-color-rgb), 1);
+  text-decoration: underline;
+}
+
+/* Bootstrap 3's heading scale and spacing; Bootstrap 5 uses rem-based sizes,
+   a looser line-height, and no top margin. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+h1,
+h2,
+h3 {
+  margin-top: 20px;
+}
+h4,
+h5,
+h6 {
+  margin-top: 10px;
+}
+h1 {
+  font-size: 36px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 14px;
+}
+h6 {
+  font-size: 12px;
+}
+.popover-header {
+  margin-top: 0;
+}
+
+/* Bootstrap 3's 30px grid gutter (15px content inset) instead of Bootstrap
+   5's 1.5rem. */
+.container-fluid,
+.row {
+  --bs-gutter-x: 30px;
 }
 
 /* Bootstrap 5's .badge sizes itself with `font-size: 0.75em`, so it scales

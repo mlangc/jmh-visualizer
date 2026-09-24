@@ -2,6 +2,7 @@ import AppLogo from 'components/AppLogo.jsx';
 import DoingWorkSpinner from 'components/DoingWorkSpinner.jsx';
 import { LinkIcon } from 'components/Icons.jsx';
 import React from 'react';
+import Container from 'react-bootstrap/Container';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -34,50 +35,59 @@ export default class DefaultTopBar extends React.Component {
 
     return (
       <Navbar bg="dark" data-bs-theme="dark" style={{ marginBottom: '0px' }}>
-        <Navbar.Brand>
-          <Dropdown id="logo-dropdown">
-            <Dropdown.Toggle as={AppLogo} id="logo-dropdown-toggle" />
-            <Dropdown.Menu>
-              {showReset > 0 && (
-                <Dropdown.Item role="menuitem" onClick={this.onReset}>
-                  {' '}
-                  Reset & Upload New
+        <Container fluid className="justify-content-start">
+          <Navbar.Brand>
+            <Dropdown id="logo-dropdown">
+              <Dropdown.Toggle as={AppLogo} id="logo-dropdown-toggle" />
+              <Dropdown.Menu>
+                {showReset > 0 && (
+                  <Dropdown.Item role="menuitem" onClick={this.onReset}>
+                    {' '}
+                    Reset & Upload New
+                  </Dropdown.Item>
+                )}
+                {showReset > 0 && <Dropdown.Divider />}
+                <Dropdown.Item
+                  role="menuitem"
+                  href="https://github.com/jzillmann/jmh-visualizer/issues"
+                  target="_blank"
+                >
+                  <LinkIcon />
+                  {' Feedback & Bug Reports '}
                 </Dropdown.Item>
-              )}
-              {showReset > 0 && <Dropdown.Divider />}
-              <Dropdown.Item role="menuitem" href="https://github.com/jzillmann/jmh-visualizer/issues" target="_blank">
-                <LinkIcon />
-                {' Feedback & Bug Reports '}
-              </Dropdown.Item>
-              <Dropdown.Item role="menuitem" href="http://github.com/jzillmann/jmh-visualizer" target="_blank">
-                <LinkIcon />
-                {' Code @ Github '}
-              </Dropdown.Item>
-              <Dropdown.Divider />
-              <Dropdown.Item role="menuitem" href="http://openjdk.java.net/projects/code-tools/jmh/" target="_blank">
-                <LinkIcon />
-                {' JMH '}
-              </Dropdown.Item>
-              <Dropdown.Item
-                role="menuitem"
-                href="http://hg.openjdk.java.net/code-tools/jmh/file/tip/jmh-samples/src/main/java/org/openjdk/jmh/samples/"
-                target="_blank"
-              >
-                <LinkIcon />
-                {' JMH Samples'}
-              </Dropdown.Item>
-              <Dropdown.Divider />
-              <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={aboutPopover}>
-                <Dropdown.Item role="menuitem"> About</Dropdown.Item>
-              </OverlayTrigger>
-            </Dropdown.Menu>
-          </Dropdown>
-        </Navbar.Brand>
-        <Nav>
-          <Nav.Link as="div">
-            <DoingWorkSpinner />
-          </Nav.Link>
-        </Nav>
+                <Dropdown.Item role="menuitem" href="http://github.com/jzillmann/jmh-visualizer" target="_blank">
+                  <LinkIcon />
+                  {' Code @ Github '}
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item role="menuitem" href="http://openjdk.java.net/projects/code-tools/jmh/" target="_blank">
+                  <LinkIcon />
+                  {' JMH '}
+                </Dropdown.Item>
+                <Dropdown.Item
+                  role="menuitem"
+                  href="http://hg.openjdk.java.net/code-tools/jmh/file/tip/jmh-samples/src/main/java/org/openjdk/jmh/samples/"
+                  target="_blank"
+                >
+                  <LinkIcon />
+                  {' JMH Samples'}
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={aboutPopover}>
+                  <Dropdown.Item role="menuitem" onClick={(e) => e.stopPropagation()}>
+                    {' '}
+                    About
+                  </Dropdown.Item>
+                </OverlayTrigger>
+              </Dropdown.Menu>
+            </Dropdown>
+          </Navbar.Brand>
+          <Nav>
+            <Nav.Link as="div">
+              <DoingWorkSpinner />
+            </Nav.Link>
+          </Nav>
+        </Container>
       </Navbar>
     );
   }

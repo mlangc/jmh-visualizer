@@ -40,7 +40,7 @@ export default class UploadMainView extends React.Component {
           <h5>Drop your JMH JSON report file(s) here!</h5>
         </div>
         <h2>
-          <UploadIcon width={100} height={100} />
+          <UploadIcon size={100} />
         </h2>
         <br />
         <Alert variant="warning">
