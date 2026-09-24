@@ -5,9 +5,9 @@
 - Build (dev): `npm run build` (webpack --mode development)
 - Watch: `npm run watch`
 - Release build: `npm run release-build`
-- Lint: `npm run lint` (Biome — formatting + lint, no writes; `npm run
-  format` from a package.json script isn't wired up, use `npx biome check
-  --write src test webpack.config.js` to apply fixes)
+- Lint: `npm run lint` (Biome — formatting + lint, no writes)
+- Format: `npm run format` (same checks as `lint`, but applies formatting,
+  import sorting and safe lint fixes; keep its path list in sync with `lint`)
 - Test: `npm run test` (mocha 12, via `@babel/register`)
 - `npm run check` = lint + test; `npm run release` = check + release-build
 

@@ -7,6 +7,7 @@
     "watch": "webpack --mode development --watch",
     "build": "webpack --mode development",
     "lint": "biome check src test webpack.config.js",
+    "format": "biome check --write src test webpack.config.js",
     "test": "NODE_ENV=testing NODE_PATH=./src/javascript mocha --require @babel/register test --recursive",
     "check": "npm run lint && npm run test",
     "release-build": "rm -rf build/* && NODE_ENV=production webpack --mode production",
