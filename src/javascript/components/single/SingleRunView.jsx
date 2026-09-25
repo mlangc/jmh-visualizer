@@ -1,15 +1,11 @@
-import PropTypes from 'prop-types';
-import React from 'react';
-
-import Badge from 'react-bootstrap/Badge';
-
-import Toggle from 'react-toggle';
-import 'react-toggle/style.css';
-
 import Tooltipped from 'components/lib/Tooltipped.jsx';
 import SingleRunBundle from 'components/single/SingleRunBundle.jsx';
 import TocElement from 'components/TocElement.jsx';
 import { getUniqueBenchmarkModesAccrossBundles } from 'functions/parse.js';
+import PropTypes from 'prop-types';
+import React from 'react';
+import Badge from 'react-bootstrap/Badge';
+import Form from 'react-bootstrap/Form';
 
 export default class SingleRunView extends React.Component {
   static propTypes = {
@@ -48,7 +44,8 @@ export default class SingleRunView extends React.Component {
       synchronizeAxisScalesToggle = (
         <div>
           <Tooltipped tooltip={switchTooltip} position="bottom">
-            <Toggle
+            <Form.Check
+              type="switch"
               id="scales-sync"
               checked={axisScalesSyncPossible && axisScalesSync}
               disabled={!axisScalesSyncPossible}
