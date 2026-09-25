@@ -6,11 +6,6 @@ import type MetricExtractor from 'models/MetricExtractor.ts';
 
 //TODO cleanup
 
-// Extracts the benchmarks class name
-export function parseClassName(benchmark: Pick<Benchmark, 'benchmark'>) {
-  return parseClassNameFromFullName(benchmark.benchmark);
-}
-
 export function parseFullClassName(benchmark: Pick<Benchmark, 'benchmark'>) {
   const nameParts = benchmark.benchmark.split('.');
   nameParts.pop(); //remove the method part

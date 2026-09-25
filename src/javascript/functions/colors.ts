@@ -17,14 +17,4 @@ export const reds = ['#7b2c22', red, '#d47063'];
 
 export const barColors = [...blues, ...greens, ...browns, ...violets, ...yellows, ...reds];
 
-export const lineColors: string[] = [];
-
-for (let i = 0; i <= 3; i++) {
-  lineColors.push(blues[i]);
-  lineColors.push(greens[i]);
-  lineColors.push(browns[i]);
-  lineColors.push(violets[i]);
-  lineColors.push(yellows[i]);
-}
-
 export const tooltipBackground = '#efefef';

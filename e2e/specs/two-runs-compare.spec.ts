@@ -11,8 +11,7 @@ import { expectTwoRunCompare, LINKED_HASH_PAIR_COMPARE } from '../support/two-ru
 //
 // This covers the screen, not all of components/two/: DiffBarChartView also renders on
 // the Details screen with 2 runs loaded (DetailScreen.tsx's twoRunsChartGenerator),
-// which nothing here exercises, and TwoRunsHistogramChart is imported nowhere in src/
-// at all.
+// which nothing here exercises.
 
 const LINKED_HASH_PAIR = [
   'linked-hash-first-vs-iter-next-benchmark.json',

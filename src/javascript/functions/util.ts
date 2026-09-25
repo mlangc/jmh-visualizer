@@ -3,16 +3,6 @@ import type MetricExtractor from 'models/MetricExtractor.ts';
 
 type Nested<T> = T | Nested<T>[];
 
-export function arraysAreIdentical<T>(arr1: T[], arr2: T[]) {
-  if (arr1.length !== arr2.length) return false;
-  for (let i = 0, len = arr1.length; i < len; i++) {
-    if (arr1[i] !== arr2[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
 export function groupBy<T, K extends keyof T>(xs: T[], key: K): { key: T[K]; values: T[] }[];
 export function groupBy<T, K>(xs: T[], key: (x: T) => K): { key: K; values: T[] }[];
 export function groupBy<T>(xs: T[], key: keyof T | ((x: T) => unknown)) {
