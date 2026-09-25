@@ -34,7 +34,6 @@
     }
   },
   "javascript": {
-    "globals": ["defaultSettings", "providedBenchmarks", "providedBenchmarkStore"],
     "formatter": {
       "quoteStyle": "single",
       "semicolons": "always",

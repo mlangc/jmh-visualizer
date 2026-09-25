@@ -74,9 +74,12 @@ Use the [issue tracker](https://github.com/jzillmann/jmh-visualizer/issues) and/
 #### Useful Commands
 
 - ```npm install``` Download all necessary npm packages
-- ```npm run lint``` Lint the javascript files
+- ```npm start``` Run a dev server with live reload
+- ```npm run lint``` Lint & check the formatting of the sources
+- ```npm run format``` Like lint, but applies formatting & safe fixes
+- ```npm run typecheck``` Type check the sources
 - ```npm run test``` Run tests
-- ```npm run check``` Run Lint & Test
+- ```npm run check``` Run Lint, Typecheck & Test
 - ```npm run watch``` Continuously build the project
 - ```open build/index.html``` Open the build project in your default browser
 - ```npm run release``` Build production version

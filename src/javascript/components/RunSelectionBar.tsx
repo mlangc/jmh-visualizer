@@ -63,7 +63,7 @@ const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchma
     return (
       <Button
         key={index}
-        variant={isActive ? 'primary' : 'secondary'}
+        variant={isActive ? 'primary' : 'outline-secondary'}
         size="sm"
         onClick={() => selectSingleRun(benchmarkRuns, runView, index)}
       >
@@ -82,7 +82,7 @@ const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchma
       <SplitButton
         id="all"
         title={runView}
-        variant={showAll ? 'primary' : 'secondary'}
+        variant={showAll ? 'primary' : 'outline-secondary'}
         size="sm"
         onClick={() => selectAllWithPossibleSwitchView(runSelection, runView)}
       >
@@ -91,7 +91,11 @@ const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchma
     );
   } else {
     allButton = (
-      <Button variant={showAll ? 'primary' : 'secondary'} size="sm" onClick={() => selectAll(runSelection, runView)}>
+      <Button
+        variant={showAll ? 'primary' : 'outline-secondary'}
+        size="sm"
+        onClick={() => selectAll(runSelection, runView)}
+      >
         {runViews[0]}
       </Button>
     );

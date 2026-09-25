@@ -2,7 +2,7 @@
 
 Playwright + TypeScript, fully isolated from the app's own toolchain (own
 `package.json`/`node_modules`/`tsconfig.json`). Never touches app source or
-the app's Babel 6 / webpack 4 stack.
+the app's own build toolchain.
 
 ## What this tests
 
@@ -359,7 +359,7 @@ cosmetic diff.
 `../biome.json` — not this one, and not a shared/extended config. Biome 2.x
 treats a nested `biome.json` (this one) as a conflicting root when the outer
 one scans a bare `.`, so the outer config path-scopes itself explicitly
-(`files.includes: ["src/**", "test/**", "webpack.config.js"]`) rather than
+(`files.includes: ["src/**", "test/**", "webpack.config.js", "tsconfig.json"]`) rather than
 unifying the two. The two configs' formatter settings (2-space indent,
 single quotes, semicolons, no trailing commas, 120-col width) were kept in
 sync deliberately — this directory's settings were picked years earlier to
