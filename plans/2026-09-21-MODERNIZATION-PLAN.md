@@ -258,8 +258,9 @@ dedicated commit unless one turns out to be load-bearing somewhere.
   comments) — they need ambient `.d.ts` declarations, not conversion.
   The same goes for the three generated `exampleBenchmark*.js` data files:
   they stay JS, typed via declarations. `tsconfig.json` uses `strict: true`.
-  Whether `prop-types` gets dropped in favor of the new types is an
-  implementation call, not fixed here.
+  `prop-types` gets dropped: React 19 no longer checks it, so each
+  component's `propTypes` block turns into its TypeScript props type, and the
+  dependency goes once the last one is converted.
 
   **→ Checkpoint 3 (final)** — the most important one, since it's the
   shipping candidate. Two Opus review rounds instead of one:
@@ -284,8 +285,8 @@ Resolved:
 - React: 19, replacing `react-toggle`, without StrictMode (see 2.h).
 - Root Biome config: standalone, targeting only `src`, `test` and
   `webpack.config.js`; `../e2e` keeps its own (see `../CLAUDE.md`).
-- TypeScript: `strict: true`; the `exampleBenchmark*.js` data files stay JS
-  (see Step 3).
+- TypeScript: `strict: true`; the `exampleBenchmark*.js` data files stay JS;
+  `prop-types` is replaced by TypeScript props types (see Step 3).
 
 Out of scope for this plan, possible later:
 
