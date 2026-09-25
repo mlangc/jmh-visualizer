@@ -1,6 +1,6 @@
 {
   "name": "jmh-visualizer",
-  "version": "0.9.6",
+  "version": "1.0.0",
   "description": "Visualize the  results of your JMH benchmarks execution",
   "scripts": {
     "start": "webpack serve --mode development --open",
@@ -24,6 +24,9 @@
     "report"
   ],
   "author": "Johannes Zillmann",
+  "contributors": [
+    "Matthias Langer"
+  ],
   "license": "AGPL-3.0",
   "repository": {
     "type": "git",
@@ -82,5 +85,8 @@
   },
   "engines": {
     "node": ">=22.15"
+  },
+  "allowScripts": {
+    "core-js-pure": false
   }
 }
