@@ -39,7 +39,7 @@ export default class DefaultTopBar extends React.Component {
           <Navbar.Brand>
             <Dropdown id="logo-dropdown">
               <Dropdown.Toggle as={AppLogo} id="logo-dropdown-toggle" />
-              <Dropdown.Menu>
+              <Dropdown.Menu data-bs-theme="light">
                 {showReset > 0 && (
                   <Dropdown.Item role="menuitem" onClick={this.onReset}>
                     {' '}

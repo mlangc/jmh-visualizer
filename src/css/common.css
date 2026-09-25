@@ -19,15 +19,21 @@ html {
    while Bootstrap 3 (the look this app was designed around) hard-coded
    Helvetica Neue/Arial. Set it via the variable rather than on body, since
    popovers and tooltips reset their font-family to this variable. The link
-   colors are Bootstrap 3's too; the dark theme (navbar) needs them repeated
-   because it redefines them. */
+   colors are Bootstrap 3's too. Every data-bs-theme element (dark navbar,
+   light dropdown menu) redefines these variables, hence [data-bs-theme]. */
 :root,
-[data-bs-theme="dark"] {
+[data-bs-theme] {
   --bs-font-sans-serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --bs-link-color: #337ab7;
   --bs-link-color-rgb: 51, 122, 183;
   --bs-link-hover-color: #23527c;
   --bs-link-hover-color-rgb: 35, 82, 124;
+}
+
+/* Bootstrap 3 had no pressed style for menu items. */
+.dropdown-menu {
+  --bs-dropdown-link-active-bg: var(--bs-dropdown-link-hover-bg);
+  --bs-dropdown-link-active-color: var(--bs-dropdown-link-hover-color);
 }
 
 /* Bootstrap 5 underlines all links, and renders links without href (which
@@ -84,6 +90,11 @@ h6 {
 }
 .popover-header {
   margin-top: 0;
+}
+
+/* Bootstrap 3's 14px popover text; Bootstrap 5 uses 0.875rem. */
+.popover {
+  --bs-popover-font-size: 1rem;
 }
 
 /* Bootstrap 3's 30px grid gutter (15px content inset) instead of Bootstrap
