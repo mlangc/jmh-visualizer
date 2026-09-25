@@ -49,7 +49,7 @@ bodies empty by default.
 
 ## Architecture quick map
 
-- State: `src/javascript/store/store.js`, a Zustand store (single
+- State: `src/javascript/store/store.ts`, a Zustand store (single
   global store + actions, not Redux). Key state: `benchmarkRuns`,
   `selectedMetric`, `focusedBundles` (class-level solo/isolate filter, toggled
   by the sidebar eye icon), `deselectedMethods` (method-level hide filter,

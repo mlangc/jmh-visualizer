@@ -2,16 +2,57 @@ import { exampleRun1 } from 'exampleBenchmark1.js';
 import { exampleRun2 } from 'exampleBenchmark2.js';
 import { exampleRun3 } from 'exampleBenchmark3.js';
 import { createBrowserHistory } from 'history';
+import type BenchmarkMethod from 'models/BenchmarkMethod.ts';
 import BenchmarkRun from 'models/BenchmarkRun.ts';
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
 import Examples from 'models/Examples.ts';
-import { createElement, memo } from 'react';
+import { type ComponentType, createElement, memo, type ReactNode } from 'react';
 import {
   addSettingsFromParameters,
+  type BenchmarkLoadFunction,
   getBenchmarksLoadFunctionForDefinedExamples,
   getBenchmarksLoadFunctionForSourceExamples
-} from 'store/processParameters.js';
+} from 'store/processParameters.ts';
 import { createStore, useStore } from 'zustand';
+
+export type Settings = typeof defaultSettings;
+export type RunView = 'Summary' | 'Compare';
+
+export interface ChartConfig {
+  sort: boolean;
+  logScale: boolean;
+}
+
+export interface State {
+  settings: Settings;
+  initialLoading: boolean;
+  loading: boolean;
+  benchmarkRuns: BenchmarkRun[];
+  runSelection: boolean[];
+  runView: RunView | null;
+  selectedMetric: string;
+  detailedBenchmarkBundle: string | null;
+  activeCategory: string;
+  focusedBundles: Set<string>;
+  deselectedMethods: Set<string>;
+  deselectedParamValues: Set<string>;
+  chartConfig: ChartConfig;
+}
+
+type StateUpdate = Partial<State>;
+
+// What components call: the action creators minus the state and actions they get passed
+export interface Actions extends ActionsOf<typeof config.actionsCreators> {}
+
+type ActionsOf<ActionsCreators> = {
+  [Name in keyof ActionsCreators]: ActionsCreators[Name] extends (
+    state: State,
+    actions: Actions,
+    ...args: infer Args
+  ) => unknown
+    ? (...args: Args) => void | Promise<void>
+    : never;
+};
 
 const history = createBrowserHistory();
 
@@ -35,7 +76,7 @@ const settings = defaultSettings;
 addSettingsFromParameters(settings);
 
 // Load benchmarks from defined source (provided || example || remote source)
-let benchmarkLoadFunction = null;
+let benchmarkLoadFunction: BenchmarkLoadFunction | undefined | null = null;
 if (providedBenchmarks.length > 0) {
   benchmarkLoadFunction = (initBenchmarksFunction) =>
     initBenchmarksFunction(
@@ -66,48 +107,50 @@ const config = {
     selectedMetric: 'Score',
     detailedBenchmarkBundle: null,
     activeCategory: 'Benchmarks',
-    focusedBundles: new Set(),
-    deselectedMethods: new Set(),
-    deselectedParamValues: new Set(),
+    focusedBundles: new Set<string>(),
+    deselectedMethods: new Set<string>(),
+    deselectedParamValues: new Set<string>(),
     chartConfig: {
       sort: false,
       logScale: false
     }
   },
   actionsCreators: {
-    uploadFiles: async (state, actions, files, trigger) =>
+    uploadFiles: async (state: State, actions: Actions, files: File[], trigger?: boolean): Promise<StateUpdate> =>
       loadBenchmarksAsync(
         state,
         trigger,
         () => actions.uploadFiles(files, true),
         () => parseBenchmarks(files)
       ),
-    initBenchmarks: (_state, _actions, benchmarkRuns) => {
+    initBenchmarks: (_state: State, _actions: Actions, benchmarkRuns: BenchmarkRun[]): StateUpdate => {
       return stateForBenchmarks(benchmarkRuns);
     },
-    loadSingleRunExample: (state, actions, _param, trigger) =>
+    loadSingleRunExample: (state: State, actions: Actions, _param?: unknown, trigger?: boolean): Promise<StateUpdate> =>
       loadBenchmarksAsync(
         state,
         trigger,
         () => actions.loadSingleRunExample(null, true),
         () => getExamples(examples.singleRunExample)
       ),
-    loadTwoRunsExample: (state, actions, _param, trigger) =>
+    loadTwoRunsExample: (state: State, actions: Actions, _param?: unknown, trigger?: boolean): Promise<StateUpdate> =>
       loadBenchmarksAsync(
         state,
         trigger,
         () => actions.loadTwoRunsExample(null, true),
         () => getExamples(examples.twoRunsExample)
       ),
-    loadMultiRunExample: (state, actions, _param, trigger) =>
+    loadMultiRunExample: (state: State, actions: Actions, _param?: unknown, trigger?: boolean): Promise<StateUpdate> =>
       loadBenchmarksAsync(
         state,
         trigger,
         () => actions.loadMultiRunExample(null, true),
         () => getExamples(examples.multiRunExample)
       ),
-    selectMetric: (_state, _actions, newSelectedMetric) => ({ selectedMetric: newSelectedMetric }),
-    focusBundle: (state, _actions, benchmarkBundleName) => {
+    selectMetric: (_state: State, _actions: Actions, newSelectedMetric: string): StateUpdate => ({
+      selectedMetric: newSelectedMetric
+    }),
+    focusBundle: (state: State, _actions: Actions, benchmarkBundleName: string): StateUpdate => {
       const clonedFocusedBundles = new Set(state.focusedBundles);
       const alreadyFocused = clonedFocusedBundles.has(benchmarkBundleName);
       if (alreadyFocused) {
@@ -117,7 +160,7 @@ const config = {
       }
       return { focusedBundles: clonedFocusedBundles };
     },
-    toggleMethod: (state, _actions, benchmarkBundleKey, methodName) => {
+    toggleMethod: (state: State, _actions: Actions, benchmarkBundleKey: string, methodName: string): StateUpdate => {
       const key = methodKey(benchmarkBundleKey, methodName);
       const clonedDeselectedMethods = new Set(state.deselectedMethods);
       const alreadyDeselected = clonedDeselectedMethods.has(key);
@@ -128,7 +171,14 @@ const config = {
       }
       return { deselectedMethods: clonedDeselectedMethods };
     },
-    toggleParamValue: (state, _actions, benchmarkBundleKey, methodName, paramName, value) => {
+    toggleParamValue: (
+      state: State,
+      _actions: Actions,
+      benchmarkBundleKey: string,
+      methodName: string,
+      paramName: string,
+      value: string
+    ): StateUpdate => {
       const key = paramValueKey(benchmarkBundleKey, methodName, paramName, value);
       const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
       const alreadyDeselected = clonedDeselectedParamValues.has(key);
@@ -150,7 +200,13 @@ const config = {
       return { deselectedParamValues: clonedDeselectedParamValues };
     },
     // Deselects every other method in the bundle, keeping only methodName selected.
-    selectOnlyMethod: (state, _actions, benchmarkBundleKey, methodName, allMethodNames) => {
+    selectOnlyMethod: (
+      state: State,
+      _actions: Actions,
+      benchmarkBundleKey: string,
+      methodName: string,
+      allMethodNames: string[]
+    ): StateUpdate => {
       const clonedDeselectedMethods = new Set(state.deselectedMethods);
       allMethodNames.forEach((otherMethodName) => {
         const key = methodKey(benchmarkBundleKey, otherMethodName);
@@ -163,7 +219,12 @@ const config = {
       return { deselectedMethods: clonedDeselectedMethods };
     },
     // Re-selects every method in the bundle.
-    selectAllMethods: (state, _actions, benchmarkBundleKey, allMethodNames) => {
+    selectAllMethods: (
+      state: State,
+      _actions: Actions,
+      benchmarkBundleKey: string,
+      allMethodNames: string[]
+    ): StateUpdate => {
       const clonedDeselectedMethods = new Set(state.deselectedMethods);
       allMethodNames.forEach((methodName) => {
         clonedDeselectedMethods.delete(methodKey(benchmarkBundleKey, methodName));
@@ -171,7 +232,15 @@ const config = {
       return { deselectedMethods: clonedDeselectedMethods };
     },
     // Deselects every other value of paramName (for methodName), keeping only value selected.
-    selectOnlyParamValue: (state, _actions, benchmarkBundleKey, methodName, paramName, value, allValues) => {
+    selectOnlyParamValue: (
+      state: State,
+      _actions: Actions,
+      benchmarkBundleKey: string,
+      methodName: string,
+      paramName: string,
+      value: string,
+      allValues: string[]
+    ): StateUpdate => {
       const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
       allValues.forEach((aValue) => {
         const key = paramValueKey(benchmarkBundleKey, methodName, paramName, aValue);
@@ -194,41 +263,53 @@ const config = {
       return { deselectedParamValues: clonedDeselectedParamValues };
     },
     // Re-selects every value of paramName (for methodName).
-    selectAllParamValues: (state, _actions, benchmarkBundleKey, methodName, paramName, allValues) => {
+    selectAllParamValues: (
+      state: State,
+      _actions: Actions,
+      benchmarkBundleKey: string,
+      methodName: string,
+      paramName: string,
+      allValues: string[]
+    ): StateUpdate => {
       const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
       allValues.forEach((value) => {
         clonedDeselectedParamValues.delete(paramValueKey(benchmarkBundleKey, methodName, paramName, value));
       });
       return { deselectedParamValues: clonedDeselectedParamValues };
     },
-    selectCategory: (_state, _actions, category) => {
+    selectCategory: (_state: State, _actions: Actions, category: string): StateUpdate => {
       return { activeCategory: category, focusedBundles: new Set() };
     },
-    detailBenchmarkBundle: (_state, _actions, benchmarkBundleKey) => {
+    detailBenchmarkBundle: (_state: State, _actions: Actions, benchmarkBundleKey: string): StateUpdate => {
       history.push('#details');
       return { detailedBenchmarkBundle: benchmarkBundleKey };
     },
-    undetailBenchmarkBundle: () => {
+    undetailBenchmarkBundle: (): StateUpdate => {
       return { detailedBenchmarkBundle: null };
     },
     // expects array of boolean with length of total JMH runs + the runView ('Summary', 'Compare')
-    selectBenchmarkRuns: (_state, _action, runSelection, runView) => {
+    selectBenchmarkRuns: (
+      _state: State,
+      _action: Actions,
+      runSelection: boolean[],
+      runView: RunView | null
+    ): StateUpdate => {
       return { runSelection: runSelection, runView: runView };
     },
-    sort: (state) => {
+    sort: (state: State): StateUpdate => {
       return { chartConfig: { ...state.chartConfig, sort: !state.chartConfig.sort } };
     },
-    logScale: (state) => {
+    logScale: (state: State): StateUpdate => {
       return { chartConfig: { ...state.chartConfig, logScale: !state.chartConfig.logScale } };
     },
-    goBack: () => {
+    goBack: (): StateUpdate => {
       history.back();
       return {};
     }
   }
 };
 
-function stateForBenchmarks(benchmarkRuns) {
+function stateForBenchmarks(benchmarkRuns: BenchmarkRun[]): StateUpdate {
   const runView = benchmarkRuns.length > 1 ? 'Summary' : null;
   const runSelection = Array(benchmarkRuns.length).fill(true);
   return {
@@ -240,7 +321,12 @@ function stateForBenchmarks(benchmarkRuns) {
   };
 }
 
-async function loadBenchmarksAsync(_state, trigger, triggerFunction, getBenchmarksFunction) {
+async function loadBenchmarksAsync(
+  _state: State,
+  trigger: boolean | undefined,
+  triggerFunction: () => void | Promise<void>,
+  getBenchmarksFunction: () => Promise<BenchmarkRun[]>
+): Promise<StateUpdate> {
   if (trigger) {
     return { loading: true };
   } else {
@@ -255,22 +341,28 @@ async function loadBenchmarksAsync(_state, trigger, triggerFunction, getBenchmar
   }
 }
 
-const store = createStore(() => config.initialState);
+const store = createStore<State>(() => config.initialState);
 
 // A synchronous creator's update is applied right away (still within the calling event
 // handler), an async one's once it resolves, merged into the state current at that point.
 export const actions = Object.fromEntries(
   Object.entries(config.actionsCreators).map(([name, actionCreator]) => [
     name,
-    (...args) => {
-      const update = actionCreator(store.getState(), actions, ...args);
-      return update?.then ? update.then((resolved) => store.setState(resolved)) : store.setState(update);
+    (...args: unknown[]) => {
+      const update: StateUpdate | Promise<StateUpdate> = (actionCreator as ActionCreator)(
+        store.getState(),
+        actions,
+        ...args
+      );
+      return 'then' in update ? update.then((resolved) => store.setState(resolved)) : store.setState(update);
     }
   ])
-);
+) as Actions;
+
+type ActionCreator = (state: State, actions: Actions, ...args: unknown[]) => StateUpdate | Promise<StateUpdate>;
 
 // The store is module-level, so there's nothing to provide. Kept so entry.jsx stays unchanged.
-export function Provider({ children }) {
+export function Provider({ children }: { children: ReactNode }) {
   return children;
 }
 
@@ -278,10 +370,10 @@ export function Provider({ children }) {
 // to props during render rather than in a selector: mapStateToProps may build fresh
 // objects (e.g. a new BenchmarkSelection) on every call. memo skips re-rendering the
 // wrapped component when those props are shallowly equal.
-export function connect(mapStateToProps) {
-  return (Component) => {
+export function connect<StateProps extends object>(mapStateToProps: (state: State, ownProps: object) => StateProps) {
+  return (Component: ComponentType<StateProps>) => {
     const MemoizedComponent = memo(Component);
-    const Connected = (ownProps) => {
+    const Connected = (ownProps: object) => {
       const state = useStore(store);
       return createElement(MemoizedComponent, { ...ownProps, ...mapStateToProps(state, ownProps) });
     };
@@ -290,16 +382,20 @@ export function connect(mapStateToProps) {
   };
 }
 
-export function methodKey(benchmarkBundleKey, methodName) {
+export function methodKey(benchmarkBundleKey: string, methodName: string) {
   return `${benchmarkBundleKey}::${methodName}`;
 }
 
-export function paramValueKey(benchmarkBundleKey, methodName, paramName, value) {
+export function paramValueKey(benchmarkBundleKey: string, methodName: string, paramName: string, value: string) {
   return `${methodKey(benchmarkBundleKey, methodName)}::${paramName}=${value}`;
 }
 
 // Whether a specific parameterized BenchmarkMethod instance is hidden because one of its param values got deselected
-export function isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, deselectedParamValues) {
+export function isMethodInstanceDeselected(
+  benchmarkBundleKey: string,
+  benchmarkMethod: BenchmarkMethod,
+  deselectedParamValues: Set<string>
+) {
   if (!benchmarkMethod.params) {
     return false;
   }
@@ -318,19 +414,19 @@ if (benchmarkLoadFunction) {
   setTimeout(() => benchmarkLoadFunction(actions.initBenchmarks), 0);
 }
 
-function getExamples(benchmarkRuns) {
-  return new Promise((resolve) => setTimeout(() => resolve(benchmarkRuns), 0));
+function getExamples(benchmarkRuns: BenchmarkRun[]) {
+  return new Promise<BenchmarkRun[]>((resolve) => setTimeout(() => resolve(benchmarkRuns), 0));
 }
 
-function parseBenchmarks(files) {
-  return new Promise((resolve, reject) => {
-    const benchmarkRuns = [];
+function parseBenchmarks(files: File[]) {
+  return new Promise<BenchmarkRun[]>((resolve, reject) => {
+    const benchmarkRuns: BenchmarkRun[] = [];
     files.forEach((file) => {
       const reader = new FileReader();
       const runName = file.name.replace('.json', '');
       reader.onload = (evt) => {
         try {
-          const parsedBenchmarks = JSON.parse(evt.target.result);
+          const parsedBenchmarks = JSON.parse(evt.target!.result as string);
           const benchmarkRun = new BenchmarkRun({
             name: runName,
             benchmarks: parsedBenchmarks

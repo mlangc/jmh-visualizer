@@ -1,15 +1,26 @@
 import { getUniqueNames } from 'functions/util.ts';
+import type { Benchmark } from 'models/Benchmark.ts';
 import BenchmarkRun from 'models/BenchmarkRun.ts';
+import type Examples from 'models/Examples.ts';
+import type { Settings } from 'store/store.ts';
 
-export function addSettingsFromParameters(settings) {
+type InitBenchmarksFunction = (benchmarkRuns: BenchmarkRun[]) => void;
+export type BenchmarkLoadFunction = (initBenchmarksFunction: InitBenchmarksFunction) => void;
+
+interface Gist {
+  id: string;
+  files: Record<string, { content: string }>;
+}
+
+export function addSettingsFromParameters(settings: Settings) {
   const topBar = getParameterByName('topBar');
   if (topBar) {
     settings.topBar = topBar;
   }
 }
 
-export function getBenchmarksLoadFunctionForDefinedExamples(examples) {
-  var example = getParameterByName('example');
+export function getBenchmarksLoadFunctionForDefinedExamples(examples: Examples): BenchmarkLoadFunction | undefined {
+  var example: string | null | undefined = getParameterByName('example');
   if (!example) {
     example = getExampleFromHash();
   }
@@ -22,7 +33,7 @@ export function getBenchmarksLoadFunctionForDefinedExamples(examples) {
   }
 }
 
-export function getBenchmarksLoadFunctionForSourceExamples() {
+export function getBenchmarksLoadFunctionForSourceExamples(): BenchmarkLoadFunction | undefined {
   const source = getParameterByName('source');
   if (source) {
     return (benchmarkLoadFunction) => fetchFromUrls(benchmarkLoadFunction, [source]);
@@ -44,13 +55,13 @@ export function getBenchmarksLoadFunctionForSourceExamples() {
   }
 }
 
-function getParameterByName(name) {
+function getParameterByName(name: string) {
   var match = RegExp(`[?&]${name}=([^&]*)`).exec(window.location.search);
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
 
-function fetchFromUrls(benchmarkLoadFunction, urls) {
-  const fetchedJsonByUrl = new Map();
+function fetchFromUrls(benchmarkLoadFunction: InitBenchmarksFunction, urls: string[]) {
+  const fetchedJsonByUrl = new Map<string, Benchmark[]>();
   urls.forEach((url) => {
     fetch(url)
       .then((response) => {
@@ -68,7 +79,7 @@ function fetchFromUrls(benchmarkLoadFunction, urls) {
               (name, i) =>
                 new BenchmarkRun({
                   name: name,
-                  benchmarks: fetchedJsonByUrl.get(urls[i])
+                  benchmarks: fetchedJsonByUrl.get(urls[i])!
                 })
             )
           );
@@ -80,8 +91,8 @@ function fetchFromUrls(benchmarkLoadFunction, urls) {
   });
 }
 
-function fetchFromGists(benchmarkLoadFunction, gists) {
-  const benchmarkRuns = [];
+function fetchFromGists(benchmarkLoadFunction: InitBenchmarksFunction, gists: string[]) {
+  const benchmarkRuns: BenchmarkRun[] = [];
   Promise.all(
     gists.map((gist) => {
       const url = `https://api.github.com/gists/${gist}`;
@@ -90,7 +101,7 @@ function fetchFromGists(benchmarkLoadFunction, gists) {
           if (!response.ok) {
             throw Error(response.statusText);
           }
-          return response.json();
+          return response.json() as Promise<Gist>;
         })
         .catch((error) => {
           alert(`Could not fetch data from ${url}: ${error}`);
@@ -98,7 +109,7 @@ function fetchFromGists(benchmarkLoadFunction, gists) {
     })
   )
     .then((jsons) => {
-      jsons.forEach((json) => {
+      (jsons as Gist[]).forEach((json) => {
         Object.entries(json.files).forEach(([key, value]) => {
           benchmarkRuns.push(
             new BenchmarkRun({

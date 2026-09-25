@@ -2,7 +2,7 @@ import { blue, green } from 'functions/colors.ts';
 import Alert from 'react-bootstrap/Alert';
 import { useDropzone } from 'react-dropzone';
 import { FaCloudUploadAlt as UploadIcon } from 'react-icons/fa';
-import { actions } from 'store/store.js';
+import { actions } from 'store/store.ts';
 
 const style = {
   width: '100%',

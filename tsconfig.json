@@ -16,5 +16,5 @@
     "skipLibCheck": true,
     "types": ["mocha"]
   },
-  "include": ["src", "test"]
+  "include": ["src/javascript", "src/*.d.ts", "test"]
 }

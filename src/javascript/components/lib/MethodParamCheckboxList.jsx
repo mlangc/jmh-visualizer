@@ -1,6 +1,6 @@
 import Tooltipped from 'components/lib/Tooltipped.jsx';
 import PropTypes from 'prop-types';
-import { actions, methodKey, paramValueKey } from 'store/store.js';
+import { actions, methodKey, paramValueKey } from 'store/store.ts';
 
 // Per-method and (nested) per-param-value checkboxes for one benchmark bundle.
 // Shared by RunSideBar (one instance per benchmark class) and DetailSideBar

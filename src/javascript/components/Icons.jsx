@@ -8,7 +8,7 @@ import {
   FaBalanceScale as ScaleIcon,
   FaSortAmountDown as SortIcon
 } from 'react-icons/fa';
-import { actions } from 'store/store.js';
+import { actions } from 'store/store.ts';
 
 export { BugIcon, GithubIcon, LinkIcon };
 

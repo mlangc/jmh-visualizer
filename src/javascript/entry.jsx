@@ -1,6 +1,6 @@
 import App from 'components/App.jsx';
 import { createRoot } from 'react-dom/client';
-import { Provider } from 'store/store.js';
+import { Provider } from 'store/store.ts';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import '../css/common.css';

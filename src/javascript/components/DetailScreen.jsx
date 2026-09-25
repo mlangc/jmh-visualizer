@@ -5,11 +5,11 @@ import SplitPane from 'components/lib/SplitPane.jsx';
 import LineChartView from 'components/multi/LineChartView.jsx';
 import BarChartView from 'components/single/BarChartView.jsx';
 import DiffBarChartView from 'components/two/DiffBarChartView.jsx';
-import { filterBenchmarkBundle } from 'functions/benchmarkFilter.js';
+import { filterBenchmarkBundle } from 'functions/benchmarkFilter.ts';
 import { parseClassNameFromFullName } from 'functions/parse.ts';
 import BenchmarkBundle from 'models/BenchmarkBundle.ts';
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
-import { actions, connect } from 'store/store.js';
+import { actions, connect } from 'store/store.ts';
 
 /* eslint react/prop-types: 0 */
 const DetailScreen = ({

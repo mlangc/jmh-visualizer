@@ -3,7 +3,7 @@ import LoadFromUrlsDialog from 'components/LoadFromUrlsDialog.jsx';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { FaRegHandPointRight as PointingHandIcon } from 'react-icons/fa';
-import { actions } from 'store/store.js';
+import { actions } from 'store/store.ts';
 
 //Sidebar for the upload view
 export default class UploadSideBar extends React.Component {

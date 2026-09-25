@@ -7,7 +7,7 @@ import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { FaSearchPlus as DetailsIcon, FaEye as EyeIcon } from 'react-icons/fa';
-import { actions, methodKey } from 'store/store.js';
+import { actions, methodKey } from 'store/store.ts';
 
 // Side bar for SingleRunView, TwoRunViews, etc...
 export default class RunSideBar extends React.Component {

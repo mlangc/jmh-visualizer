@@ -3,7 +3,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import SplitButton from 'react-bootstrap/SplitButton';
 
-import { actions, connect } from 'store/store.js';
+import { actions, connect } from 'store/store.ts';
 
 function selectSingleRun(benchmarkRuns, runView, runIndex) {
   const runSelection = benchmarkRuns.map((_run, index) => {

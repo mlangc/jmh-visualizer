@@ -1,9 +1,13 @@
 import BenchmarkBundle from 'models/BenchmarkBundle.ts';
-import { isMethodInstanceDeselected, methodKey } from 'store/store.js';
+import { isMethodInstanceDeselected, methodKey } from 'store/store.ts';
 
 // Returns a new BenchmarkBundle with deselected methods/param-values removed,
 // or null if nothing survives the filter.
-export function filterBenchmarkBundle(benchmarkBundle, deselectedMethods, deselectedParamValues) {
+export function filterBenchmarkBundle(
+  benchmarkBundle: BenchmarkBundle,
+  deselectedMethods: Set<string>,
+  deselectedParamValues: Set<string>
+) {
   let filtered = benchmarkBundle;
 
   if (deselectedMethods.size > 0) {

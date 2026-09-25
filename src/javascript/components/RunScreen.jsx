@@ -4,11 +4,11 @@ import MultiRunView from 'components/multi/MultiRunView.jsx';
 import RunSideBar from 'components/RunSideBar.jsx';
 import SingleRunView from 'components/single/SingleRunView.jsx';
 import TwoRunsView from 'components/two/TwoRunsView.jsx';
-import { filterBenchmarkBundle } from 'functions/benchmarkFilter.js';
+import { filterBenchmarkBundle } from 'functions/benchmarkFilter.ts';
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
 import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.ts';
 import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.ts';
-import { actions, connect } from 'store/store.js';
+import { actions, connect } from 'store/store.ts';
 
 /* eslint react/prop-types: 0 */
 const RunScreen = ({

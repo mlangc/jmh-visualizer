@@ -7,7 +7,7 @@ import RunScreen from 'components/RunScreen.jsx';
 import RunSelectionBar from 'components/RunSelectionBar.jsx';
 import SummaryScreen from 'components/SummaryScreen.jsx';
 import UploadScreen from 'components/UploadScreen.jsx';
-import { connect } from 'store/store.js';
+import { connect } from 'store/store.ts';
 
 /* eslint react/prop-types: 0 */
 const App = ({ initialLoading, benchmarkRuns, runSelection, runView, detailedBenchmarkBundle }) => {

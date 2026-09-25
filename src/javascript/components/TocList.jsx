@@ -3,7 +3,7 @@ import TocLink from 'components/TocLink.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { scroller, scrollSpy } from 'react-scroll';
-import { actions } from 'store/store.js';
+import { actions } from 'store/store.ts';
 
 // Double-clicking text normally selects it (and can trigger a native lookup/search popup);
 // suppress that so double-click can be used as a control gesture here.

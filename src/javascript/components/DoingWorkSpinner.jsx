@@ -1,5 +1,5 @@
 import { blue } from 'functions/colors.ts';
-import { connect } from 'store/store.js';
+import { connect } from 'store/store.ts';
 
 var Spinner = require('react-spinkit');
 

@@ -5,7 +5,7 @@ import SummaryView from 'components/summary/SummaryView.jsx';
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
 import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.ts';
 import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.ts';
-import { connect } from 'store/store.js';
+import { connect } from 'store/store.ts';
 
 /* eslint react/prop-types: 0 */
 const SummaryScreen = ({ benchmarkSelection, selectedMetric }) => {
