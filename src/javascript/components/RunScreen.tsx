@@ -8,9 +8,16 @@ import { filterBenchmarkBundle } from 'functions/benchmarkFilter.ts';
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
 import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.ts';
 import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.ts';
-import { actions, connect } from 'store/store.ts';
+import type { ReactElement } from 'react';
+import { actions, connect, type State } from 'store/store.ts';
 
-/* eslint react/prop-types: 0 */
+type RunScreenProps = Pick<
+  State,
+  'selectedMetric' | 'focusedBundles' | 'deselectedMethods' | 'deselectedParamValues' | 'chartConfig'
+> & {
+  benchmarkSelection: BenchmarkSelection;
+};
+
 const RunScreen = ({
   benchmarkSelection,
   selectedMetric,
@@ -18,7 +25,7 @@ const RunScreen = ({
   deselectedMethods,
   deselectedParamValues,
   chartConfig
-}) => {
+}: RunScreenProps) => {
   const benchmarkBundles = benchmarkSelection.benchmarkBundles;
   const metricType = selectedMetric;
   const metricExtractor = createMetricExtractor(selectedMetric);
@@ -52,7 +59,7 @@ const RunScreen = ({
   });
   const metrics = Array.from(metricsSet);
 
-  let mainView;
+  let mainView: ReactElement;
   if (benchmarkSelection.runNames.length === 1) {
     mainView = (
       <SingleRunView
@@ -83,7 +90,7 @@ const RunScreen = ({
     );
   }
 
-  const buttons = [];
+  const buttons: ReactElement[] = [];
   if (benchmarkSelection.runNames.length === 1) {
     buttons.push(<SortButton key="sortButton" active={chartConfig.sort} action={actions.sort} />);
     buttons.push(<span key="sep1"> | </span>);
@@ -133,6 +140,6 @@ export default connect(
   })
 )(RunScreen);
 
-function createMetricExtractor(metricType) {
+function createMetricExtractor(metricType: string) {
   return metricType === 'Score' ? new PrimaryMetricExtractor() : new SecondaryMetricExtractor(metricType);
 }

@@ -1,5 +1,5 @@
 import DetailSideBar from 'components/DetailSideBar.tsx';
-import DetailView from 'components/DetailView.tsx';
+import DetailView, { type ChartGeneratorFunction } from 'components/DetailView.tsx';
 import { ScaleButton, SortButton } from 'components/Icons.tsx';
 import SplitPane from 'components/lib/SplitPane.tsx';
 import LineChartView from 'components/multi/LineChartView.tsx';
@@ -9,16 +9,22 @@ import { filterBenchmarkBundle } from 'functions/benchmarkFilter.ts';
 import { parseClassNameFromFullName } from 'functions/parse.ts';
 import BenchmarkBundle from 'models/BenchmarkBundle.ts';
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
-import { actions, connect } from 'store/store.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
+import type { ReactElement } from 'react';
+import { actions, type ChartConfig, connect, type State } from 'store/store.ts';
 
-/* eslint react/prop-types: 0 */
+type DetailScreenProps = Pick<State, 'deselectedMethods' | 'deselectedParamValues' | 'chartConfig'> & {
+  detailedBenchmarkBundle: string;
+  benchmarkSelection: BenchmarkSelection;
+};
+
 const DetailScreen = ({
   detailedBenchmarkBundle,
   benchmarkSelection,
   deselectedMethods,
   deselectedParamValues,
   chartConfig
-}) => {
+}: DetailScreenProps) => {
   const benchmarkBundles = benchmarkSelection.benchmarkBundles;
   const runNames = benchmarkSelection.runNames;
 
@@ -44,10 +50,10 @@ const DetailScreen = ({
         aggregate.add(metricKey);
       });
       return aggregate;
-    }, new Set())
+    }, new Set<string>())
   );
 
-  let error, chartGeneratorFunction;
+  let error: string | undefined, chartGeneratorFunction: ChartGeneratorFunction | undefined;
   if (detailBundle.methodNames.length === 0) {
     error =
       rawDetailBundle.methodNames.length === 0 && runNames.length === 1
@@ -61,7 +67,7 @@ const DetailScreen = ({
     chartGeneratorFunction = multiRunChartGenerator;
   }
 
-  let mainView;
+  let mainView: ReactElement;
   if (error) {
     mainView = <div>{error}</div>;
   } else {
@@ -71,11 +77,11 @@ const DetailScreen = ({
         benchmarkBundle={detailBundle}
         secondaryMetrics={secondaryMetrics}
         chartConfig={chartConfig}
-        chartGeneratorFunction={chartGeneratorFunction}
+        chartGeneratorFunction={chartGeneratorFunction!}
       />
     );
   }
-  const buttons = [];
+  const buttons: ReactElement[] = [];
   if (benchmarkSelection.runNames.length === 1) {
     buttons.push(<SortButton key="sortButton" active={chartConfig.sort} action={actions.sort} />);
     buttons.push(<span key="sep1"> | </span>);
@@ -112,7 +118,7 @@ export default connect(
     deselectedParamValues,
     chartConfig
   }) => ({
-    detailedBenchmarkBundle,
+    detailedBenchmarkBundle: detailedBenchmarkBundle as string, // App only renders this screen while one is set
     benchmarkSelection: new BenchmarkSelection(benchmarkRuns, runSelection),
     deselectedMethods,
     deselectedParamValues,
@@ -120,13 +126,23 @@ export default connect(
   })
 )(DetailScreen);
 
-function singleRunChartGenerator(_runNames, benchmarkBundle, metricsExtractor, chartConfig) {
+function singleRunChartGenerator(
+  _runNames: string[],
+  benchmarkBundle: BenchmarkBundle,
+  metricsExtractor: MetricExtractor,
+  chartConfig: ChartConfig
+) {
   return (
     <BarChartView benchmarkBundle={benchmarkBundle} metricExtractor={metricsExtractor} chartConfig={chartConfig} />
   );
 }
 
-function twoRunsChartGenerator(runNames, benchmarkBundle, metricsExtractor, chartConfig) {
+function twoRunsChartGenerator(
+  runNames: string[],
+  benchmarkBundle: BenchmarkBundle,
+  metricsExtractor: MetricExtractor,
+  chartConfig: ChartConfig
+) {
   return (
     <DiffBarChartView
       runNames={runNames}
@@ -137,7 +153,12 @@ function twoRunsChartGenerator(runNames, benchmarkBundle, metricsExtractor, char
   );
 }
 
-function multiRunChartGenerator(runNames, benchmarkBundle, metricsExtractor, chartConfig) {
+function multiRunChartGenerator(
+  runNames: string[],
+  benchmarkBundle: BenchmarkBundle,
+  metricsExtractor: MetricExtractor,
+  chartConfig: ChartConfig
+) {
   return (
     <LineChartView
       runNames={runNames}

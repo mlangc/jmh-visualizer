@@ -5,10 +5,13 @@ import SummaryView from 'components/summary/SummaryView.tsx';
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
 import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.ts';
 import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.ts';
-import { connect } from 'store/store.ts';
+import { connect, type State } from 'store/store.ts';
 
-/* eslint react/prop-types: 0 */
-const SummaryScreen = ({ benchmarkSelection, selectedMetric }) => {
+type SummaryScreenProps = Pick<State, 'selectedMetric'> & {
+  benchmarkSelection: BenchmarkSelection;
+};
+
+const SummaryScreen = ({ benchmarkSelection, selectedMetric }: SummaryScreenProps) => {
   const benchmarkBundles = benchmarkSelection.benchmarkBundles;
   const metricType = selectedMetric;
   const metricExtractor = createMetricExtractor(selectedMetric);
@@ -31,7 +34,7 @@ const SummaryScreen = ({ benchmarkSelection, selectedMetric }) => {
   });
   const metrics = Array.from(metricsSet);
 
-  const runIndices = [benchmarkSelection.runNames.length - 2, benchmarkSelection.runNames.length - 1];
+  const runIndices: [number, number] = [benchmarkSelection.runNames.length - 2, benchmarkSelection.runNames.length - 1];
 
   return (
     <SplitPane
@@ -50,6 +53,8 @@ const SummaryScreen = ({ benchmarkSelection, selectedMetric }) => {
           metrics={metrics}
           metricExtractor={metricExtractor}
           focusedBenchmarkBundles={new Set()}
+          deselectedMethods={new Set()}
+          deselectedParamValues={new Set()}
           categories={categories}
           activeCategory={activeCategory}
         />
@@ -63,6 +68,6 @@ export default connect(({ benchmarkRuns, runSelection, selectedMetric }) => ({
   selectedMetric
 }))(SummaryScreen);
 
-function createMetricExtractor(metricType) {
+function createMetricExtractor(metricType: string) {
   return metricType === 'Score' ? new PrimaryMetricExtractor() : new SecondaryMetricExtractor(metricType);
 }

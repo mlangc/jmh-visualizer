@@ -361,7 +361,7 @@ export const actions = Object.fromEntries(
 
 type ActionCreator = (state: State, actions: Actions, ...args: unknown[]) => StateUpdate | Promise<StateUpdate>;
 
-// The store is module-level, so there's nothing to provide. Kept so entry.jsx stays unchanged.
+// The store is module-level, so there's nothing to provide. Kept so entry.tsx stays unchanged.
 export function Provider({ children }: { children: ReactNode }) {
   return children;
 }

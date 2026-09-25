@@ -49,6 +49,12 @@ bodies empty by default.
 
 ## Architecture quick map
 
+- Language: TypeScript (`strict`). Imports are bare paths rooted at
+  `src/javascript` (webpack's `resolve.modules`, `tsconfig.json`'s `paths`,
+  mocha's `NODE_PATH`) with explicit `.ts`/`.tsx` extensions. Three kinds of
+  files deliberately stay plain JS, typed by a sibling `.d.ts`:
+  `src/settings.js` and `src/provided.js` (globals loaded via `<script>` tags,
+  meant to be edited post-build) and the generated `exampleBenchmark*.js`.
 - State: `src/javascript/store/store.ts`, a Zustand store (single
   global store + actions, not Redux). Key state: `benchmarkRuns`,
   `selectedMetric`, `focusedBundles` (class-level solo/isolate filter, toggled
@@ -58,18 +64,18 @@ bodies empty by default.
   `benchmarkMethods: BenchmarkMethod[]` and `methodNames` (unique names;
   a method can repeat across params). `BenchmarkMethod` is one JMH method
   (possibly parameterized).
-- Sidebar tree: `RunSideBar.jsx` → `TocList.jsx` → `TocLink.jsx` (react-scroll
+- Sidebar tree: `RunSideBar.tsx` → `TocList.tsx` → `TocLink.tsx` (react-scroll
   `ScrollLink`). `TocList` takes `linkControlsCreators` (inline icon controls
   per row) and `subListCreator` (renders a nested `<ul>` under a row — used
   for the per-method checkboxes). Any click handler on something nested
   inside a `TocLink` must call `e.stopPropagation()` or it'll trigger the
   link's scroll-to-section behavior.
-- Chart rendering fans out from `RunScreen.jsx` into `SingleRunView` /
-  `TwoRunsView` / `MultiRunView` depending on run count. `RunScreen.jsx` is
+- Chart rendering fans out from `RunScreen.tsx` into `SingleRunView` /
+  `TwoRunsView` / `MultiRunView` depending on run count. `RunScreen.tsx` is
   where bundle/method filtering happens — filtered bundles get passed to the
   chart views, but the *unfiltered* bundles go to the sidebar so toggles stay
   visible/reversible.
-- **Gotcha**: chart code (e.g. `BarDataSet.js`) assumes every bundle passed
+- **Gotcha**: chart code (e.g. `BarDataSet.ts`) assumes every bundle passed
   to it has at least one method (`benchmarkMethods[0]` is accessed
   unconditionally). There's no error boundary, so a bundle with zero methods
   reaching the chart views crashes to a blank page. Any future filtering

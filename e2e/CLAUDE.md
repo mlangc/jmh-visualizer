@@ -99,7 +99,7 @@ is which.
   nothing here and must not blank the list), and the `No benchmark results for
   run X` branch — which
   needs a class missing from the selected run, so it runs on the multi-run
-  example. Also the browser's own Back/Forward, the reason `store.js` registers
+  example. Also the browser's own Back/Forward, the reason `store.ts` registers
   a `history.listen` POP handler at all: Back leaves the screen, and Forward
   restores `#details` to the address bar but *not* the screen (the handler
   undetails on any POP), pinned as-is.
@@ -318,7 +318,7 @@ build that predates both the filters UI and the fix needs both:
 INCLUDE_FILTERS=0 SKIP_NEEDS_FIX=1 APP_BUILD_DIR=<old-master-build>/build npm test
 ```
 
-The only fix currently tagged is `SummaryScreen.jsx` passing the full run-name
+The only fix currently tagged is `SummaryScreen.tsx` passing the full run-name
 list to `SummaryView`: before it, a Summary comparing 3+ runs indexed an
 already-sliced 2-element array with absolute run indices, so with 3 runs it
 named the *last* run first and left the second name empty — and with 4+ runs
@@ -381,7 +381,7 @@ always safe-fixable).
   `@needs-fix` tests described below, which need a genuine behavioural fix
   (not a test affordance) that older builds lack. Where semantic locators (`getByRole`/`getByText`) fall short, only
   four non-semantic hooks are used: `.recharts-wrapper`, `ul.nav ul.nav`,
-  `div.btn`, and `Tooltipped.jsx`'s `data-tooltip` attribute. No generated /
+  `div.btn`, and `Tooltipped.tsx`'s `data-tooltip` attribute. No generated /
   hashed class names.
 - **Exact-pinned deps, no retries** — a characterization suite is for signal;
   a silent dependency bump or a retry-hidden flake both defeat the purpose.

@@ -13,7 +13,7 @@ module.exports = {
     modules: [path.resolve(JAVASCRIPT_DIR), 'node_modules']
   },
   entry: {
-    app: './javascript/entry.jsx'
+    app: './javascript/entry.tsx'
   },
   output: {
     path: BUILD_DIR,

@@ -1,16 +1,21 @@
-import DetailScreen from 'components/DetailScreen.jsx';
+import DetailScreen from 'components/DetailScreen.tsx';
 import DoingWorkSpinner from 'components/DoingWorkSpinner.tsx';
 import Footer from 'components/global/Footer.tsx';
 import TopBar from 'components/global/TopBar.tsx';
-import RunScreen from 'components/RunScreen.jsx';
+import RunScreen from 'components/RunScreen.tsx';
 
-import RunSelectionBar from 'components/RunSelectionBar.jsx';
-import SummaryScreen from 'components/SummaryScreen.jsx';
+import RunSelectionBar from 'components/RunSelectionBar.tsx';
+import SummaryScreen from 'components/SummaryScreen.tsx';
 import UploadScreen from 'components/UploadScreen.tsx';
-import { connect } from 'store/store.ts';
+import type { ReactElement } from 'react';
+import { connect, type State } from 'store/store.ts';
 
-/* eslint react/prop-types: 0 */
-const App = ({ initialLoading, benchmarkRuns, runSelection, runView, detailedBenchmarkBundle }) => {
+type AppProps = Pick<
+  State,
+  'initialLoading' | 'benchmarkRuns' | 'runSelection' | 'runView' | 'detailedBenchmarkBundle'
+>;
+
+const App = ({ initialLoading, benchmarkRuns, runSelection, runView, detailedBenchmarkBundle }: AppProps) => {
   if (initialLoading) {
     return (
       <div style={{ position: 'fixed', top: '50%', left: '50%' }}>
@@ -18,7 +23,7 @@ const App = ({ initialLoading, benchmarkRuns, runSelection, runView, detailedBen
       </div>
     );
   }
-  let screen;
+  let screen: ReactElement;
   if (benchmarkRuns.length === 0) {
     screen = <UploadScreen />;
   } else {

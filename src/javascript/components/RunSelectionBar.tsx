@@ -1,11 +1,12 @@
+import type BenchmarkRun from 'models/BenchmarkRun.ts';
+import type { ReactElement } from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import SplitButton from 'react-bootstrap/SplitButton';
+import { actions, connect, type RunView, type State } from 'store/store.ts';
 
-import { actions, connect } from 'store/store.ts';
-
-function selectSingleRun(benchmarkRuns, runView, runIndex) {
+function selectSingleRun(benchmarkRuns: BenchmarkRun[], runView: RunView | null, runIndex: number) {
   const runSelection = benchmarkRuns.map((_run, index) => {
     if (index === runIndex) {
       return true;
@@ -16,13 +17,13 @@ function selectSingleRun(benchmarkRuns, runView, runIndex) {
   actions.selectBenchmarkRuns(runSelection, runView);
 }
 
-function selectAll(oldRunSelection, runView) {
+function selectAll(oldRunSelection: boolean[], runView: RunView | null) {
   const runSelection = oldRunSelection.map(() => true);
   actions.selectBenchmarkRuns(runSelection, runView);
 }
 
-function selectAllWithPossibleSwitchView(oldRunSelection, runView) {
-  let runSelection;
+function selectAllWithPossibleSwitchView(oldRunSelection: boolean[], runView: RunView | null) {
+  let runSelection: boolean[];
   if (oldRunSelection.some((elem) => !elem)) {
     runSelection = oldRunSelection.map(() => true);
   } else {
@@ -36,7 +37,7 @@ function selectAllWithPossibleSwitchView(oldRunSelection, runView) {
   actions.selectBenchmarkRuns(runSelection, runView);
 }
 
-function getPossibleRunViews(benchmarkRuns, detailedBenchmarkBundle) {
+function getPossibleRunViews(benchmarkRuns: BenchmarkRun[], detailedBenchmarkBundle: string | null): RunView[] {
   if (benchmarkRuns.length < 2) {
     return [];
   }
@@ -46,9 +47,10 @@ function getPossibleRunViews(benchmarkRuns, detailedBenchmarkBundle) {
   return ['Summary', 'Compare'];
 }
 
-/* eslint react/prop-types: 0 */
+type RunSelectionBarProps = Pick<State, 'benchmarkRuns' | 'runSelection' | 'runView' | 'detailedBenchmarkBundle'>;
+
 // A selection bar for 2 or more runs, selecting either a single run or a compare view
-const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchmarkBundle }) => {
+const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchmarkBundle }: RunSelectionBarProps) => {
   if (benchmarkRuns.length <= 1) {
     return null;
   }
@@ -69,7 +71,7 @@ const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchma
       </Button>
     );
   });
-  let allButton;
+  let allButton: ReactElement;
   if (runViews.length > 1) {
     const runViewMenuItems = runViews.map((runViewLabel) => (
       <Dropdown.Item key={runViewLabel} role="menuitem" onClick={() => selectAll(runSelection, runViewLabel)}>
