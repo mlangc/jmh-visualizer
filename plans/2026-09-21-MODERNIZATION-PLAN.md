@@ -11,9 +11,8 @@ e2e structurally can't pin.
 **Status:** `add-fixture-tests` and `add-filters-for-large-result-files` are
 both merged into `main`. The migration itself happens in its own feature
 branch/worktree off `main`. Merging back into `main` is planned once Step 3
-and the final checkpoint are done. Progress: Steps 1 to 3 are done and
-Checkpoints 1 and 2 are signed off; Checkpoint 3's two Opus reviews ran and
-their findings are addressed, so it awaits the maintainer's own look.
+and the final checkpoint are done. Progress: complete. Steps 1 to 3 are done
+and all three checkpoints are signed off, so the branch is ready to merge.
 
 ## Ground rules
 
@@ -275,6 +274,12 @@ dedicated commit unless one turns out to be load-bearing somewhere.
 
   Followed by the maintainer's own close look at the code before considering
   it done.
+
+  The remaining visual differences from Bootstrap 3 are minor and accepted,
+  e.g. the start screen's blockquote without its grey bar, the smaller
+  split-button caret, and the dialogs' position and close icon.
+
+  **Signed off** on 2026-09-25 at `ea52d6f`.
 
 ---
 
