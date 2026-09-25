@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["dom", "dom.iterable", "es2023"],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "paths": {
+      "*": ["./src/javascript/*"]
+    },
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "types": ["mocha"]
+  },
+  "include": ["src", "test"]
+}

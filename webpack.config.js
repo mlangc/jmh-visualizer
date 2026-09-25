@@ -22,7 +22,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.[jt]sx?$/,
         loader: 'babel-loader',
         // Skip any files outside of your project's `src` directory
         include: [JAVASCRIPT_DIR]

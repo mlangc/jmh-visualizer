@@ -1,0 +1,4 @@
+{
+  "require": "./test/babel-register.js",
+  "spec": "test/**/*.spec.{js,ts}"
+}
