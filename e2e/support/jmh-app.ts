@@ -46,8 +46,8 @@ export class JmhApp {
   }
 
   /**
-   * The upload sidebar's labelled file input. react-dropzone renders a second,
-   * unlabelled one, hence the scoping to the "Open File Dialog" button.
+   * The upload sidebar's file input. react-dropzone renders a second one,
+   * hence the scoping to the "Open File Dialog" button.
    */
   private fileInput(): Locator {
     return this.page.locator('div.btn', { hasText: 'Open File Dialog' }).locator('input[type="file"]');
@@ -166,8 +166,8 @@ export class JmhApp {
    * Flip SingleRunView's "Sync Axis Scales" toggle, which appears only once more than
    * one bundle is focused. Driven through `Tooltipped.jsx`'s `data-tooltip` -- already
    * a sanctioned hook, and it reports the toggle's state as well as accepting the
-   * click. Its `#scales-sync` id belongs to react-toggle's screenreader-only <input>,
-   * which isn't clickable and would be a fifth non-semantic hook for no gain.
+   * click. Its `#scales-sync` id would be a fifth non-semantic hook for no gain (and
+   * on older builds belongs to react-toggle's screenreader-only, unclickable <input>).
    */
   async toggleAxisScalesSync(): Promise<void> {
     await this.page.locator('[data-tooltip^="Sync Axis Scales"]').click();
@@ -346,7 +346,7 @@ export class JmhApp {
     await this.page.getByRole('heading', { name: new RegExp(`Details of .*${escapeRegExp(className)}$`) }).waitFor();
   }
 
-  /** Click DetailScreen's "Back.." link, returning to the previous screen via history.goBack(). */
+  /** Click DetailScreen's "Back.." link, returning to the previous screen via a history back navigation. */
   async goBack(): Promise<void> {
     await this.page.getByText('Back..').click();
   }

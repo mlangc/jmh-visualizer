@@ -68,11 +68,9 @@ export default class LineChartView extends React.Component {
     const { activeLine } = this.state;
     const shouldRoundScores = shouldRound(benchmarkBundle.benchmarkMethods, metricExtractor);
 
-    let scale, domain;
-    if (logScale) {
-      scale = 'log';
-      domain = ['auto', 'auto'];
-    }
+    // Omitted rather than undefined for linear: recharts merges its own defaultProps under
+    // the given props, so an explicit undefined would override them.
+    const logScaleProps = logScale ? { scale: 'log', domain: ['auto', 'auto'] } : {};
 
     const dataSet = runNames.map((runName, runIndex) => {
       const runObject = {
@@ -152,7 +150,7 @@ export default class LineChartView extends React.Component {
       <ResponsiveContainer width="100%" height={450}>
         <LineChart data={dataSet} margin={{ top: 45, right: 0, left: 0, bottom: 27 }}>
           <XAxis dataKey="name" />
-          <YAxis scale={scale} domain={domain} tickFormatter={tickFormatter} />
+          <YAxis {...logScaleProps} tickFormatter={tickFormatter} />
           <CartesianGrid strokeDasharray="3 3" />
           <Legend onMouseEnter={this.activateLineFromLegend.bind(this)} onMouseLeave={this.deactivateLine.bind(this)} />
           {tooltip}

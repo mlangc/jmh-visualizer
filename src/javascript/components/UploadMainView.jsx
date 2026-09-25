@@ -24,9 +24,12 @@ export default function UploadMainView() {
     onDropAccepted: (files) => actions.uploadFiles(files),
     onDropRejected: () => alert('Only drop valid JSON files!'),
     multiple: true,
-    accept: { 'application/json': ['.json'] },
+    // By file extension alone, not MIME type
+    validator: (file) =>
+      file.name?.toLowerCase().endsWith('.json') ? null : { code: 'not-json', message: 'Not JSON' },
     noClick: true,
-    noKeyboard: true
+    noKeyboard: true,
+    noPaste: true
   });
 
   return (
