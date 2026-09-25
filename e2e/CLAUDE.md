@@ -328,15 +328,17 @@ would be covered by the same switch if a second one ever earns its own name.
 ## Gotchas
 
 - **Don't click while the bar labels are animating in.** `BarChartView`'s
-  `LabelList` animates over ~540ms after a load, and a re-render during that
-  window drops the labels permanently — the chart keeps its bars, axes and
-  category names, but the per-bar value labels never come back. A spec that
-  interacts straight after `uploadReport()` and then asserts on a label will
-  fail in a way that looks like a filtering bug. Wait the labels out first
-  (`await expect(chart.getByText(/s\/op/)).toHaveCount(4)`), which several specs
-  do as their first assertion anyway. It reproduces deterministically, so it
-  could be pinned; it deliberately isn't, because it's a defect rather than
-  behaviour, and one a React/recharts major may well change or fix.
+  `LabelList` animates over ~540ms after a load, and on builds still on
+  recharts 1.x (anything before the modernization's recharts 2 bump, e.g.
+  `master` and `main`), a re-render during that window — a sort, or a filter
+  click the app refuses — drops the labels permanently: the chart keeps its
+  bars, axes and category names, but the per-bar value labels never come
+  back. A spec
+  that interacts straight after `uploadReport()` and then asserts on a label
+  will fail there in a way that looks like a filtering bug. Wait the labels
+  out first (`await expect(chart.getByText(/s\/op/)).toHaveCount(4)`), which
+  several specs do as their first assertion anyway. recharts 2 fixed it, so
+  it's deliberately not pinned either way.
 - **A tooltip changes what `.recharts-wrapper` matches.** `SingleRunChartTooltip`
   renders its "Raw Data" iteration charts as recharts charts of their own, so
   while one is open the page has several wrappers nested inside the first. Use

@@ -60,9 +60,9 @@ test('a param value whose method has none left is refused', { tag: '@filters' },
   const chart = page.locator('.recharts-wrapper').first();
   const sizeTen = app.benchmarkFilter(LINKED_HASH, 'firstEntry', 'size', '10');
   const sizeHundred = app.benchmarkFilter(LINKED_HASH, 'firstEntry', 'size', '100');
-  // Let the bar labels finish animating in (~540ms) before touching anything: a
-  // re-render mid-animation drops them for good, which would make the assertions below
-  // pass or fail for the wrong reason.
+  // Let the bar labels finish animating in (~540ms) before touching anything: on builds
+  // still on recharts 1.x, a re-render mid-animation drops them for good, which would
+  // make the assertions below pass or fail for the wrong reason.
   await expect(chart.getByText(/s\/op/)).toHaveCount(4);
 
   await sizeTen.click();
