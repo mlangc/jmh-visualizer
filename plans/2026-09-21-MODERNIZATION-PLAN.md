@@ -11,8 +11,8 @@ e2e structurally can't pin.
 **Status:** `add-fixture-tests` and `add-filters-for-large-result-files` are
 both merged into `main`. The migration itself happens in its own feature
 branch/worktree off `main`. Merging back into `main` is planned once Step 3
-and the final checkpoint are done. Progress: Step 1 and 2.a–2.g are done and
-Checkpoint 1 is signed off; next up is 2.h.
+and the final checkpoint are done. Progress: Steps 1 and 2 are done and
+Checkpoints 1 and 2 are signed off; next up is Step 3.
 
 ## Ground rules
 
@@ -241,6 +241,8 @@ dedicated commit unless one turns out to be load-bearing somewhere.
   so a fix here stays in plain JS with nothing downstream depending on it yet.
   Manual verification also covers the new "Sync Axis Scales" switch.
 
+  **Signed off** on 2026-09-25 at `c52834d`.
+
 ## Step 3 — TypeScript migration
 
 - Convert the codebase to TypeScript — renames, type annotations, and
@@ -254,9 +256,10 @@ dedicated commit unless one turns out to be load-bearing somewhere.
   `settings.js`/`provided.js` stay plain untyped globals (loaded via
   `<script>` tags, meant to be user-editable post-build per their own
   comments) — they need ambient `.d.ts` declarations, not conversion.
-  Strictness level, whether `prop-types` gets dropped in favor of the new
-  types, and whether the three generated `exampleBenchmark*.js` data files
-  are worth converting at all are implementation calls, not fixed here.
+  The same goes for the three generated `exampleBenchmark*.js` data files:
+  they stay JS, typed via declarations. `tsconfig.json` uses `strict: true`.
+  Whether `prop-types` gets dropped in favor of the new types is an
+  implementation call, not fixed here.
 
   **→ Checkpoint 3 (final)** — the most important one, since it's the
   shipping candidate. Two Opus review rounds instead of one:
@@ -281,6 +284,8 @@ Resolved:
 - React: 19, replacing `react-toggle`, without StrictMode (see 2.h).
 - Root Biome config: standalone, targeting only `src`, `test` and
   `webpack.config.js`; `../e2e` keeps its own (see `../CLAUDE.md`).
+- TypeScript: `strict: true`; the `exampleBenchmark*.js` data files stay JS
+  (see Step 3).
 
 Out of scope for this plan, possible later:
 
