@@ -1,4 +1,4 @@
-import { blue } from 'functions/colors.js';
+import { blue } from 'functions/colors.ts';
 import PropTypes from 'prop-types';
 
 export default function BarTooltipLabel({ x, y, width, height, value, textAnchor }) {

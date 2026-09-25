@@ -1,4 +1,4 @@
-import { blue, green } from 'functions/colors.js';
+import { blue, green } from 'functions/colors.ts';
 import Alert from 'react-bootstrap/Alert';
 import { useDropzone } from 'react-dropzone';
 import { FaCloudUploadAlt as UploadIcon } from 'react-icons/fa';

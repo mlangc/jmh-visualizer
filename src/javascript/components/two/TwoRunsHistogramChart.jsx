@@ -1,7 +1,7 @@
-import { blue, green, tooltipBackground, yellow } from 'functions/colors.js';
-import { flatten, round, shouldRound } from 'functions/util.js';
+import { blue, green, tooltipBackground, yellow } from 'functions/colors.ts';
+import { flatten, round, shouldRound } from 'functions/util.ts';
 
-import { getMetricType } from 'models/MetricType.js';
+import { getMetricType } from 'models/MetricType.ts';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Bar, BarChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';

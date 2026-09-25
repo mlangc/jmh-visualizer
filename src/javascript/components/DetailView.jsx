@@ -1,9 +1,9 @@
 import { ChartDetailHeader } from 'components/ChartHeader.jsx';
 import { createMetricBadge } from 'components/commons.jsx';
 import TocElement from 'components/TocElement.jsx';
-import { getUniqueBenchmarkModes } from 'functions/parse.js';
-import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.js';
-import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.js';
+import { getUniqueBenchmarkModes } from 'functions/parse.ts';
+import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.ts';
+import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.ts';
 
 /* eslint react/prop-types: 0 */
 const DetailView = ({ runNames, benchmarkBundle, secondaryMetrics, chartConfig, chartGeneratorFunction }) => {

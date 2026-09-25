@@ -1,14 +1,14 @@
 import { expect } from 'chai';
-
 import {
   getUniqueParamValues,
   parseBenchmarkBundles,
   parseBenchmarkName,
   parseMethodName
-} from '../../src/javascript/functions/parse.js';
-import BenchmarkBundle from '../../src/javascript/models/BenchmarkBundle.js';
-import BenchmarkMethod from '../../src/javascript/models/BenchmarkMethod.js';
-import BenchmarkRun from '../../src/javascript/models/BenchmarkRun.js';
+} from '../../src/javascript/functions/parse.ts';
+import type { Benchmark } from '../../src/javascript/models/Benchmark.ts';
+import BenchmarkBundle from '../../src/javascript/models/BenchmarkBundle.ts';
+import BenchmarkMethod from '../../src/javascript/models/BenchmarkMethod.ts';
+import BenchmarkRun from '../../src/javascript/models/BenchmarkRun.ts';
 
 describe('functions: parseMethodName', () => {
   it('default', () => {
@@ -113,7 +113,7 @@ describe('functions: parseBenchmarkBundles', () => {
             score: 1
           }
         }
-      ]
+      ] as Benchmark[]
     });
     const run2 = new BenchmarkRun({
       name: '2',
@@ -130,7 +130,7 @@ describe('functions: parseBenchmarkBundles', () => {
         {
           benchmark: 'com.C.bench'
         }
-      ]
+      ] as Benchmark[]
     });
     const benchmarkBundles = parseBenchmarkBundles([run1, run2]);
     const expectedBundles = [

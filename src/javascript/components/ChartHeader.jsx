@@ -1,7 +1,7 @@
 import { createMetricBadge } from 'components/commons.jsx';
 
 import Tooltipped from 'components/lib/Tooltipped.jsx';
-import { getUniqueBenchmarkModes } from 'functions/parse.js';
+import { getUniqueBenchmarkModes } from 'functions/parse.ts';
 
 //The header of a Single/Two/Multi-RunBundle
 /* eslint react/prop-types: 0 */

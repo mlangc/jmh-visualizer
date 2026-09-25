@@ -1,7 +1,7 @@
 import SummaryHeader from 'components/summary/SummaryHeader.jsx';
 import SummaryTable from 'components/summary/SummaryTable.jsx';
-import { flatten, round, shouldRound } from 'functions/util.js';
-import { getMetricType } from 'models/MetricType.js';
+import { flatten, round, shouldRound } from 'functions/util.ts';
+import { getMetricType } from 'models/MetricType.ts';
 import PropTypes from 'prop-types';
 import React from 'react';
 

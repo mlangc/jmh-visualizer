@@ -1,4 +1,4 @@
-import { blue, green, red, yellow } from 'functions/colors.js';
+import { blue, green, red, yellow } from 'functions/colors.ts';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {

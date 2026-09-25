@@ -11,8 +11,8 @@ export default class BarDataSet {
   }
 }
 
-import { formatNumber, groupBy, round, shouldRound } from 'functions/util.js';
-import { getMetricType } from 'models/MetricType.js';
+import { formatNumber, groupBy, round, shouldRound } from 'functions/util.ts';
+import { getMetricType } from 'models/MetricType.ts';
 
 // The datasets will differ in case the benchmark-class uses params or not:
 // 0 - no param => standard

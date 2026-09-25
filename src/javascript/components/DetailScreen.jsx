@@ -6,9 +6,9 @@ import LineChartView from 'components/multi/LineChartView.jsx';
 import BarChartView from 'components/single/BarChartView.jsx';
 import DiffBarChartView from 'components/two/DiffBarChartView.jsx';
 import { filterBenchmarkBundle } from 'functions/benchmarkFilter.js';
-import { parseClassNameFromFullName } from 'functions/parse.js';
-import BenchmarkBundle from 'models/BenchmarkBundle.js';
-import BenchmarkSelection from 'models/BenchmarkSelection.js';
+import { parseClassNameFromFullName } from 'functions/parse.ts';
+import BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import BenchmarkSelection from 'models/BenchmarkSelection.ts';
 import { actions, connect } from 'store/store.js';
 
 /* eslint react/prop-types: 0 */

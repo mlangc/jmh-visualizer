@@ -1,4 +1,4 @@
-import { green, red, tooltipBackground, yellow } from 'functions/colors.js';
+import { green, red, tooltipBackground, yellow } from 'functions/colors.ts';
 import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 /* eslint react/prop-types: 0 */

@@ -2,14 +2,18 @@
 // For primary metrics a metric is the benchmark mode (like thrpt, avg, etc...)
 // and for the seconday metric its the metric key (like '·gc.alloc.rate').
 export default class MetricType {
-  constructor(displayName, description, increaseIsGood) {
+  displayName: string;
+  description: string;
+  increaseIsGood: boolean;
+
+  constructor(displayName: string, description: string, increaseIsGood: boolean) {
     this.displayName = displayName;
     this.description = description;
     this.increaseIsGood = increaseIsGood;
   }
 }
 
-const typeMap = new Map();
+const typeMap = new Map<string, MetricType>();
 
 typeMap.set(
   'thrpt',
@@ -89,7 +93,7 @@ typeMap.set(
   new MetricType('GC Time', 'Time spend for garbage collection - the lower the bars, the better!', false)
 );
 
-export function getMetricType(metricKey) {
+export function getMetricType(metricKey: string): MetricType {
   const defined = typeMap.get(metricKey);
   if (!defined) {
     return new MetricType(metricKey, '...', false);

@@ -1,7 +1,7 @@
 import Tooltipped from 'components/lib/Tooltipped.jsx';
 import SingleRunBundle from 'components/single/SingleRunBundle.jsx';
 import TocElement from 'components/TocElement.jsx';
-import { getUniqueBenchmarkModesAccrossBundles } from 'functions/parse.js';
+import { getUniqueBenchmarkModesAccrossBundles } from 'functions/parse.ts';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Badge from 'react-bootstrap/Badge';

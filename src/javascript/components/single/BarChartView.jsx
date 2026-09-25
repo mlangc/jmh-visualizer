@@ -1,8 +1,8 @@
 import { createDataSetFromBenchmarks } from 'components/single/BarDataSet.js';
 import BarLabel from 'components/single/BarLabel.jsx';
 import SingleRunChartTooltip from 'components/single/SingleRunChartTooltip.jsx';
-import { tickFormatter } from 'functions/charts.js';
-import { barColors, blue, green, lightBlack, tooltipBackground } from 'functions/colors.js';
+import { tickFormatter } from 'functions/charts.ts';
+import { barColors, blue, green, lightBlack, tooltipBackground } from 'functions/colors.ts';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {

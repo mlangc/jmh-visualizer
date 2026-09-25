@@ -1,5 +1,5 @@
 import Tooltipped from 'components/lib/Tooltipped.jsx';
-import { yellow } from 'functions/colors.js';
+import { yellow } from 'functions/colors.ts';
 import {
   FaBug as BugIcon,
   FaSearchPlus as DetailsIcon,

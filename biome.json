@@ -24,6 +24,9 @@
         "useKeyWithClickEvents": "off",
         "useValidAnchor": "off"
       },
+      "style": {
+        "noNonNullAssertion": "off"
+      },
       "suspicious": {
         "noArrayIndexKey": "off",
         "noGlobalIsNan": "off"

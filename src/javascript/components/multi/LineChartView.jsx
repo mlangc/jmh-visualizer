@@ -18,9 +18,9 @@ import {
 const lineColors = scaleOrdinal(schemeCategory10).range();
 
 import MultiRunChartTooltip from 'components/multi/MultiRunChartTooltip.jsx';
-import { tickFormatter } from 'functions/charts.js';
-import { tooltipBackground } from 'functions/colors.js';
-import { formatNumber, round, shouldRound } from 'functions/util.js';
+import { tickFormatter } from 'functions/charts.ts';
+import { tooltipBackground } from 'functions/colors.ts';
+import { formatNumber, round, shouldRound } from 'functions/util.ts';
 
 export default class LineChartView extends React.Component {
   static propTypes = {

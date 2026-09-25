@@ -1,23 +1,24 @@
-import MetricExtractor from 'models/MetricExtractor.js';
+import type { Benchmark } from 'models/Benchmark.ts';
+import MetricExtractor from 'models/MetricExtractor.ts';
 
 export default class ScoreExtractor extends MetricExtractor {
   constructor() {
     super('Score');
   }
 
-  getMetricObject(benchmark) {
+  getMetricObject(benchmark: Benchmark) {
     return benchmark.primaryMetric;
   }
 
-  extractType(benchmark) {
+  extractType(benchmark: Benchmark) {
     return benchmark.mode;
   }
 
-  hasHistogram(benchmark) {
+  hasHistogram(benchmark: Benchmark) {
     return benchmark.mode === 'sample';
   }
 
-  extractRawDataScores(benchmark) {
+  extractRawDataScores(benchmark: Benchmark) {
     if (this.hasHistogram(benchmark)) {
       return this.extractRawDataHistogram(benchmark).flatMap((forkArrays) =>
         forkArrays.flatMap((scoresArray) => scoresArray.map((timeOccurence) => timeOccurence[0]))

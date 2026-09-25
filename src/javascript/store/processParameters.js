@@ -1,5 +1,5 @@
-import { getUniqueNames } from 'functions/util.js';
-import BenchmarkRun from 'models/BenchmarkRun.js';
+import { getUniqueNames } from 'functions/util.ts';
+import BenchmarkRun from 'models/BenchmarkRun.ts';
 
 export function addSettingsFromParameters(settings) {
   const topBar = getParameterByName('topBar');

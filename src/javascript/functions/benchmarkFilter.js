@@ -1,4 +1,4 @@
-import BenchmarkBundle from 'models/BenchmarkBundle.js';
+import BenchmarkBundle from 'models/BenchmarkBundle.ts';
 import { isMethodInstanceDeselected, methodKey } from 'store/store.js';
 
 // Returns a new BenchmarkBundle with deselected methods/param-values removed,

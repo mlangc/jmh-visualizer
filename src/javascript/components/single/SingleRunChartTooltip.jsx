@@ -1,6 +1,6 @@
 import BarTooltipLabel from 'components/single/BarTooltipLabel.jsx';
-import { blue, red } from 'functions/colors.js';
-import { formatNumber, round } from 'functions/util.js';
+import { blue, red } from 'functions/colors.ts';
+import { formatNumber, round } from 'functions/util.ts';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import Table from 'react-bootstrap/Table';

@@ -5,9 +5,9 @@ import RunSideBar from 'components/RunSideBar.jsx';
 import SingleRunView from 'components/single/SingleRunView.jsx';
 import TwoRunsView from 'components/two/TwoRunsView.jsx';
 import { filterBenchmarkBundle } from 'functions/benchmarkFilter.js';
-import BenchmarkSelection from 'models/BenchmarkSelection.js';
-import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.js';
-import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.js';
+import BenchmarkSelection from 'models/BenchmarkSelection.ts';
+import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.ts';
+import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.ts';
 import { actions, connect } from 'store/store.js';
 
 /* eslint react/prop-types: 0 */

@@ -1,59 +1,65 @@
-import BenchmarkBundle from 'models/BenchmarkBundle.js';
-import BenchmarkMethod from 'models/BenchmarkMethod.js';
+import type { Benchmark } from 'models/Benchmark.ts';
+import BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import BenchmarkMethod, { type Param } from 'models/BenchmarkMethod.ts';
+import type BenchmarkRun from 'models/BenchmarkRun.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
 
 //TODO cleanup
 
 // Extracts the benchmarks class name
-export function parseClassName(benchmark) {
+export function parseClassName(benchmark: Pick<Benchmark, 'benchmark'>) {
   return parseClassNameFromFullName(benchmark.benchmark);
 }
 
-export function parseFullClassName(benchmark) {
+export function parseFullClassName(benchmark: Pick<Benchmark, 'benchmark'>) {
   const nameParts = benchmark.benchmark.split('.');
   nameParts.pop(); //remove the method part
   return nameParts.join('.');
 }
 
-export function parseClassNameFromFullName(fullName) {
+export function parseClassNameFromFullName(fullName: string) {
   return fullName.split('.').reverse()[0];
 }
 
 // Extracts the benchmarks method name
-export function parseMethodName(benchmark) {
+export function parseMethodName(benchmark: Pick<Benchmark, 'benchmark'>) {
   const splitted = benchmark.benchmark.split('.');
   return splitted[splitted.length - 1];
 }
 
 // Extracts the benchmarks method name
-export function parseBenchmarkName(benchmark) {
+export function parseBenchmarkName(benchmark: Pick<Benchmark, 'benchmark' | 'params'>) {
   var benchmarkName = parseMethodName(benchmark);
   if (benchmark.params) {
     const keys = Object.keys(benchmark.params);
     keys.forEach((key) => {
-      benchmarkName += ` ${key}=${benchmark.params[key]}`;
+      benchmarkName += ` ${key}=${benchmark.params?.[key]}`;
     });
   }
   return benchmarkName;
 }
 
-export function getUniqueParamValues(benchmarks, paramName) {
-  const paramValues = new Set();
+export function getUniqueParamValues<T>(benchmarks: { params: Record<string, T> }[], paramName: string) {
+  const paramValues = new Set<T>();
   benchmarks.forEach((benchmark) => {
     paramValues.add(benchmark.params[paramName]);
   });
   return Array.from(paramValues);
 }
 
-export function getUniqueBenchmarkModes(benchmarkBundle, metricExtractor) {
-  const modes = new Set();
+export function getUniqueBenchmarkModes(benchmarkBundle: BenchmarkBundle, metricExtractor: MetricExtractor) {
+  const modes = new Set<string>();
   benchmarkBundle.allBenchmarks().forEach((benchmark) => {
     modes.add(metricExtractor.extractType(benchmark));
   });
   return Array.from(modes);
 }
 
-export function getUniqueBenchmarkModesAccrossBundles(benchmarkBundles, metricExtractor) {
-  const modes = new Set();
+export function getUniqueBenchmarkModesAccrossBundles(
+  benchmarkBundles: BenchmarkBundle[],
+  metricExtractor: MetricExtractor
+) {
+  const modes = new Set<string>();
   benchmarkBundles.forEach((benchmarkBundle) => {
     benchmarkBundle.allBenchmarks().forEach((benchmark) => {
       modes.add(metricExtractor.extractType(benchmark));
@@ -62,16 +68,16 @@ export function getUniqueBenchmarkModesAccrossBundles(benchmarkBundles, metricEx
   return Array.from(modes);
 }
 
-export function parseBenchmarkBundles(benchmarkRuns) {
+export function parseBenchmarkBundles(benchmarkRuns: BenchmarkRun[]) {
   const classToBenchmarksMap = parseMultiRunBenchmarkMap(benchmarkRuns);
-  const benchmarkBundles = [];
+  const benchmarkBundles: BenchmarkBundle[] = [];
   for (const [fullName, benchmarkRunMap] of classToBenchmarksMap) {
-    const benchmarkMethods = [];
-    const methodNames = new Set();
+    const benchmarkMethods: BenchmarkMethod[] = [];
+    const methodNames = new Set<string>();
     for (const [key, benchmarks] of benchmarkRunMap) {
       const keyParts = key.split(' ');
-      const methodName = keyParts.shift();
-      const params = keyParts.length > 0 ? keyParts.map((paramString) => paramString.split('=')) : null;
+      const methodName = keyParts.shift() as string;
+      const params = keyParts.length > 0 ? keyParts.map((paramString) => paramString.split('=') as Param) : null;
       benchmarkMethods.push(
         new BenchmarkMethod({
           name: methodName,
@@ -98,8 +104,8 @@ export function parseBenchmarkBundles(benchmarkRuns) {
  *     Map<className, Map<methodName, benchmarks[]>>
  * Where the benchmarks array has a null if the particular run didn't included the benchmark.
  */
-function parseMultiRunBenchmarkMap(benchmarkRuns) {
-  const classToBenchmarksMap = new Map();
+function parseMultiRunBenchmarkMap(benchmarkRuns: BenchmarkRun[]) {
+  const classToBenchmarksMap = new Map<string, Map<string, (Benchmark | null)[]>>();
   benchmarkRuns.forEach((benchmarkRun, benchmarkRunIndex) => {
     benchmarkRun.benchmarks.forEach((benchmark) => {
       const fullClassName = parseFullClassName(benchmark);

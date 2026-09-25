@@ -2,9 +2,9 @@ import SplitPane from 'components/lib/SplitPane.jsx';
 import RunSideBar from 'components/RunSideBar.jsx';
 import SummaryView from 'components/summary/SummaryView.jsx';
 
-import BenchmarkSelection from 'models/BenchmarkSelection.js';
-import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.js';
-import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.js';
+import BenchmarkSelection from 'models/BenchmarkSelection.ts';
+import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.ts';
+import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.ts';
 import { connect } from 'store/store.js';
 
 /* eslint react/prop-types: 0 */

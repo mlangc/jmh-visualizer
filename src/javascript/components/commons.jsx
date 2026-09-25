@@ -1,5 +1,5 @@
 import BadgeWithTooltip from 'components/lib/BadgeWithTooltip.jsx';
-import { getMetricType } from 'models/MetricType.js';
+import { getMetricType } from 'models/MetricType.ts';
 
 export function createMetricBadge(metricKey) {
   const metricType = getMetricType(metricKey);

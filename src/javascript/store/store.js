@@ -2,9 +2,9 @@ import { exampleRun1 } from 'exampleBenchmark1.js';
 import { exampleRun2 } from 'exampleBenchmark2.js';
 import { exampleRun3 } from 'exampleBenchmark3.js';
 import { createBrowserHistory } from 'history';
-import BenchmarkRun from 'models/BenchmarkRun.js';
-import BenchmarkSelection from 'models/BenchmarkSelection.js';
-import Examples from 'models/Examples.js';
+import BenchmarkRun from 'models/BenchmarkRun.ts';
+import BenchmarkSelection from 'models/BenchmarkSelection.ts';
+import Examples from 'models/Examples.ts';
 import { createElement, memo } from 'react';
 import {
   addSettingsFromParameters,

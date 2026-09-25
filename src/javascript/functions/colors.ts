@@ -17,7 +17,7 @@ export const reds = ['#7b2c22', red, '#d47063'];
 
 export const barColors = [...blues, ...greens, ...browns, ...violets, ...yellows, ...reds];
 
-export const lineColors = [];
+export const lineColors: string[] = [];
 
 for (let i = 0; i <= 3; i++) {
   lineColors.push(blues[i]);

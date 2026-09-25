@@ -1,5 +1,5 @@
-import { blue, green, red } from 'functions/colors.js';
-import { formatNumber } from 'functions/util.js';
+import { blue, green, red } from 'functions/colors.ts';
+import { formatNumber } from 'functions/util.ts';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import Table from 'react-bootstrap/Table';

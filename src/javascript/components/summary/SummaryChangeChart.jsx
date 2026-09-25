@@ -1,4 +1,4 @@
-import { blue, green, red, tooltipBackground, yellow } from 'functions/colors.js';
+import { blue, green, red, tooltipBackground, yellow } from 'functions/colors.ts';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 /* eslint react/prop-types: 0 */

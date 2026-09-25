@@ -1,13 +1,15 @@
 import { expect } from 'chai';
+import type { Benchmark } from '../../src/javascript/models/Benchmark.ts';
 
-import BenchmarkBundle from '../../src/javascript/models/BenchmarkBundle.js';
-import BenchmarkMethod from '../../src/javascript/models/BenchmarkMethod.js';
+import BenchmarkBundle from '../../src/javascript/models/BenchmarkBundle.ts';
+import BenchmarkMethod from '../../src/javascript/models/BenchmarkMethod.ts';
 
 describe('functions: parseBenchmarkCollections', () => {
   it('default', () => {
     const benchmarkBundle = new BenchmarkBundle({
       key: 'com.A',
       name: 'A',
+      methodNames: ['bench', 'bench2', 'bench3'],
       benchmarkMethods: [
         new BenchmarkMethod({
           name: 'bench',
@@ -17,13 +19,13 @@ describe('functions: parseBenchmarkCollections', () => {
               primaryMetric: {
                 score: 1
               }
-            },
+            } as Benchmark,
             {
               benchmark: 'com.A.bench',
               primaryMetric: {
                 score: 2
               }
-            }
+            } as Benchmark
           ]
         }),
         new BenchmarkMethod({
@@ -34,7 +36,7 @@ describe('functions: parseBenchmarkCollections', () => {
               primaryMetric: {
                 score: 2.1
               }
-            },
+            } as Benchmark,
             null
           ]
         }),
@@ -47,7 +49,7 @@ describe('functions: parseBenchmarkCollections', () => {
               primaryMetric: {
                 score: 3.2
               }
-            }
+            } as Benchmark
           ]
         })
       ]

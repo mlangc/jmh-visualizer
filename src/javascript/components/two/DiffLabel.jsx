@@ -1,4 +1,4 @@
-import { yellow } from 'functions/colors.js';
+import { yellow } from 'functions/colors.ts';
 import PropTypes from 'prop-types';
 
 export default function DiffLabel({ x, y, width, height, value, textAnchor }) {

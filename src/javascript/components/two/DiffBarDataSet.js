@@ -1,5 +1,5 @@
-import { round, shouldRound } from 'functions/util.js';
-import { getMetricType } from 'models/MetricType.js';
+import { round, shouldRound } from 'functions/util.ts';
+import { getMetricType } from 'models/MetricType.ts';
 
 export function createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, sort) {
   const shouldRoundScores = shouldRound(benchmarkBundle.benchmarkMethods, metricExtractor);

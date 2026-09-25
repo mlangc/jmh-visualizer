@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { cartesianProduct, flatten, getUniqueNames } from '../../src/javascript/functions/util.js';
+import { cartesianProduct, flatten, getUniqueNames } from '../../src/javascript/functions/util.ts';
 
 describe('functions: cartesianProduct', () => {
   it('default', () => {
@@ -16,7 +16,7 @@ describe('functions: cartesianProduct', () => {
       ['a2', 'b2', 'c']
     ]);
     expect(
-      cartesianProduct([
+      cartesianProduct<string | number>([
         ['a', 'b', 'c'],
         [1, 2]
       ])
