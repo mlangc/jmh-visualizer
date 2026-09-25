@@ -5,12 +5,13 @@ import { createBrowserHistory } from 'history';
 import BenchmarkRun from 'models/BenchmarkRun.js';
 import BenchmarkSelection from 'models/BenchmarkSelection.js';
 import Examples from 'models/Examples.js';
-import createStore from 'react-waterfall';
+import { createElement, memo } from 'react';
 import {
   addSettingsFromParameters,
   getBenchmarksLoadFunctionForDefinedExamples,
   getBenchmarksLoadFunctionForSourceExamples
 } from 'store/processParameters.js';
+import { createStore, useStore } from 'zustand';
 
 const history = createBrowserHistory();
 
@@ -254,7 +255,40 @@ async function loadBenchmarksAsync(_state, trigger, triggerFunction, getBenchmar
   }
 }
 
-export const { Provider, connect, actions } = createStore(config);
+const store = createStore(() => config.initialState);
+
+// A synchronous creator's update is applied right away (still within the calling event
+// handler), an async one's once it resolves, merged into the state current at that point.
+export const actions = Object.fromEntries(
+  Object.entries(config.actionsCreators).map(([name, actionCreator]) => [
+    name,
+    (...args) => {
+      const update = actionCreator(store.getState(), actions, ...args);
+      return update?.then ? update.then((resolved) => store.setState(resolved)) : store.setState(update);
+    }
+  ])
+);
+
+// The store is module-level, so there's nothing to provide. Kept so entry.jsx stays unchanged.
+export function Provider({ children }) {
+  return children;
+}
+
+// Subscribes to the whole state, which keeps its identity between updates, and maps it
+// to props during render rather than in a selector: mapStateToProps may build fresh
+// objects (e.g. a new BenchmarkSelection) on every call. memo skips re-rendering the
+// wrapped component when those props are shallowly equal.
+export function connect(mapStateToProps) {
+  return (Component) => {
+    const MemoizedComponent = memo(Component);
+    const Connected = (ownProps) => {
+      const state = useStore(store);
+      return createElement(MemoizedComponent, { ...ownProps, ...mapStateToProps(state, ownProps) });
+    };
+    Connected.displayName = `Connect(${Component.displayName || Component.name || 'Unknown'})`;
+    return Connected;
+  };
+}
 
 export function methodKey(benchmarkBundleKey, methodName) {
   return `${benchmarkBundleKey}::${methodName}`;
