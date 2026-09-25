@@ -164,3 +164,50 @@ a {
   /* biome-ignore lint/complexity/noImportantStyles: overrides Bootstrap's higher-specificity :active rule */
   background-color: #337ab7 !important;
 }
+
+/* The "Sync Axis Scales" switch used to be a react-toggle, which doesn't
+   support React 19; restyle Bootstrap's switch to its look. The thumb and the
+   check/cross icons are background layers, since the input is the whole
+   switch. */
+#scales-sync {
+  width: 50px;
+  height: 24px;
+  margin-top: 0;
+  border: none;
+  border-radius: 30px;
+  background-color: #4d4d4d;
+  background-image:
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3e%3ccircle cx='11' cy='11' r='10.5' fill='%23fafafa' stroke='%234d4d4d'/%3e%3c/svg%3e"),
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3e%3cpath d='M9.9 2.12L7.78 0 4.95 2.828 2.12 0 0 2.12l2.83 2.83L0 7.776 2.123 9.9 4.95 7.07 7.78 9.9 9.9 7.776 7.072 4.95 9.9 2.12' fill='%23fff'/%3e%3c/svg%3e");
+  background-position:
+    left 1px center,
+    right 10px center;
+  background-size:
+    22px 22px,
+    10px 10px;
+  transition: all 0.25s ease;
+}
+#scales-sync:checked {
+  background-color: #19ab27;
+  background-image:
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3e%3ccircle cx='11' cy='11' r='10.5' fill='%23fafafa' stroke='%2319ab27'/%3e%3c/svg%3e"),
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 11'%3e%3cpath d='M11.264 0L5.26 6.004 2.103 2.847 0 4.95l5.26 5.26 8.108-8.107L11.264 0' fill='%23fff'/%3e%3c/svg%3e");
+  background-position:
+    right 1px center,
+    left 8px center;
+  background-size:
+    22px 22px,
+    14px 11px;
+}
+#scales-sync:hover:not(:disabled) {
+  background-color: #000;
+}
+#scales-sync:checked:hover:not(:disabled) {
+  background-color: #128d15;
+}
+#scales-sync:focus {
+  box-shadow: none;
+}
+#scales-sync:focus-visible {
+  box-shadow: 0 0 2px 3px #0099e0;
+}
