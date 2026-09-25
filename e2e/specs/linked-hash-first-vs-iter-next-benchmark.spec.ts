@@ -41,7 +41,7 @@ test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and de
   // each of the 2 methods renders as 2 bars — one label per bar
   await expect(chart.getByText(/s\/op/)).toHaveCount(4);
 
-  // ...and by value. These scores are all < 1, so util.js's round/formatNumber leave
+  // ...and by value. These scores are all < 1, so util.ts's round/formatNumber leave
   // them unrounded and they render in full precision — the opposite branch from
   // cost-of-alloc-rate-norm's locale-formatted '60,050 ops/s' (report-assertions.ts).
   for (const label of [

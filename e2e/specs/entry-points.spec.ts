@@ -5,7 +5,7 @@ import { blockOffOrigin, mockGistApi, mockRawUrls } from '../support/mock-remote
 import { watchDialogsAndErrors } from '../support/page-watchers';
 import { expectStartScreen } from '../support/start-screen-assertions';
 
-// Everything `processParameters.js` reads off the URL before the app has rendered
+// Everything `processParameters.ts` reads off the URL before the app has rendered
 // anything, plus the `onbeforeunload` guard that only the upload path installs. The
 // rest of the suite always arrives through the start screen or through `?sources=`/
 // `?gists=`, so these branches decide what a shared link does and nothing checked them.
@@ -86,7 +86,7 @@ test('?topBar= replaces or removes the navigation bar', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'JMH Visualizer', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: /^JMH Visualizer \d/ })).toHaveCount(0);
 
-  // 'off': no navbar. Footer.jsx keys off the same setting from the other side --
+  // 'off': no navbar. Footer.tsx keys off the same setting from the other side --
   // it renders for anything *but* 'default', so it appears here and in the custom
   // headline case below, and never alongside the navbar.
   await page.goto('/?topBar=off');

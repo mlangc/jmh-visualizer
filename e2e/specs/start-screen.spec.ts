@@ -5,7 +5,7 @@ import { watchDialogsAndErrors } from '../support/page-watchers';
 import { expectStartScreen } from '../support/start-screen-assertions';
 
 // Kept separate from the post-reset check in multi-run-summary-and-compare.spec.ts:
-// the cold-load path (store.js bootstrap) and the reset path (DefaultTopBar.jsx's
+// the cold-load path (store.ts bootstrap) and the reset path (DefaultTopBar.tsx's
 // onReset forcing a real navigation) are driven by genuinely different code that
 // only coincidentally produces the same screen in today's vanilla build.
 test('a fresh load renders the empty start screen', async ({ page }) => {

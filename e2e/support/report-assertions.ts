@@ -15,7 +15,7 @@ import { escapeRegExp } from './regex-util';
  * `opts.runName` defaults to the file-upload run name; pass the actual run
  * name when loading this same fixture via URL/Gist instead, since those
  * mechanisms name the run differently (full filename incl. extension for a
- * URL, `${gistId}/${filename}` for a Gist — see processParameters.js).
+ * URL, `${gistId}/${filename}` for a Gist — see processParameters.ts).
  */
 export async function expectCostOfAllocRateNormReport(
   page: Page,
@@ -29,7 +29,7 @@ export async function expectCostOfAllocRateNormReport(
   await expect(page.getByText('JMH Visualizer').first()).toBeVisible(waitOpts);
 
   // 2. "Show JSON" button
-  // .first(): one such button renders per benchmark class (SingleRunBundle.jsx),
+  // .first(): one such button renders per benchmark class (SingleRunBundle.tsx),
   // and the wrong-data harness checks load real reports with many classes —
   // unscoped, this throws a strict-mode violation there instead of rejecting on
   // row 3, the first row that's actually content-specific.
@@ -73,7 +73,7 @@ export async function expectCostOfAllocRateNormReport(
   // 11. param-value bar group "10000"
   await expect(chart.getByText('10000', { exact: true })).toBeVisible(waitOpts);
 
-  // 12. both score labels, by value: rounded and locale-formatted by util.js's
+  // 12. both score labels, by value: rounded and locale-formatted by util.ts's
   // shouldRound/round/formatNumber (these scores are > 5, so they round), with the
   // unit appended. Pinning the text, not just /ops\/s/, is what makes a migration
   // that changes number formatting or bar scaling fail here instead of passing.
@@ -81,7 +81,7 @@ export async function expectCostOfAllocRateNormReport(
   await expect(chart.getByText('59,689 ops/s', { exact: true })).toBeVisible(waitOpts);
   await expect(chart.getByText(/ops\/s/)).toHaveCount(2, waitOpts);
 
-  // 13. x-axis ticks. recharts picks which ticks exist; charts.js's own tickFormatter
+  // 13. x-axis ticks. recharts picks which ticks exist; charts.ts's own tickFormatter
   // decides they read '10k' rather than '10000'. Pinned deliberately even though a
   // recharts major could move the positions for reasons that aren't regressions —
   // that's a change worth being told about. Row 12 carries the value signal alone.

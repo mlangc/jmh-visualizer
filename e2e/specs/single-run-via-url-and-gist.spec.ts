@@ -42,7 +42,7 @@ test('loading the cost-of-alloc-rate-norm-benchmark fixture via a single Gist re
   await page.goto('/');
   await app.loadFromGists([GISTS.costOfAllocRateNorm.id]);
 
-  // Gist-loaded runs are named `${gistId}/${filenameInGist}` (processParameters.js's fetchFromGists).
+  // Gist-loaded runs are named `${gistId}/${filenameInGist}` (processParameters.ts's fetchFromGists).
   await expectCostOfAllocRateNormReport(page, { runName: gistRunName('costOfAllocRateNorm') });
 
   expect(dialogs).toEqual([]);

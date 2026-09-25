@@ -91,7 +91,7 @@ test('classes of different benchmark modes cannot have their axes synced', async
   expect(pageErrors).toEqual([]);
 });
 
-/** The chart's x-axis ticks, as charts.js's tickFormatter abbreviates them ('1M', '50k'). */
+/** The chart's x-axis ticks, as charts.ts's tickFormatter abbreviates them ('1M', '50k'). */
 async function expectAxisTicks(app: JmhApp, className: string, ticks: string[]): Promise<void> {
   const labels = app.benchmarkSection(className).locator('.recharts-wrapper').first().locator('text');
   await expect(labels.filter({ hasText: /^[0-9][0-9.]*[kMG]?$/ })).toHaveText(ticks);

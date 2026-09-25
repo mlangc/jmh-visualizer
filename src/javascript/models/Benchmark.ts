@@ -9,6 +9,8 @@ export interface Benchmark {
 
 export interface Metric {
   score: number;
+  // JMH writes the string "NaN" when it has no error estimate; the code relies on the
+  // global isNaN() coercing that (Number.isNaN() wouldn't)
   scoreError: number;
   scoreUnit: string;
   rawData?: number[][]; // [fork][iteration]

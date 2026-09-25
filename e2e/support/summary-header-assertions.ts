@@ -15,7 +15,7 @@ export type SummaryHeaderExpectation = {
  * names *which* two runs the comparison tables below it are about.
  *
  * `runName1`/`runName2` are the last two selected runs, in selection order, whatever
- * the total run count is. That needs the `SummaryScreen.jsx` fix this suite ships
+ * the total run count is. That needs the `SummaryScreen.tsx` fix this suite ships
  * with, so callers comparing 3+ runs tag themselves `@needs-fix`: before the fix,
  * `SummaryView` indexed an already-sliced 2-element `runNames` with absolute run
  * indices, which named the wrong run first and left the second name empty.

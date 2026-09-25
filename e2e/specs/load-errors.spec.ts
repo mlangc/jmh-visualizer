@@ -11,7 +11,7 @@ import { expectStartScreen } from '../support/start-screen-assertions';
 // behaviour — including the parts that are plainly bugs — is pinned here rather than
 // left to be rediscovered afterwards.
 //
-// The two remote cases leave the app on a blank screen: `store.js` starts with
+// The two remote cases leave the app on a blank screen: `store.ts` starts with
 // `initialLoading: true` whenever a source parameter is present, and neither failure
 // path ever calls `initBenchmarks`, so nothing takes it out of that state. The upload
 // path is the only one that recovers, because `loadBenchmarksAsync` catches and falls

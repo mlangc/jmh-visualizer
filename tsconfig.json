@@ -13,7 +13,7 @@
     "noEmit": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "types": ["mocha"]
+    "types": []
   },
-  "include": ["src/javascript", "src/*.d.ts", "test"]
+  "include": ["src/javascript", "src/*.d.ts"]
 }

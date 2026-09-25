@@ -61,7 +61,7 @@ test.describe('expectComparisonRows falsification checks', () => {
     // Confirm the real state first -- regular-then-on-battery always declines.
     await expectDeclinedBenchmarks(page, LINKED_HASH_PAIR_ROWS);
 
-    // With 0 improved rows, SummaryTable.jsx renders no "Improved Benchmarks"
+    // With 0 improved rows, SummaryTable.tsx renders no "Improved Benchmarks"
     // heading at all (and no second <table>), so this rejects at the very
     // first assertion (the heading lookup) -- it proves the heading lookup is
     // parameterized by table name, not that the *rows* are looked up inside

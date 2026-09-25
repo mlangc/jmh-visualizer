@@ -3,7 +3,7 @@ import { escapeRegExp } from './regex-util';
 
 /**
  * Shared assertion for the Summary screen's per-metric comparison tables
- * (SummaryTable.jsx renders each of Improved/Declined/Unchanged as its own
+ * (SummaryTable.tsx renders each of Improved/Declined/Unchanged as its own
  * <h3><Table> pair). Verifies both the heading's row count and that each
  * given (method, params) pair appears exactly once, regardless of which
  * table it's checking.
@@ -72,7 +72,7 @@ export async function expectUnchangedBenchmarks(
  * `linked-hash-first-vs-iter-next-benchmark` vs. `...-on-battery-benchmark`
  * -- direction-agnostic: the fixture pair's per-metric scores differ by
  * ~45-102% depending on which run is the comparison's denominator (see
- * SummaryView.jsx's scoreDiff formula), but it's always these same 4
+ * SummaryView.tsx's scoreDiff formula), but it's always these same 4
  * method/param combinations that land in whichever table (Declined or
  * Improved) the load order produces. Never the "Unchanged" table at the
  * default 5% threshold.

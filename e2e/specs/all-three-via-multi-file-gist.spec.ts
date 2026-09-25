@@ -8,14 +8,14 @@ import { watchDialogsAndErrors } from '../support/page-watchers';
 // Companion to multi-run-summary-and-compare.spec.ts's file-upload case: same
 // 3 fixtures, same workflow, but loaded from a single gist ID that holds all
 // 3 as separate files -- exercising fetchFromGists' one-run-per-file-in-the-
-// gist fan-out (processParameters.js), which none of the other Gist specs
+// gist fan-out (processParameters.ts), which none of the other Gist specs
 // reach (they each mock a single-file gist). Mocked network, like the other
 // URL/Gist specs (see mock-remote-fixtures.ts).
 //
 // Incidental extra coverage: unlike the file-upload spec, this one's "Reset &
 // Upload New" step (inside expectMultiRunWorkflow) runs against a URL that
 // actually has query params (?gist=...), so it also exercises
-// DefaultTopBar.jsx's window.location.href query-string stripping on reset,
+// DefaultTopBar.tsx's window.location.href query-string stripping on reset,
 // not just the reload itself.
 
 test.beforeEach(async ({ page }) => {

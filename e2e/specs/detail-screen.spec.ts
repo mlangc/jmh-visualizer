@@ -8,7 +8,7 @@ import { watchDialogsAndErrors } from '../support/page-watchers';
 // extractor and unit -- plus the sidebar's class chooser, its Sort/Scale controls and
 // the "no results" branch were uncovered.
 //
-// Also the browser's own Back/Forward, which is the entire reason `store.js` registers
+// Also the browser's own Back/Forward, which is the entire reason `store.ts` registers
 // a `history.listen` POP handler: only the in-app "Back.." link was ever exercised.
 
 test('the Details screen draws a chart per metric, each in its own unit', async ({ page }) => {
@@ -158,7 +158,7 @@ test('the browser Back button leaves the Details screen, and Forward does not re
   await expect(page.getByRole('heading', { name: /LinkedHashFirstVsIterNextBenchmark/ })).toBeVisible();
   await expect(page).not.toHaveURL(/#details$/);
 
-  // Forward puts `#details` back in the address bar but not the screen: store.js's
+  // Forward puts `#details` back in the address bar but not the screen: store.ts's
   // history listener undetails on *any* POP, which Forward is too. Pinned as the
   // behaviour that exists, not as the behaviour one would want.
   await page.goForward();

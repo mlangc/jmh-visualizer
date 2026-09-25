@@ -72,7 +72,7 @@ export class JmhApp {
    * "Summary"/"Compare", present in the DOM but hidden until the caret is
    * opened -- a bare text/role query matches those too). Scoping to
    * `<button>` with exact text excludes both. Its effect is state-dependent
-   * (RunSelectionBar.jsx's selectAllWithPossibleSwitchView): reselects all
+   * (RunSelectionBar.tsx's selectAllWithPossibleSwitchView): reselects all
    * runs without changing the view when not all runs are currently selected,
    * or toggles Summary<->Compare once all runs are already selected -- so
    * callers assert the result themselves rather than this method waiting on
@@ -164,7 +164,7 @@ export class JmhApp {
 
   /**
    * Flip SingleRunView's "Sync Axis Scales" toggle, which appears only once more than
-   * one bundle is focused. Driven through `Tooltipped.jsx`'s `data-tooltip` -- already
+   * one bundle is focused. Driven through `Tooltipped.tsx`'s `data-tooltip` -- already
    * a sanctioned hook, and it reports the toggle's state as well as accepting the
    * click. Its `#scales-sync` id would be a fifth non-semantic hook for no gain (and
    * on older builds belongs to react-toggle's screenreader-only, unclickable <input>).
@@ -180,7 +180,7 @@ export class JmhApp {
 
   /**
    * Locate one control in a benchmark class's sidebar filter tree
-   * (MethodParamCheckboxList.jsx), scoped to `className`'s own row and
+   * (MethodParamCheckboxList.tsx), scoped to `className`'s own row and
    * addressed by its path through that tree from there:
    *
    *   benchmarkFilter('SomeBenchmark', 'firstEntry')              -> the method's checkbox
@@ -268,7 +268,7 @@ export class JmhApp {
 
   /**
    * Click a chart header's "Switch scale (log/linear)" control — an
-   * unlabelled icon in a `data-tooltip`-carrying span (Icons.jsx's
+   * unlabelled icon in a `data-tooltip`-carrying span (Icons.tsx's
    * ScaleButton). Scoped to a heading: DetailScreen renders its own
    * ScaleButton in the sidebar (outside any heading), so an unscoped
    * page-wide selector would silently hit the wrong control there.
@@ -281,7 +281,7 @@ export class JmhApp {
     await this.chartHeaderControl('Switch scale', className).click();
   }
 
-  /** Click a chart header's "Sort by Score/Name" control (Icons.jsx's SortButton). See `toggleScale`. */
+  /** Click a chart header's "Sort by Score/Name" control (Icons.tsx's SortButton). See `toggleScale`. */
   async toggleSort(className?: string): Promise<void> {
     await this.chartHeaderControl('Sort by', className).click();
   }
@@ -327,7 +327,7 @@ export class JmhApp {
   }
 
   /**
-   * Click a chart header's "Show details" control (Icons.jsx's
+   * Click a chart header's "Show details" control (Icons.tsx's
    * DetailsButton), navigating to the full-screen DetailScreen. Pass
    * `className` when more than one class is on screen — see `toggleScale`.
    */
@@ -352,7 +352,7 @@ export class JmhApp {
   }
 
   /**
-   * Open the "Load from URL(s)" modal (LoadFromUrlsDialog.jsx), fill URL 1
+   * Open the "Load from URL(s)" modal (LoadFromUrlsDialog.tsx), fill URL 1
    * (and URL 2 if given), and submit. The dialog's `Load` button doesn't
    * dispatch a store action -- it rewrites `window.location.search` and does
    * a real full-page reload -- so this settles the same way `uploadReport(s)`
@@ -373,11 +373,11 @@ export class JmhApp {
 
   /**
    * Same as `loadFromUrls`, for the "Load from Gist(s)" modal
-   * (LoadFromGistsDialog.jsx). Field 1 takes a raw gist ID, not a full URL.
+   * (LoadFromGistsDialog.tsx). Field 1 takes a raw gist ID, not a full URL.
    *
    * `expectedRunCount` defaults to `gistIds.length`, correct whenever every
    * gist holds exactly 1 file -- pass it explicitly for a gist with 2+ files
-   * (`fetchFromGists` in processParameters.js makes one run per file in the
+   * (`fetchFromGists` in processParameters.ts makes one run per file in the
    * gist, not one run per gist ID).
    */
   async loadFromGists(gistIds: string[], expectedRunCount = gistIds.length): Promise<void> {
@@ -392,7 +392,7 @@ export class JmhApp {
   }
 
   /**
-   * Navigate straight to `?sources=url1,url2,...` (processParameters.js),
+   * Navigate straight to `?sources=url1,url2,...` (processParameters.ts),
    * bypassing the "Load from URL(s)" dialog's 2-field cap -- the only way to
    * load 3+ URLs at once.
    */
@@ -417,7 +417,7 @@ export class JmhApp {
    * `runCount` is the number of runs the reload should settle into, not the
    * number of URLs/gist IDs passed to load them -- the two coincide whenever
    * every gist holds exactly 1 file (`fetchFromUrls` is always 1 URL : 1
-   * run), but `fetchFromGists` (processParameters.js) turns one gist ID into
+   * run), but `fetchFromGists` (processParameters.ts) turns one gist ID into
    * one run *per file in that gist*. `loadFromGists` above takes an explicit
    * `expectedRunCount` for this reason.
    */

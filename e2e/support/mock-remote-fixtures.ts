@@ -27,7 +27,7 @@ export async function blockOffOrigin(page: Page): Promise<void> {
 }
 
 /**
- * Intercepts `fetch('https://api.github.com/gists/:id')` (processParameters.js's
+ * Intercepts `fetch('https://api.github.com/gists/:id')` (processParameters.ts's
  * `fetchFromGists`) for each given gist, returning the minimal subset of the
  * real GitHub API's response shape the app actually reads --
  * `{ id, files: { <filename>: { content: <JSON string> } } }` -- but backed
@@ -80,7 +80,7 @@ export async function mockMultiFileGistApi(page: Page, ...keys: GistKey[]): Prom
 }
 
 /**
- * Intercepts `fetch()` of each gist's real raw-content URL (processParameters.js's
+ * Intercepts `fetch()` of each gist's real raw-content URL (processParameters.ts's
  * `fetchFromUrls`), returning the local fixture's JSON directly -- the shape
  * `fetchFromUrls` expects, unlike the Gist API's wrapped `{files: {...}}`.
  * Uses the gists' real raw URLs (not synthetic ones) so `getUniqueNames`'s

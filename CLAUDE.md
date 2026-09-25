@@ -13,7 +13,8 @@
 - Format: `npm run format` (same checks as `lint`, but applies formatting,
   import sorting and safe lint fixes; keep its path list in sync with `lint`)
 - Type check: `npm run typecheck` (`tsc`, no emit: Babel strips the types for
-  webpack and mocha, so only this catches type errors)
+  webpack and mocha, so only this catches type errors; `test/tsconfig.json`
+  checks the mocha specs separately, keeping mocha's globals out of `src`)
 - Test: `npm run test` (mocha 12, via `@babel/register`; see `.mocharc.json`)
 - `npm run check` = lint + typecheck + test; `npm run release` = check +
   release-build
@@ -25,9 +26,10 @@ default hasher doesn't touch Node's crypto module).
 `e2e/` is a separate, isolated Playwright/TS black-box test suite (own
 `package.json`/`node_modules`, own `biome.json`) — see `e2e/CLAUDE.md`. The
 root Biome config (`biome.json`) deliberately only targets `src`, `test`,
-`webpack.config.js` and `tsconfig.json` (not a bare `.`) — Biome 2.x treats `e2e/biome.json` as a
-conflicting nested root config otherwise, and there's no reason to run the
-root linter over e2e's independently-versioned Biome setup anyway.
+`webpack.config.js` and the `tsconfig.json`s (not a bare `.`) — Biome 2.x
+treats `e2e/biome.json` as a conflicting nested root config otherwise, and
+there's no reason to run the root linter over e2e's independently-versioned
+Biome setup anyway.
 
 ## Commit message style
 

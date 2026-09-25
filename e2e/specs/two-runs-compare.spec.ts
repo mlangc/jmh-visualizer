@@ -10,7 +10,7 @@ import { expectTwoRunCompare, LINKED_HASH_PAIR_COMPARE } from '../support/two-ru
 // never be narrowed to 2.
 //
 // This covers the screen, not all of components/two/: DiffBarChartView also renders on
-// the Details screen with 2 runs loaded (DetailScreen.jsx's twoRunsChartGenerator),
+// the Details screen with 2 runs loaded (DetailScreen.tsx's twoRunsChartGenerator),
 // which nothing here exercises, and TwoRunsHistogramChart is imported nowhere in src/
 // at all.
 
@@ -29,7 +29,7 @@ test('toggling Compare with 2 runs loaded renders the per-method difference char
   await app.clickAllRunsButton();
 
   // The same declines the Summary tables show, here as unrounded per-bar labels:
-  // every score is < 1, so util.js's round() leaves them alone.
+  // every score is < 1, so util.ts's round() leaves them alone.
   await expectTwoRunCompare(page, LINKED_HASH_PAIR_COMPARE);
 
   expect(dialogs).toEqual([]);

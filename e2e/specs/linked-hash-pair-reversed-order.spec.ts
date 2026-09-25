@@ -11,7 +11,7 @@ import { expectImprovedBenchmarks, LINKED_HASH_PAIR_ROWS } from '../support/summ
 // "...-benchmark.json" alphabetically precedes "...-on-battery-benchmark.json".
 //
 // This is NOT a simple mirror of the forward direction's assertion.
-// SummaryView.jsx's scoreDiff formula divides by whichever run was loaded
+// SummaryView.tsx's scoreDiff formula divides by whichever run was loaded
 // *second*, not by whichever run is worse, so reversing load order swaps
 // which value is the denominator -- not just the sign. The same 4
 // method/param combinations land in Improved Benchmarks instead of Declined,

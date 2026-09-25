@@ -37,7 +37,7 @@ export const GISTS = {
 
 export type GistKey = keyof typeof GISTS;
 
-/** The run name `fetchFromGists` (processParameters.js) assigns a gist-loaded run: `${gistId}/${filenameInGist}`. */
+/** The run name `fetchFromGists` (processParameters.ts) assigns a gist-loaded run: `${gistId}/${filenameInGist}`. */
 function gistRunNameIn(gistId: string, key: GistKey): string {
   return `${gistId}/${GISTS[key].filenameInGist}`;
 }

@@ -138,7 +138,7 @@ test('the multi-run chart tooltip lists every benchmark of the hovered run', asy
   await expectChartTooltip(page, {
     heading: 'run1',
     columnHeaders: ['Benchmark', 'Score', 'Min', 'Max', 'Score Error', 'Unit'],
-    // 'n/a' is util.js's formatNumber on this example's NaN scoreError -- the only
+    // 'n/a' is util.ts's formatNumber on this example's NaN scoreError -- the only
     // place in the suite that branch renders.
     rows: [
       ['sleep100Milliseconds', '103', '103', '103', 'n/a', 'ms/op'],

@@ -109,6 +109,7 @@ function fetchFromGists(benchmarkLoadFunction: InitBenchmarksFunction, gists: st
     })
   )
     .then((jsons) => {
+      // A failed fetch has alerted and resolved to undefined, which then throws here (pinned by load-errors.spec.ts)
       (jsons as Gist[]).forEach((json) => {
         Object.entries(json.files).forEach(([key, value]) => {
           benchmarkRuns.push(
