@@ -93,6 +93,17 @@ export async function expectMultiRunWorkflow(
   // regex rather than element-by-element matching.
   await expect(page.getByText(/Comparing\s*2\s*benchmark classes for\s*3\s*runs on metric 'Score'\./)).toBeVisible();
   await expect(page.getByText(/Ignoring deviations below/)).toHaveCount(0);
+  // The line charts' score-axis ticks. A score axis that lost its default scale/domain
+  // still renders, but with only its two extremes as ticks ('0', '60.854k') and no lines
+  // at all -- which is how the React 19 bump once broke these charts unnoticed.
+  await expectScoreAxisTicks(app, 'CostOfAllocRateNormBenchmark', ['0', '20k', '40k', '60k', '80k']);
+  await expectScoreAxisTicks(app, 'LinkedHashFirstVsIterNextBenchmark', [
+    '0',
+    '8.5e-10',
+    '1.7e-9',
+    '2.55e-9',
+    '3.4e-9'
+  ]);
 
   // 7. sidebar scroll-to-section round trip. Class insertion order follows
   // sorted run/filename order, so CostOfAllocRateNormBenchmark's chart
@@ -129,4 +140,10 @@ export async function expectMultiRunWorkflow(
 
   expect(dialogs).toEqual([]);
   expect(pageErrors).toEqual([]);
+}
+
+/** A Compare chart's numeric tick labels: its x-axis names runs, so these are all the score axis's. */
+async function expectScoreAxisTicks(app: JmhApp, className: string, ticks: string[]): Promise<void> {
+  const labels = app.benchmarkSection(className).locator('.recharts-wrapper').first().locator('text');
+  await expect(labels.filter({ hasText: /^[0-9][0-9.]*(e-?[0-9]+|[kMG])?$/ })).toHaveText(ticks);
 }

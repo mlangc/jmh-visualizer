@@ -33,8 +33,9 @@ is which.
   prove a real filtering effect, not just a label change), the "Declined"/
   "Unchanged Benchmarks" tables, drilling into each run individually via the
   top-nav run buttons, switching back to Summary and on to Compare via the
-  same title button, the "Benchmarks" sidebar's scroll-to-section links, and
-  "Reset & Upload New" returning to the start screen.
+  same title button (and the Compare line charts' score-axis ticks), the
+  "Benchmarks" sidebar's scroll-to-section links, and "Reset & Upload New"
+  returning to the start screen.
 - `specs/start-screen.spec.ts` — characterizes the empty upload/start screen
   on a fresh page load (the cold-load path, as opposed to the post-reset
   path exercised at the end of `support/multi-run-workflow.ts`'s shared
