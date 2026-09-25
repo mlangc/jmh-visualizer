@@ -13,7 +13,6 @@
     "check": "npm run lint && npm run typecheck && npm run test",
     "release-build": "rm -rf build/* && NODE_ENV=production webpack --mode production",
     "release": "npm run check && npm run release-build",
-    "deploy": "npm run release && cp -r build/* docs/",
     "providedZip": "npm run release && cd build && zip -r ../jmh-visualizer.zip ./*"
   },
   "keywords": [
