@@ -51,9 +51,17 @@ html {
   --bs-btn-active-bg: #e6e6e6;
   --bs-btn-active-border-color: #adadad;
 }
-.btn-outline-secondary.btn-sm {
+
+/* Bootstrap 3's btn-sm sizing. */
+.btn-sm {
   --bs-btn-padding-x: 10px;
   --bs-btn-padding-y: 5px;
+  --bs-btn-font-size: 12px;
+  --bs-btn-border-radius: 3px;
+}
+.btn-sm + .dropdown-toggle-split {
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 /* Bootstrap 3 had no pressed style for menu items. */
