@@ -222,7 +222,7 @@ const config = {
       return { chartConfig: { ...state.chartConfig, logScale: !state.chartConfig.logScale } };
     },
     goBack: () => {
-      history.goBack();
+      history.back();
       return {};
     }
   }
@@ -308,7 +308,7 @@ export function isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, 
   );
 }
 
-history.listen((_location, action) => {
+history.listen(({ action }) => {
   if (action === 'POP') {
     actions.undetailBenchmarkBundle();
   }
