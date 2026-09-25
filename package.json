@@ -4,6 +4,7 @@
   "description": "Visualize the  results of your JMH benchmarks execution",
   "main": "index.jsx",
   "scripts": {
+    "start": "webpack serve --mode development --open",
     "watch": "webpack --mode development --watch",
     "build": "webpack --mode development",
     "lint": "biome check src test webpack.config.js",
@@ -70,6 +71,7 @@
     "style-loader": "^4.0.0",
     "url-loader": "^4.1.1",
     "webpack": "^5.111.1",
-    "webpack-cli": "^7.2.3"
+    "webpack-cli": "^7.2.3",
+    "webpack-dev-server": "^6.0.0"
   }
 }

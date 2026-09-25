@@ -2,8 +2,12 @@
 
 ## Commands
 
+- Dev server: `npm start` (webpack-dev-server on localhost, opens the
+  browser; serves from memory, not `build/`, and reloads the page on changes,
+  hot-swapping CSS without a reload)
 - Build (dev): `npm run build` (webpack --mode development)
-- Watch: `npm run watch`
+- Watch: `npm run watch` (rebuilds `build/` only; since `bundle.js` has no
+  content hash, a plain browser reload may show a cached copy)
 - Release build: `npm run release-build`
 - Lint: `npm run lint` (Biome — formatting + lint, no writes)
 - Format: `npm run format` (same checks as `lint`, but applies formatting,
