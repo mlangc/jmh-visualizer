@@ -11,7 +11,8 @@ e2e structurally can't pin.
 **Status:** `add-fixture-tests` and `add-filters-for-large-result-files` are
 both merged into `main`. The migration itself happens in its own feature
 branch/worktree off `main`. Merging back into `main` is planned once Step 3
-and the final checkpoint are done.
+and the final checkpoint are done. Progress: Step 1 and 2.a–2.g are done and
+Checkpoint 1 is signed off; next up is 2.h.
 
 ## Ground rules
 
@@ -95,7 +96,8 @@ Reviews — By Subagents" protocol:
 - Fresh subagent (not a fork) — an independent pair of eyes, not one that
   inherited the implementer's context.
 - Scoped to the diff since the previous checkpoint (or the start of the plan,
-  for the first one).
+  for the first one). Edits to this plan itself are not under review; the
+  plan is the brief to review against.
 - Briefed with what the step was trying to do, pointing it to this plan as the
   authoritative source of truth.
 - Explicitly handed any e2e/mocha test changes made in that span, with a
@@ -165,8 +167,7 @@ dedicated commit unless one turns out to be load-bearing somewhere.
   ~7 files).
 - **2.c** `react-toggle` — already resolves to its latest published version
   (`4.1.3`); check whether a newer one exists before assuming there's a bump
-  to make. Its peer range caps at `react < 19`, which bears on how far 2.h's
-  "latest major" can go — see Open Items.
+  to make. Its peer range caps at `react < 19`, so 2.h replaces it.
 - **2.d** `react-scroll` bump (`TocElement`/`TocLink`/`TocList`) — also
   already at latest (`1.9.3`) as of this writing; same caveat as 2.c.
 - **2.e** `d3-scale-chromatic` bump (now unblocked — Dependabot #42's
@@ -192,9 +193,16 @@ dedicated commit unless one turns out to be load-bearing somewhere.
   targets chart rendering (bar shapes/colors/tooltips) and Bootstrap-based
   layout/styling — the two things e2e structurally can't fully pin.
 
-- **2.h** React 16 → latest major + `react-dom` (`ReactDOM.render` →
-  `createRoot`; decide on StrictMode) — see Open Items on how far "latest"
-  goes given 2.c's `react-toggle` ceiling.
+  **Signed off** on 2026-09-25 at `abd12f0`.
+
+- **2.h** React 16 → 19 + `react-dom` (`ReactDOM.render` → `createRoot`).
+  React 18 is effectively unmaintained (last release 18.3.1, April 2024).
+  `react-toggle` caps its peer range at `react < 19`, so first, in its own
+  commit, replace it with react-bootstrap's `<Form.Check type="switch">`
+  (its only use is the "Sync Axis Scales" toggle in `SingleRunView.jsx`). The
+  switch looks different from `react-toggle`; that's accepted. No StrictMode:
+  it would flag the three `UNSAFE_componentWillReceiveProps` in
+  `Single`/`Two`/`MultiRunBundle.jsx`, and rewriting those is out of scope.
 - **2.i** `react-dropzone` 3.x → latest. Placed after 2.h deliberately: the
   latest release requires `react >= 18`. Not a children-render-prop rewrite
   (this app never used that API) — the real changes are `activeStyle`/
@@ -226,11 +234,12 @@ dedicated commit unless one turns out to be load-bearing somewhere.
   own commit: this directly touches the Back/Forward behavior
   `detail-screen.spec.ts` already pins.
 
-  **→ Checkpoint 2** (+ Opus review, end of Step 2). Confirms the React
+  **→ Checkpoint 2** (+ Opus review of `abd12f0..HEAD`, end of Step 2). Confirms the React
   major + store swap didn't change any state-transition or timing behavior
   (e.g. the documented ~540ms label-animation race) before Step 3 starts
   from a clean, human-confirmed base — deliberately not folded into Step 3,
   so a fix here stays in plain JS with nothing downstream depending on it yet.
+  Manual verification also covers the new "Sync Axis Scales" switch.
 
 ## Step 3 — TypeScript migration
 
@@ -264,15 +273,15 @@ dedicated commit unless one turns out to be load-bearing somewhere.
 
 ---
 
-## Open items to resolve during implementation, not now
+## Open items
 
-- Exact replacement choice for react-bootstrap (bump vs. swap to a different
-  library).
-- How far 2.h's React major bump actually goes: `react-toggle` (drives the
-  "Sync Axis Scales" toggle) has no release supporting React 19 and none
-  planned — stop at React 18, replace `react-toggle`, or force it past its
-  declared peer range.
-- Root Biome config layout: `../e2e` already has its own `biome.json` and its
-  own pinned Biome version in an isolated `node_modules` — decide whether a
-  root config extends it, stays standalone, or they get unified, and how the
-  two pinned versions avoid drifting apart.
+Resolved:
+
+- react-bootstrap: bumped to 2.x (Bootstrap 5), not swapped (2.g).
+- React: 19, replacing `react-toggle`, without StrictMode (see 2.h).
+- Root Biome config: standalone, targeting only `src`, `test` and
+  `webpack.config.js`; `../e2e` keeps its own (see `../CLAUDE.md`).
+
+Out of scope for this plan, possible later:
+
+- StrictMode, after rewriting the three `UNSAFE_componentWillReceiveProps`.
