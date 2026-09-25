@@ -1,12 +1,14 @@
 import { scaleOrdinal } from 'd3-scale';
 import { schemeCategory10 } from 'd3-scale-chromatic';
-import PropTypes from 'prop-types';
-import React from 'react';
+import type BenchmarkMethod from 'models/BenchmarkMethod.ts';
+import React, { type ReactElement } from 'react';
 import {
   CartesianGrid,
   ErrorBar,
   LabelList,
+  type LabelProps,
   Legend,
+  type LegendProps,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -17,27 +19,33 @@ import {
 
 const lineColors = scaleOrdinal(schemeCategory10).range();
 
-import MultiRunChartTooltip from 'components/multi/MultiRunChartTooltip.jsx';
+import MultiRunChartTooltip from 'components/multi/MultiRunChartTooltip.tsx';
 import { tickFormatter } from 'functions/charts.ts';
 import { tooltipBackground } from 'functions/colors.ts';
 import { formatNumber, round, shouldRound } from 'functions/util.ts';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
 
-export default class LineChartView extends React.Component {
-  static propTypes = {
-    runNames: PropTypes.array.isRequired,
-    benchmarkBundle: PropTypes.object.isRequired,
-    metricExtractor: PropTypes.object.isRequired,
-    logScale: PropTypes.bool.isRequired
-  };
+interface LineChartViewProps {
+  runNames: string[];
+  benchmarkBundle: BenchmarkBundle;
+  metricExtractor: MetricExtractor;
+  logScale: boolean;
+}
 
-  constructor(props) {
+interface LineChartViewState {
+  activeLine: string | null;
+}
+
+export default class LineChartView extends React.Component<LineChartViewProps, LineChartViewState> {
+  constructor(props: LineChartViewProps) {
     super(props);
     this.state = {
       activeLine: null
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: LineChartViewProps, nextState: LineChartViewState) {
     return (
       this.props.runNames[0] !== nextProps.runNames[0] ||
       this.props.benchmarkBundle.key !== nextProps.benchmarkBundle.key ||
@@ -47,11 +55,11 @@ export default class LineChartView extends React.Component {
     );
   }
 
-  activateLineFromLegend(params) {
-    this.activateLine(params.dataKey);
+  activateLineFromLegend(params: Parameters<NonNullable<LegendProps['onMouseEnter']>>[0]) {
+    this.activateLine(params.dataKey as string);
   }
 
-  activateLine(benchmarkMethodKey) {
+  activateLine(benchmarkMethodKey: string) {
     this.setState({
       activeLine: benchmarkMethodKey
     });
@@ -70,10 +78,10 @@ export default class LineChartView extends React.Component {
 
     // Omitted rather than undefined for linear: recharts merges its own defaultProps under
     // the given props, so an explicit undefined would override them.
-    const logScaleProps = logScale ? { scale: 'log', domain: ['auto', 'auto'] } : {};
+    const logScaleProps = logScale ? { scale: 'log' as const, domain: ['auto', 'auto'] } : {};
 
     const dataSet = runNames.map((runName, runIndex) => {
-      const runObject = {
+      const runObject: Record<string, unknown> = {
         name: runName
       };
       benchmarkBundle.benchmarkMethods.forEach((benchmarkMethod) => {
@@ -83,7 +91,7 @@ export default class LineChartView extends React.Component {
           const scoreError = round(metricExtractor.extractScoreError(benchmark), shouldRoundScores);
           const minMax = metricExtractor.extractMinMax(benchmark).map((minOrMax) => round(minOrMax, shouldRoundScores));
           const scoreUnit = metricExtractor.extractScoreUnit(benchmark);
-          let errorBarInterval = 0;
+          let errorBarInterval: number | number[] = 0;
           if (!isNaN(scoreError)) {
             errorBarInterval = [score - minMax[0], minMax[1] - score];
           }
@@ -105,7 +113,7 @@ export default class LineChartView extends React.Component {
         const isActive = activeLine === benchmarkMethod.key;
         const strokeWidth = isActive ? 7 : 3;
         const strokeOpacity = !activeLine || isActive ? 1 : 0.1;
-        let label, errorBarStrokeWIdth;
+        let label: ReactElement | undefined, errorBarStrokeWIdth: number;
         if (isActive) {
           label = (
             <LabelList
@@ -161,7 +169,7 @@ export default class LineChartView extends React.Component {
   }
 }
 
-function isInAllRuns(runNames, benchmarkMethod) {
+function isInAllRuns(runNames: string[], benchmarkMethod: BenchmarkMethod) {
   for (let index = 0; index < runNames.length; index++) {
     if (!benchmarkMethod.benchmarks[index]) {
       return false;
@@ -170,11 +178,12 @@ function isInAllRuns(runNames, benchmarkMethod) {
   return true;
 }
 
-function Label(params) {
+// LabelList passes x and y as numbers, although its typings would allow strings too
+function Label(params: LabelProps & { runCount: number; shouldRoundScores: boolean }) {
   if (!params.value) {
     return null;
   }
-  let textAnchor;
+  let textAnchor: 'start' | 'end' | 'middle';
   if (params.index === 0) {
     textAnchor = 'start';
   } else if (params.index === params.runCount - 1) {
@@ -187,14 +196,14 @@ function Label(params) {
     <text
       key={params.index}
       x={params.x}
-      y={params.y - 20}
+      y={(params.y as number) - 20}
       width={params.width}
       height={params.height}
       textAnchor={textAnchor}
       fontSize="11"
       stroke={params.stroke}
     >
-      {formatNumber(value, params.shouldRoundScores)}
+      {formatNumber(value as number, params.shouldRoundScores)}
     </text>
   );
 }

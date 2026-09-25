@@ -1,9 +1,14 @@
+import type { BenchmarkDiff } from 'components/summary/SummaryView.tsx';
 import { blue, green, red, tooltipBackground, yellow } from 'functions/colors.ts';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
-/* eslint react/prop-types: 0 */
+interface SummaryChangeChartProps {
+  benchmarkDiffs: BenchmarkDiff[];
+  minDeviation: number;
+}
+
 // A Pie chart giving a quick overview on number of increases/decreases/no-change from run1 vs run2
-const SummaryChangeChart = ({ benchmarkDiffs, minDeviation }) => {
+const SummaryChangeChart = ({ benchmarkDiffs, minDeviation }: SummaryChangeChartProps) => {
   const chartData = benchmarkDiffs.reduce(
     (changeTracker, benchmarkDiff) => {
       if (benchmarkDiff.scoreDiff < -minDeviation) {

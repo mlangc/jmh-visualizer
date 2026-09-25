@@ -1,21 +1,29 @@
 import ChartHeader from 'components/ChartHeader.tsx';
 import { DetailsButton, ScaleButton, SortButton } from 'components/Icons.tsx';
-import BarChartView from 'components/single/BarChartView.jsx';
-import PropTypes from 'prop-types';
+import BarChartView from 'components/single/BarChartView.tsx';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
+import type { ChartConfig } from 'store/store.ts';
+
+interface SingleRunBundleProps {
+  benchmarkBundle: BenchmarkBundle;
+  metricExtractor: MetricExtractor;
+  chartConfig: ChartConfig;
+  dataMax?: number;
+}
+
+interface SingleRunBundleState {
+  sort: boolean;
+  logScale: boolean;
+  showJson: boolean;
+}
 
 // The view for a bunch of benchmarks, usually all of a benchmark class
-export default class SingleRunBundle extends React.Component {
-  static propTypes = {
-    benchmarkBundle: PropTypes.object.isRequired,
-    metricExtractor: PropTypes.object.isRequired,
-    chartConfig: PropTypes.object.isRequired,
-    dataMax: PropTypes.number
-  };
-
-  constructor(props) {
+export default class SingleRunBundle extends React.Component<SingleRunBundleProps, SingleRunBundleState> {
+  constructor(props: SingleRunBundleProps) {
     super(props);
     this.state = {
       sort: props.chartConfig.sort,
@@ -24,7 +32,7 @@ export default class SingleRunBundle extends React.Component {
     };
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: SingleRunBundleProps) {
     if (nextProps.chartConfig.sort !== this.state.sort) {
       this.setState({ sort: nextProps.chartConfig.sort });
     }

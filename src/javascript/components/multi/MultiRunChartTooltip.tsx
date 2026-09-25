@@ -1,30 +1,24 @@
 import { blue, red } from 'functions/colors.ts';
 import { formatNumber } from 'functions/util.ts';
-import PropTypes from 'prop-types';
 import { Component } from 'react';
 import Table from 'react-bootstrap/Table';
+import type { TooltipProps } from 'recharts';
+
+// label and payload are injected by recharts' Tooltip
+interface MultiRunChartTooltipProps {
+  label?: string;
+  roundScores: boolean;
+  payload?: TooltipProps<number, string>['payload'];
+}
 
 // Tooltip for LineChartView
-export default class MultiRunChartTooltip extends Component {
-  static propTypes = {
-    label: PropTypes.any,
-    roundScores: PropTypes.bool,
-    payload: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.any,
-        payload: PropTypes.any,
-        value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-        unit: PropTypes.any
-      })
-    )
-  };
-
+export default class MultiRunChartTooltip extends Component<MultiRunChartTooltipProps> {
   render() {
     const { label, payload, roundScores } = this.props;
-    if (payload.length === 0) {
+    if (payload!.length === 0) {
       return null;
     }
-    const tableRows = payload.map((dataPoint) => (
+    const tableRows = payload!.map((dataPoint) => (
       <tr key={dataPoint.name}>
         <td>{dataPoint.name}</td>
         <td style={{ color: blue }}>{formatNumber(dataPoint.value, roundScores)}</td>

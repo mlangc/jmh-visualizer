@@ -1,10 +1,10 @@
 import DetailSideBar from 'components/DetailSideBar.tsx';
-import DetailView from 'components/DetailView.jsx';
+import DetailView from 'components/DetailView.tsx';
 import { ScaleButton, SortButton } from 'components/Icons.tsx';
 import SplitPane from 'components/lib/SplitPane.tsx';
-import LineChartView from 'components/multi/LineChartView.jsx';
-import BarChartView from 'components/single/BarChartView.jsx';
-import DiffBarChartView from 'components/two/DiffBarChartView.jsx';
+import LineChartView from 'components/multi/LineChartView.tsx';
+import BarChartView from 'components/single/BarChartView.tsx';
+import DiffBarChartView from 'components/two/DiffBarChartView.tsx';
 import { filterBenchmarkBundle } from 'functions/benchmarkFilter.ts';
 import { parseClassNameFromFullName } from 'functions/parse.ts';
 import BenchmarkBundle from 'models/BenchmarkBundle.ts';

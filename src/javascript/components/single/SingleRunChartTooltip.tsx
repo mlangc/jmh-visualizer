@@ -1,27 +1,20 @@
-import BarTooltipLabel from 'components/single/BarTooltipLabel.jsx';
+import BarTooltipLabel from 'components/single/BarTooltipLabel.tsx';
 import { blue, red } from 'functions/colors.ts';
 import { formatNumber, round } from 'functions/util.ts';
-import PropTypes from 'prop-types';
-import { Component } from 'react';
+import { Component, type ReactNode } from 'react';
 import Table from 'react-bootstrap/Table';
-import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, LabelList, type TooltipProps, XAxis, YAxis } from 'recharts';
 
-export default class SingleRunChartTooltip extends Component {
-  static propTypes = {
-    label: PropTypes.any,
-    paramNames: PropTypes.array,
-    scoreUnit: PropTypes.string,
-    roundScores: PropTypes.bool,
-    payload: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.any,
-        payload: PropTypes.any,
-        value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-        unit: PropTypes.any
-      })
-    )
-  };
+// label and payload are injected by recharts' Tooltip
+interface SingleRunChartTooltipProps {
+  label?: string;
+  paramNames: string[];
+  scoreUnit: string | undefined;
+  roundScores: boolean;
+  payload?: TooltipProps<number, string>['payload'];
+}
 
+export default class SingleRunChartTooltip extends Component<SingleRunChartTooltipProps> {
   render() {
     const { label, payload, scoreUnit, roundScores, paramNames } = this.props;
     if (!payload || payload.length === 0) {
@@ -29,7 +22,7 @@ export default class SingleRunChartTooltip extends Component {
     }
 
     // Assemble table headers showing score, error, etc...
-    const tableHeaders = [];
+    const tableHeaders: ReactNode[] = [];
     if (payload.length > 1) {
       tableHeaders.push(<th key="1">{paramNames.join(':')}</th>);
     }
@@ -41,11 +34,11 @@ export default class SingleRunChartTooltip extends Component {
 
     // Assemble table rows showing score, error, etc... per bar
     const tableRows = payload.map((barPayload) => {
-      const score = formatNumber(barPayload.payload[barPayload.dataKey], roundScores);
+      const score = formatNumber(barPayload.payload[barPayload.dataKey!], roundScores);
       const minMax = barPayload.payload[`${barPayload.dataKey}MinMax`];
       const min = formatNumber(minMax[0], roundScores);
       const max = formatNumber(minMax[1], roundScores);
-      const columnValues = [];
+      const columnValues: ReactNode[] = [];
       if (payload.length > 1) {
         columnValues.push(<td key="run">{barPayload.dataKey}</td>);
       }
@@ -75,8 +68,9 @@ export default class SingleRunChartTooltip extends Component {
 
     //Assemble iteration charts showing the raw iteration data per run
     const iterationCharts = payload.map((barPayload) => {
-      const forkScores = barPayload.payload[`${barPayload.dataKey}SubScores`];
-      const forkHistograms = barPayload.payload[`${barPayload.dataKey}SubScoresHistogram`];
+      const forkScores: number[][] | undefined = barPayload.payload[`${barPayload.dataKey}SubScores`];
+      const forkHistograms: [number, number][][][] | undefined =
+        barPayload.payload[`${barPayload.dataKey}SubScoresHistogram`];
       if (forkHistograms) {
         const tooltipWidth = forkHistograms[0].length * 54;
         return forkHistograms

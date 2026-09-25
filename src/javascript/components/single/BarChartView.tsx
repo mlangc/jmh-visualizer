@@ -1,9 +1,10 @@
-import { createDataSetFromBenchmarks } from 'components/single/BarDataSet.js';
-import BarLabel from 'components/single/BarLabel.jsx';
-import SingleRunChartTooltip from 'components/single/SingleRunChartTooltip.jsx';
+import { createDataSetFromBenchmarks } from 'components/single/BarDataSet.ts';
+import BarLabel from 'components/single/BarLabel.tsx';
+import SingleRunChartTooltip from 'components/single/SingleRunChartTooltip.tsx';
 import { tickFormatter } from 'functions/charts.ts';
 import { barColors, blue, green, lightBlack, tooltipBackground } from 'functions/colors.ts';
-import PropTypes from 'prop-types';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
 import React from 'react';
 import {
   Bar,
@@ -17,23 +18,24 @@ import {
   XAxis,
   YAxis
 } from 'recharts';
+import type { ChartConfig } from 'store/store.ts';
+
+interface BarChartViewProps {
+  benchmarkBundle: BenchmarkBundle;
+  metricExtractor: MetricExtractor;
+  dataMax?: number;
+  chartConfig: ChartConfig;
+}
 
 // Gathered report for one benchmark class
-export default class BarChartView extends React.Component {
-  static propTypes = {
-    benchmarkBundle: PropTypes.object.isRequired,
-    metricExtractor: PropTypes.object.isRequired,
-    dataMax: PropTypes.number,
-    chartConfig: PropTypes.object.isRequired
-  };
-
+export default class BarChartView extends React.Component<BarChartViewProps> {
   render() {
     const { benchmarkBundle, metricExtractor, dataMax, chartConfig } = this.props;
     const { logScale, sort } = chartConfig;
     const dataSet = createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, sort);
 
     const domainMax = dataMax && dataMax > 0 ? Math.round(dataMax) : 'auto';
-    let scale, domainMin, chartMarginRight;
+    let scale: 'log' | 'linear', domainMin: number | 'auto', chartMarginRight: number;
     if (logScale) {
       scale = 'log';
       domainMin = dataMax && dataMax > 0 ? 0.1 : 'auto';
@@ -86,10 +88,15 @@ export default class BarChartView extends React.Component {
             <YAxis dataKey="name" type="category" />
             <CartesianGrid strokeDasharray="3 3" />
             <Tooltip
-              content={<SingleRunChartTooltip scoreUnit={dataSet.scoreUnit} roundScores={dataSet.roundScores} />}
+              content={
+                <SingleRunChartTooltip
+                  scoreUnit={dataSet.scoreUnit}
+                  roundScores={dataSet.roundScores}
+                  paramNames={paramNames}
+                />
+              }
               cursor={{ stroke: green, strokeWidth: 2 }}
               wrapperStyle={{ backgroundColor: tooltipBackground, opacity: 0.95 }}
-              paramNames={paramNames}
             />
             <Legend />
             {bars}

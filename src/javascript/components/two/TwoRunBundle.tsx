@@ -1,21 +1,29 @@
 import ChartHeader from 'components/ChartHeader.tsx';
 import { DetailsButton, SortButton } from 'components/Icons.tsx';
-import DiffBarChartView from 'components/two/DiffBarChartView.jsx';
-import PropTypes from 'prop-types';
+import DiffBarChartView from 'components/two/DiffBarChartView.tsx';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
+import type { ChartConfig } from 'store/store.ts';
+
+interface TwoRunBundleProps {
+  runNames: string[];
+  benchmarkBundle: BenchmarkBundle;
+  metricExtractor: MetricExtractor;
+  chartConfig: ChartConfig;
+}
+
+interface TwoRunBundleState {
+  sort: boolean;
+  showJson1: boolean;
+  showJson2: boolean;
+}
 
 // The view for a bunch of benchmarks, usually all of a benchmark class
-export default class TwoRunBundle extends React.Component {
-  static propTypes = {
-    runNames: PropTypes.array.isRequired,
-    benchmarkBundle: PropTypes.object.isRequired,
-    metricExtractor: PropTypes.object.isRequired,
-    chartConfig: PropTypes.object.isRequired
-  };
-
-  constructor(props) {
+export default class TwoRunBundle extends React.Component<TwoRunBundleProps, TwoRunBundleState> {
+  constructor(props: TwoRunBundleProps) {
     super(props);
     this.state = {
       sort: props.chartConfig.sort,
@@ -24,7 +32,7 @@ export default class TwoRunBundle extends React.Component {
     };
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: TwoRunBundleProps) {
     if (nextProps.chartConfig.sort !== this.state.sort) {
       this.setState({ sort: nextProps.chartConfig.sort });
     }
@@ -56,8 +64,8 @@ export default class TwoRunBundle extends React.Component {
 
     const benchmarks1 = benchmarkBundle.benchmarksFromRun(0);
     const benchmarks2 = benchmarkBundle.benchmarksFromRun(1);
-    const newBenchmarks = [];
-    const removedBenchmarks = [];
+    const newBenchmarks: string[] = [];
+    const removedBenchmarks: string[] = [];
     let hasSomethingToCompare = false;
     benchmarkBundle.benchmarkMethods.forEach((benchmarkMethod) => {
       if (benchmarkMethod.benchmarks[0] === null || !metricExtractor.hasMetric(benchmarkMethod.benchmarks[0])) {

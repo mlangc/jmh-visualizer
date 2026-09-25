@@ -1,26 +1,32 @@
 import ChartHeader from 'components/ChartHeader.tsx';
 import { DetailsButton, ScaleButton } from 'components/Icons.tsx';
-import LineChartView from 'components/multi/LineChartView.jsx';
-import PropTypes from 'prop-types';
+import LineChartView from 'components/multi/LineChartView.tsx';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
 import React from 'react';
+import type { ChartConfig } from 'store/store.ts';
+
+interface MultiRunBundleProps {
+  runNames: string[];
+  benchmarkBundle: BenchmarkBundle;
+  metricExtractor: MetricExtractor;
+  chartConfig: ChartConfig;
+}
+
+interface MultiRunBundleState {
+  logScale: boolean;
+}
 
 // The view for a bunch of benchmarks, usually all of a benchmark class
-export default class MultiRunBundle extends React.Component {
-  static propTypes = {
-    runNames: PropTypes.array.isRequired,
-    benchmarkBundle: PropTypes.object.isRequired,
-    metricExtractor: PropTypes.object.isRequired,
-    chartConfig: PropTypes.object.isRequired
-  };
-
-  constructor(props) {
+export default class MultiRunBundle extends React.Component<MultiRunBundleProps, MultiRunBundleState> {
+  constructor(props: MultiRunBundleProps) {
     super(props);
     this.state = {
       logScale: props.chartConfig.logScale
     };
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: MultiRunBundleProps) {
     if (nextProps.chartConfig.logScale !== this.state.logScale) {
       this.setState({ logScale: nextProps.chartConfig.logScale });
     }

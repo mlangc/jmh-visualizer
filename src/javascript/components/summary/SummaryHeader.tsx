@@ -5,11 +5,21 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import '@appigram/react-rangeslider/lib/index.css';
 
-import SummaryChangeChart from 'components/summary/SummaryChangeChart.jsx';
-import SummaryChangeLevelChart from 'components/summary/SummaryChangeLevelChart.jsx';
-import SummaryHistogramChart from 'components/summary/SummaryHistogramChart.jsx';
+import SummaryChangeChart from 'components/summary/SummaryChangeChart.tsx';
+import SummaryChangeLevelChart from 'components/summary/SummaryChangeLevelChart.tsx';
+import SummaryHistogramChart from 'components/summary/SummaryHistogramChart.tsx';
+import type { BenchmarkDiff } from 'components/summary/SummaryView.tsx';
 
-/* eslint react/prop-types: 0 */
+interface SummaryHeaderProps {
+  benchmarkDiffs: BenchmarkDiff[];
+  minDeviation: number;
+  runName1: string;
+  runName2: string;
+  metricKey: string;
+  numberOfBenchmarkBundles: number;
+  changeMinDeviationFunction: (minDeviation: number) => void;
+}
+
 const SummaryHeader = ({
   benchmarkDiffs,
   minDeviation,
@@ -18,7 +28,7 @@ const SummaryHeader = ({
   metricKey,
   numberOfBenchmarkBundles,
   changeMinDeviationFunction
-}) => {
+}: SummaryHeaderProps) => {
   return (
     <Container fluid={true}>
       <Row>

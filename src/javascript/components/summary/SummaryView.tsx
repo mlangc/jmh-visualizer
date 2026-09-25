@@ -1,27 +1,47 @@
-import SummaryHeader from 'components/summary/SummaryHeader.jsx';
-import SummaryTable from 'components/summary/SummaryTable.jsx';
+import SummaryHeader from 'components/summary/SummaryHeader.tsx';
+import SummaryTable from 'components/summary/SummaryTable.tsx';
 import { flatten, round, shouldRound } from 'functions/util.ts';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type BenchmarkMethod from 'models/BenchmarkMethod.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
 import { getMetricType } from 'models/MetricType.ts';
-import PropTypes from 'prop-types';
 import React from 'react';
 
-export default class SummaryView extends React.Component {
-  static propTypes = {
-    runNames: PropTypes.array.isRequired,
-    benchmarkBundles: PropTypes.array.isRequired,
-    runIndex: PropTypes.array.isRequired,
-    minDeviation: PropTypes.number.isRequired,
-    metricExtractor: PropTypes.object.isRequired
-  };
+// How one benchmark method changed between the two compared runs
+export interface BenchmarkDiff {
+  bundleKey: string;
+  bundleName: string;
+  benchmarkMethod: BenchmarkMethod;
+  score1stRun: number;
+  score2ndRun: number;
+  scoreError1stRun: number;
+  scoreError2ndRun: number;
+  scoreUnit: string;
+  scoreDiff: number;
+  scoreErrorDiff: number;
+}
 
-  constructor(props) {
+interface SummaryViewProps {
+  runNames: string[];
+  benchmarkBundles: BenchmarkBundle[];
+  runIndex: [number, number];
+  minDeviation: number;
+  metricExtractor: MetricExtractor;
+}
+
+interface SummaryViewState {
+  minDeviation: number;
+}
+
+export default class SummaryView extends React.Component<SummaryViewProps, SummaryViewState> {
+  constructor(props: SummaryViewProps) {
     super(props);
     this.state = {
       minDeviation: this.props.minDeviation
     };
   }
 
-  changeMinDeviation(number) {
+  changeMinDeviation(number: number) {
     if (number !== this.state.minDeviation) {
       this.setState({
         minDeviation: number
@@ -36,7 +56,7 @@ export default class SummaryView extends React.Component {
     const benchmarkDiffs = flatten(
       benchmarkBundles.map((benchmarkBundle) =>
         benchmarkBundle.benchmarkMethods
-          .map((benchmarkMethod) => {
+          .map((benchmarkMethod): BenchmarkDiff | undefined => {
             const shouldRoundScores = shouldRound(benchmarkBundle.benchmarkMethods, metricExtractor);
             const firstRunBenchmark = benchmarkMethod.benchmarks[runIndex[0]];
             const secondRunBenchmark = benchmarkMethod.benchmarks[runIndex[1]];
@@ -54,7 +74,7 @@ export default class SummaryView extends React.Component {
               const scoreError2ndRun = round(metricExtractor.extractScoreError(secondRunBenchmark), shouldRoundScores);
               const scoreUnit = metricExtractor.extractScoreUnit(firstRunBenchmark);
 
-              let scoreDiff;
+              let scoreDiff: number;
               if (metricType?.increaseIsGood) {
                 // i.e. for throughput decrease is an increase, its worse basically
                 scoreDiff = round(((score2ndRun - score1stRun) / score1stRun) * 100, shouldRoundScores);

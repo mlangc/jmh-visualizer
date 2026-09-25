@@ -1,9 +1,9 @@
 import { ScaleButton, SortButton } from 'components/Icons.tsx';
 import SplitPane from 'components/lib/SplitPane.tsx';
-import MultiRunView from 'components/multi/MultiRunView.jsx';
+import MultiRunView from 'components/multi/MultiRunView.tsx';
 import RunSideBar from 'components/RunSideBar.tsx';
-import SingleRunView from 'components/single/SingleRunView.jsx';
-import TwoRunsView from 'components/two/TwoRunsView.jsx';
+import SingleRunView from 'components/single/SingleRunView.tsx';
+import TwoRunsView from 'components/two/TwoRunsView.tsx';
 import { filterBenchmarkBundle } from 'functions/benchmarkFilter.ts';
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
 import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.ts';

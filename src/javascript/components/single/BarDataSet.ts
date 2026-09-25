@@ -1,6 +1,29 @@
+// A row of a BarChart: its name plus score, error, etc. per bar group
+export interface BarDataPoint {
+  index: number;
+  name: string;
+  [barGroupKey: string]: unknown;
+}
+
 // A dataset for a BarChart
 export default class BarDataSet {
-  constructor(options) {
+  metricKey: string;
+  scoreUnit: string | undefined;
+  barGroups: string[];
+  data: BarDataPoint[];
+  dataMax: number;
+  roundScores: boolean;
+  paramNames: string[];
+
+  constructor(options: {
+    metricKey: string;
+    scoreUnit: string | undefined;
+    barGroups: string[];
+    data: BarDataPoint[];
+    dataMax: number;
+    roundScores: boolean;
+    paramNames: string[];
+  }) {
     this.metricKey = options.metricKey;
     this.scoreUnit = options.scoreUnit;
     this.barGroups = options.barGroups;
@@ -12,6 +35,10 @@ export default class BarDataSet {
 }
 
 import { formatNumber, groupBy, round, shouldRound } from 'functions/util.ts';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type BenchmarkMethod from 'models/BenchmarkMethod.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
+import type MetricType from 'models/MetricType.ts';
 import { getMetricType } from 'models/MetricType.ts';
 
 // The datasets will differ in case the benchmark-class uses params or not:
@@ -21,13 +48,17 @@ import { getMetricType } from 'models/MetricType.ts';
 // 3 - 2 params, single methods => convert to (2)
 // 4 - 2+ params, multi methods => combine params & convert to (2)
 // 5 - 3+ params, single methods => combine params & convert to (0)
-export function createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, sort) {
+export function createDataSetFromBenchmarks(
+  benchmarkBundle: BenchmarkBundle,
+  metricExtractor: MetricExtractor,
+  sort: boolean
+) {
   const benchmarkMethods = benchmarkBundle.benchmarkMethods;
   const methodCount = benchmarkBundle.methodNames.length;
-  const metricType = metricExtractor.extractType(benchmarkMethods[0].benchmarks[0]);
+  const metricType = metricExtractor.extractType(benchmarkMethods[0].benchmarks[0]!);
   const params = benchmarkMethods[0].params; //TODO get from collection as well ?
-  const scoreUnit = metricExtractor.hasMetric(benchmarkMethods[0].benchmarks[0])
-    ? metricExtractor.extractScoreUnit(benchmarkMethods[0].benchmarks[0])
+  const scoreUnit = metricExtractor.hasMetric(benchmarkMethods[0].benchmarks[0]!)
+    ? metricExtractor.extractScoreUnit(benchmarkMethods[0].benchmarks[0]!)
     : '';
 
   if (!params) {
@@ -50,7 +81,7 @@ export function createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, so
           benchmarkMethods,
           metricExtractor,
           sort,
-          (method) => `${method.params[0][0]} =  ${method.params[0][1]}`,
+          (method) => `${method.params![0][0]} =  ${method.params![0][1]}`,
           () => `${metricType} ${scoreUnit}`,
           []
         );
@@ -80,8 +111,8 @@ export function createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, so
         benchmarkMethods,
         metricExtractor,
         sort,
-        (method) => `${method.params[0][0]} = ${method.params[0][1]}`,
-        (method) => method.params[1][1],
+        (method) => `${method.params![0][0]} = ${method.params![0][1]}`,
+        (method) => method.params![1][1],
         [paramNames[1]]
       );
     } else {
@@ -92,7 +123,7 @@ export function createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, so
           metricExtractor,
           sort,
           (method) => method.name,
-          (method) => method.params.map((param) => param[1]).join(':'),
+          (method) => method.params!.map((param) => param[1]).join(':'),
           paramNames
         );
       } else {
@@ -102,7 +133,7 @@ export function createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, so
           benchmarkMethods,
           metricExtractor,
           sort,
-          (method) => method.params.map((param) => param[1]).join(':'),
+          (method) => method.params!.map((param) => param[1]).join(':'),
           () => barName,
           []
         );
@@ -112,26 +143,33 @@ export function createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, so
 }
 
 //Each benchmark can have multiple bar's attached
-function createBarDataSet(benchmarkMethods, metricExtractor, sort, groupFunction, barGroupFunction, paramNames) {
+function createBarDataSet(
+  benchmarkMethods: BenchmarkMethod[],
+  metricExtractor: MetricExtractor,
+  sort: boolean,
+  groupFunction: (method: BenchmarkMethod) => string,
+  barGroupFunction: (method: BenchmarkMethod) => string,
+  paramNames: string[]
+) {
   var dataMax = 0;
-  var scoreUnit;
+  var scoreUnit: string | undefined;
   const shouldRoundScores = shouldRound(benchmarkMethods, metricExtractor);
   const groupedBenchmarks = groupBy(benchmarkMethods, groupFunction);
-  const barGroups = new Set();
-  let metricType;
+  const barGroups = new Set<string>();
+  let metricType: MetricType | undefined;
   const data = groupedBenchmarks.map((benchmarkGroup, i) => {
     const benchmarkName = benchmarkGroup.key;
-    const dataObject = {
+    const dataObject: BarDataPoint = {
       index: i,
       name: benchmarkName
     };
     benchmarkGroup.values.forEach((benchmarkMethod) => {
-      const [benchmark] = benchmarkMethod.benchmarks;
+      const benchmark = benchmarkMethod.benchmarks[0]!;
       if (metricExtractor.hasMetric(benchmark)) {
         const score = round(metricExtractor.extractScore(benchmark), shouldRoundScores);
         const minMax = metricExtractor.extractMinMax(benchmark).map((minOrMax) => round(minOrMax, shouldRoundScores));
         const scoreError = round(metricExtractor.extractScoreError(benchmark), shouldRoundScores);
-        let errorBarInterval = 0;
+        let errorBarInterval: number | number[] = 0;
         if (!isNaN(scoreError)) {
           errorBarInterval = [score - minMax[0], minMax[1] - score];
         }
@@ -161,12 +199,12 @@ function createBarDataSet(benchmarkMethods, metricExtractor, sort, groupFunction
   });
 
   if (sort && metricType && barGroups.size === 1) {
-    const scoreKey = barGroups.values().next().value;
+    const scoreKey = barGroups.values().next().value as string;
     data.sort((a, b) => {
-      if (metricType.increaseIsGood) {
-        return b[scoreKey] - a[scoreKey];
+      if (metricType!.increaseIsGood) {
+        return (b[scoreKey] as number) - (a[scoreKey] as number);
       } else {
-        return a[scoreKey] - b[scoreKey];
+        return (a[scoreKey] as number) - (b[scoreKey] as number);
       }
     });
   }

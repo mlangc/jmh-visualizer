@@ -1,22 +1,28 @@
 import Tooltipped from 'components/lib/Tooltipped.tsx';
-import SingleRunBundle from 'components/single/SingleRunBundle.jsx';
+import SingleRunBundle from 'components/single/SingleRunBundle.tsx';
 import TocElement from 'components/TocElement.tsx';
 import { getUniqueBenchmarkModesAccrossBundles } from 'functions/parse.ts';
-import PropTypes from 'prop-types';
-import React from 'react';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
+import React, { type ReactNode } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Form from 'react-bootstrap/Form';
+import type { ChartConfig } from 'store/store.ts';
 
-export default class SingleRunView extends React.Component {
-  static propTypes = {
-    runName: PropTypes.string.isRequired,
-    benchmarkBundles: PropTypes.array.isRequired,
-    focusedBundles: PropTypes.object.isRequired,
-    metricExtractor: PropTypes.object.isRequired,
-    chartConfig: PropTypes.object.isRequired
-  };
+interface SingleRunViewProps {
+  runName: string;
+  benchmarkBundles: BenchmarkBundle[];
+  focusedBundles: Set<string>;
+  metricExtractor: MetricExtractor;
+  chartConfig: ChartConfig;
+}
 
-  constructor(props) {
+interface SingleRunViewState {
+  axisScalesSync: boolean;
+}
+
+export default class SingleRunView extends React.Component<SingleRunViewProps, SingleRunViewState> {
+  constructor(props: SingleRunViewProps) {
     super(props);
     this.state = {
       axisScalesSync: true
@@ -33,8 +39,8 @@ export default class SingleRunView extends React.Component {
     const { runName, focusedBundles, benchmarkBundles, metricExtractor, chartConfig } = this.props;
     const { axisScalesSync } = this.state;
 
-    let synchronizeAxisScalesToggle;
-    let dataMax;
+    let synchronizeAxisScalesToggle: ReactNode;
+    let dataMax: number | undefined;
     if (focusedBundles.size > 1) {
       const benchmarkModes = getUniqueBenchmarkModesAccrossBundles(benchmarkBundles, metricExtractor);
       const axisScalesSyncPossible = benchmarkModes.length === 1;
@@ -58,13 +64,13 @@ export default class SingleRunView extends React.Component {
         dataMax = 0;
         benchmarkBundles.forEach((benchmarkBundle) => {
           benchmarkBundle.allBenchmarks().forEach((benchmark) => {
-            dataMax = Math.max(dataMax, metricExtractor.extractMinMax(benchmark)[1]);
+            dataMax = Math.max(dataMax!, metricExtractor.extractMinMax(benchmark)[1]);
           });
         });
       }
     }
 
-    const elements = [];
+    const elements: ReactNode[] = [];
     elements.push(
       <div key="summary" style={{ position: 'relative' }}>
         <Badge bg="secondary">{benchmarkBundles.length}</Badge>

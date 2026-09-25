@@ -1,7 +1,18 @@
 import { yellow } from 'functions/colors.ts';
-import PropTypes from 'prop-types';
+import type { LabelProps } from 'recharts';
 
-export default function DiffLabel({ x, y, width, height, value, textAnchor }) {
+interface DiffLabelProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  value: number;
+  textAnchor: LabelProps['textAnchor'];
+}
+
+// LabelList passes numbers, although its typings would allow strings too
+export default function DiffLabel(props: LabelProps) {
+  const { x, y, width, height, value, textAnchor } = props as DiffLabelProps;
   const xPosShift = value > 0 ? 6 : -(value.toString().length * 7);
   const xPos = x + width + xPosShift;
   return (
@@ -22,12 +33,3 @@ export default function DiffLabel({ x, y, width, height, value, textAnchor }) {
     </g>
   );
 }
-
-DiffLabel.propTypes = {
-  x: PropTypes.number.isRequired,
-  y: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-  value: PropTypes.string.isRequired,
-  textAnchor: PropTypes.string.isRequired
-};

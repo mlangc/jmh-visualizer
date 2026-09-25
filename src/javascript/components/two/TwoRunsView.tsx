@@ -1,21 +1,23 @@
 import TocElement from 'components/TocElement.tsx';
-import TwoRunBundle from 'components/two/TwoRunBundle.jsx';
-import PropTypes from 'prop-types';
-import React from 'react';
+import TwoRunBundle from 'components/two/TwoRunBundle.tsx';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
+import React, { type ReactNode } from 'react';
 import Badge from 'react-bootstrap/Badge';
+import type { ChartConfig } from 'store/store.ts';
 
-export default class TwoRunsView extends React.Component {
-  static propTypes = {
-    runNames: PropTypes.array.isRequired,
-    benchmarkBundles: PropTypes.array.isRequired,
-    metricExtractor: PropTypes.object.isRequired,
-    chartConfig: PropTypes.object.isRequired
-  };
+interface TwoRunsViewProps {
+  runNames: string[];
+  benchmarkBundles: BenchmarkBundle[];
+  metricExtractor: MetricExtractor;
+  chartConfig: ChartConfig;
+}
 
+export default class TwoRunsView extends React.Component<TwoRunsViewProps> {
   render() {
     const { runNames, benchmarkBundles, metricExtractor, chartConfig } = this.props;
 
-    const elements = [];
+    const elements: ReactNode[] = [];
     elements.push(
       <div key="summary">
         Comparing <Badge bg="secondary">{benchmarkBundles.length}</Badge> benchmark classes for &#39;

@@ -1,5 +1,5 @@
+import type { BenchmarkDiff } from 'components/summary/SummaryView.tsx';
 import { blue, green, red, yellow } from 'functions/colors.ts';
-import PropTypes from 'prop-types';
 import React from 'react';
 import {
   Bar,
@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  type LegendProps,
   ReferenceLine,
   ResponsiveContainer,
   Surface,
@@ -16,20 +17,37 @@ import {
   YAxis
 } from 'recharts';
 
-/* eslint react/prop-types: 0 */
-class SummaryHistogramChart extends React.Component {
-  static propTypes = {
-    benchmarkDiffs: PropTypes.array.isRequired
-  };
+interface SummaryHistogramChartProps {
+  benchmarkDiffs: BenchmarkDiff[];
+}
 
-  constructor(props) {
+interface SummaryHistogramChartState {
+  disabledLabels: string[];
+}
+
+interface HistogramDataPoint {
+  idx: number;
+  name: string;
+  scoreDiff: number;
+  errorDiff: number;
+  score1stRun: number;
+  score2ndRun: number;
+  scoreError1stRun: number;
+  scoreError2ndRun: number;
+  scoreUnit: string;
+}
+
+type LegendPayload = NonNullable<LegendProps['payload']>;
+
+class SummaryHistogramChart extends React.Component<SummaryHistogramChartProps, SummaryHistogramChartState> {
+  constructor(props: SummaryHistogramChartProps) {
     super(props);
     this.state = {
       disabledLabels: ['errorDiff']
     };
   }
 
-  switchLabelActivation(dataKey) {
+  switchLabelActivation(dataKey: string) {
     if (this.state.disabledLabels.includes(dataKey)) {
       this.setState({
         disabledLabels: this.state.disabledLabels.filter((obj) => obj !== dataKey)
@@ -43,17 +61,19 @@ class SummaryHistogramChart extends React.Component {
     const { benchmarkDiffs } = this.props;
     const { disabledLabels } = this.state;
 
-    const data = benchmarkDiffs.map((benchmarkDiff, i) => ({
-      idx: i,
-      name: `${benchmarkDiff.bundleName}#${benchmarkDiff.benchmarkMethod.name}(${benchmarkDiff.benchmarkMethod.params ? benchmarkDiff.benchmarkMethod.params.map((param) => `${param[0]}=${param[1]}`).join(':') : ''})`,
-      scoreDiff: Math.max(-100, Math.min(100, benchmarkDiff.scoreDiff)),
-      errorDiff: Math.max(-100, Math.min(100, benchmarkDiff.scoreErrorDiff)),
-      score1stRun: benchmarkDiff.score1stRun,
-      score2ndRun: benchmarkDiff.score2ndRun,
-      scoreError1stRun: benchmarkDiff.scoreError1stRun,
-      scoreError2ndRun: benchmarkDiff.scoreError2ndRun,
-      scoreUnit: benchmarkDiff.scoreUnit
-    }));
+    const data = benchmarkDiffs.map(
+      (benchmarkDiff, i): HistogramDataPoint => ({
+        idx: i,
+        name: `${benchmarkDiff.bundleName}#${benchmarkDiff.benchmarkMethod.name}(${benchmarkDiff.benchmarkMethod.params ? benchmarkDiff.benchmarkMethod.params.map((param) => `${param[0]}=${param[1]}`).join(':') : ''})`,
+        scoreDiff: Math.max(-100, Math.min(100, benchmarkDiff.scoreDiff)),
+        errorDiff: Math.max(-100, Math.min(100, benchmarkDiff.scoreErrorDiff)),
+        score1stRun: benchmarkDiff.score1stRun,
+        score2ndRun: benchmarkDiff.score2ndRun,
+        scoreError1stRun: benchmarkDiff.scoreError1stRun,
+        scoreError2ndRun: benchmarkDiff.scoreError2ndRun,
+        scoreUnit: benchmarkDiff.scoreUnit
+      })
+    );
 
     const dataSets = [
       { dataKey: 'scoreDiff', color: green },
@@ -76,7 +96,7 @@ class SummaryHistogramChart extends React.Component {
             align="center"
             verticalAlign="top"
             wrapperStyle={{ lineHeight: '40px' }}
-            payload={dataSets}
+            payload={dataSets as LegendPayload}
             content={this.renderCusomizedLegend.bind(this)}
           />
           <ReferenceLine y={0} stroke="#000" />
@@ -94,7 +114,7 @@ class SummaryHistogramChart extends React.Component {
     );
   }
 
-  barColor(dataKey, dataEntry) {
+  barColor(dataKey: string, dataEntry: HistogramDataPoint) {
     if (dataKey === 'scoreDiff') {
       if (dataEntry.scoreDiff > 0) {
         return green;
@@ -110,11 +130,11 @@ class SummaryHistogramChart extends React.Component {
     }
   }
 
-  renderCusomizedLegend({ payload }) {
+  renderCusomizedLegend({ payload }: { payload?: LegendPayload }) {
     return (
-      <div align="center">
-        {payload.map((entry) => {
-          const { dataKey, color } = entry;
+      <div style={{ textAlign: 'center' }}>
+        {payload!.map((entry) => {
+          const { dataKey, color } = entry as { dataKey: string; color: string };
           const active = this.state.disabledLabels.includes(dataKey);
           const style = {
             marginRight: 10,
@@ -143,10 +163,10 @@ class SummaryHistogramChart extends React.Component {
 
 export default SummaryHistogramChart;
 
-function tooltipFormat(value, name, props) {
-  const { payload } = props;
+function tooltipFormat(value: number, name: string, props: { payload?: HistogramDataPoint }) {
+  const payload = props.payload!;
   const valueString = value != null ? value : 'N/A';
-  let rawValueString;
+  let rawValueString: string;
   if (name === 'scoreDiff') {
     rawValueString = `${payload.score1stRun.toLocaleString()} | ${payload.score2ndRun.toLocaleString()} ${payload.scoreUnit}`;
   } else {

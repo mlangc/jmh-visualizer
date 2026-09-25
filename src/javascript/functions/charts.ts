@@ -1,5 +1,5 @@
 export const tickFormatter = (tick: number) => {
-  return shortenLargeNumber(tick, 20);
+  return String(shortenLargeNumber(tick, 20));
 };
 
 function shortenLargeNumber(num: number, digits: number) {

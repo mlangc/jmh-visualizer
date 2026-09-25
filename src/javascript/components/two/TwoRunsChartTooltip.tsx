@@ -1,24 +1,18 @@
 import { blue, green, red } from 'functions/colors.ts';
 import { formatNumber } from 'functions/util.ts';
-import PropTypes from 'prop-types';
 import { Component } from 'react';
 import Table from 'react-bootstrap/Table';
+import type { TooltipProps } from 'recharts';
 
-export default class TwoRunsChartTooltip extends Component {
-  static propTypes = {
-    label: PropTypes.any,
-    runNames: PropTypes.array,
-    roundScores: PropTypes.bool,
-    payload: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.any,
-        payload: PropTypes.any,
-        value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-        unit: PropTypes.any
-      })
-    )
-  };
+// label and payload are injected by recharts' Tooltip
+interface TwoRunsChartTooltipProps {
+  label?: string;
+  runNames: string[];
+  roundScores: boolean;
+  payload?: TooltipProps<number, string>['payload'];
+}
 
+export default class TwoRunsChartTooltip extends Component<TwoRunsChartTooltipProps> {
   render() {
     const { label, payload, runNames, roundScores } = this.props;
     if (payload == null || payload.length === 0) {
@@ -33,7 +27,7 @@ export default class TwoRunsChartTooltip extends Component {
     const scoreUnit = payload[0].payload.scoreUnit;
 
     return (
-      <div style={{ width: Math.max(230, label.length * 9) }}>
+      <div style={{ width: Math.max(230, label!.length * 9) }}>
         <div style={{ textAlign: 'center' }}>
           <h4>
             <u>{label}</u>

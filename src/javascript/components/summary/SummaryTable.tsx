@@ -1,11 +1,18 @@
 import Tooltipped from 'components/lib/Tooltipped.tsx';
+import type { BenchmarkDiff } from 'components/summary/SummaryView.tsx';
 import { green, red, yellow } from 'functions/colors.ts';
+import type { ReactNode } from 'react';
 import Table from 'react-bootstrap/Table';
 import { FaLocationArrow as UpIcon } from 'react-icons/fa';
 import { actions } from 'store/store.ts';
 
-/* eslint react/prop-types: 0 */
-const SummaryTable = ({ name, benchmarkDiffs, lastRunIndex }) => {
+interface SummaryTableProps {
+  name: string;
+  benchmarkDiffs: BenchmarkDiff[];
+  lastRunIndex: number;
+}
+
+const SummaryTable = ({ name, benchmarkDiffs, lastRunIndex }: SummaryTableProps) => {
   if (benchmarkDiffs.length === 0) {
     return null;
   }
@@ -15,8 +22,8 @@ const SummaryTable = ({ name, benchmarkDiffs, lastRunIndex }) => {
   ));
 
   const rows = benchmarkDiffs.map((benchmarkDiff, i) => {
-    let color;
-    let icon;
+    let color: string;
+    let icon: ReactNode;
     if (benchmarkDiff.scoreDiff === 0) {
       color = yellow;
       icon = <UpIcon transform="rotate(45)" />;
@@ -46,7 +53,7 @@ const SummaryTable = ({ name, benchmarkDiffs, lastRunIndex }) => {
             ? benchmarkDiff.benchmarkMethod.params.map((param) => `${param[0]}=${param[1]}`).join(':')
             : ''}
         </td>
-        <td>{`${benchmarkDiff.benchmarkMethod.benchmarks[lastRunIndex].mode} in ${benchmarkDiff.scoreUnit}`}</td>
+        <td>{`${benchmarkDiff.benchmarkMethod.benchmarks[lastRunIndex]!.mode} in ${benchmarkDiff.scoreUnit}`}</td>
         <td>
           <div>{benchmarkDiff.score1stRun.toLocaleString()}</div>
           <div>{benchmarkDiff.score2ndRun.toLocaleString()}</div>

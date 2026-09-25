@@ -1,11 +1,18 @@
+import type { BenchmarkDiff } from 'components/summary/SummaryView.tsx';
 import { green, red, tooltipBackground, yellow } from 'functions/colors.ts';
 import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip } from 'recharts';
 
-/* eslint react/prop-types: 0 */
+interface SummaryChangeLevelChartProps {
+  benchmarkDiffs: BenchmarkDiff[];
+  minDeviation: number;
+}
+
+type LevelObject = ReturnType<typeof levelObject>;
+
 // A Radar chart giving a quick overview on of the severity of all increases/decrease
-const SummaryChangeLevelChart = ({ minDeviation, benchmarkDiffs }) => {
+const SummaryChangeLevelChart = ({ minDeviation, benchmarkDiffs }: SummaryChangeLevelChartProps) => {
   const benchmarkDiffLevels = benchmarkDiffs.reduce(
-    (levelTracker, benchmarkDiff) => {
+    (levelTracker: Record<string, LevelObject>, benchmarkDiff) => {
       const levelOfImprovement = getLevelOfImprovement(minDeviation, benchmarkDiff.scoreDiff);
       const levelOfDecline = getLevelOfDecline(minDeviation, benchmarkDiff.scoreDiff);
       if (levelOfImprovement > 0) {
@@ -53,7 +60,7 @@ const SummaryChangeLevelChart = ({ minDeviation, benchmarkDiffs }) => {
 
 export default SummaryChangeLevelChart;
 
-function levelObject(minDeviation, level) {
+function levelObject(minDeviation: number, level: number) {
   const min = minDeviation + (level - 1) * 10;
   return {
     name: `${min}+%`,
@@ -62,7 +69,7 @@ function levelObject(minDeviation, level) {
   };
 }
 
-function getLevelOfImprovement(minDeviation, scoreDiff) {
+function getLevelOfImprovement(minDeviation: number, scoreDiff: number) {
   if (scoreDiff < minDeviation) return 0;
   for (let level = 1; level < 6; level++) {
     const levelMax = minDeviation + level * 10;
@@ -73,7 +80,7 @@ function getLevelOfImprovement(minDeviation, scoreDiff) {
   return 5;
 }
 
-function getLevelOfDecline(minDeviation, scoreDiff) {
+function getLevelOfDecline(minDeviation: number, scoreDiff: number) {
   if (scoreDiff > -minDeviation) return 0;
   for (let level = 1; level < 6; level++) {
     const levelMax = -minDeviation - level * 10;

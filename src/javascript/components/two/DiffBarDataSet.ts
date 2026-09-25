@@ -1,10 +1,27 @@
 import { round, shouldRound } from 'functions/util.ts';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
 import { getMetricType } from 'models/MetricType.ts';
 
-export function createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, sort) {
+export interface DiffDataPoint {
+  index: number;
+  name: string;
+  scoreDiff: number;
+  scoreUnit: string;
+  score1stRun: number;
+  score2ndRun: number;
+  scoreError1stRun: number;
+  scoreError2ndRun: number;
+}
+
+export function createDataSetFromBenchmarks(
+  benchmarkBundle: BenchmarkBundle,
+  metricExtractor: MetricExtractor,
+  sort: boolean
+) {
   const shouldRoundScores = shouldRound(benchmarkBundle.benchmarkMethods, metricExtractor);
   const data = benchmarkBundle.benchmarkMethods
-    .map((benchmarkMethod, i) => {
+    .map((benchmarkMethod, i): DiffDataPoint | undefined => {
       const firstRunBenchmark = benchmarkMethod.benchmarks[0];
       const secondRunBenchmark = benchmarkMethod.benchmarks[1];
 
@@ -21,7 +38,7 @@ export function createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, so
         const scoreError1stRun = round(metricExtractor.extractScoreError(firstRunBenchmark), shouldRoundScores);
         const scoreError2ndRun = round(metricExtractor.extractScoreError(secondRunBenchmark), shouldRoundScores);
 
-        let scoreDiff;
+        let scoreDiff: number;
         if (metricType?.increaseIsGood) {
           // i.e. for throughput decrease is an increase, its worse basically
           scoreDiff = round(((score2ndRun - score1stRun) / score1stRun) * 100, shouldRoundScores);

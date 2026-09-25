@@ -1,25 +1,41 @@
 import { blue, green, tooltipBackground, yellow } from 'functions/colors.ts';
 import { flatten, round, shouldRound } from 'functions/util.ts';
 
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
 import { getMetricType } from 'models/MetricType.ts';
-import PropTypes from 'prop-types';
 import React from 'react';
-import { Bar, BarChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  type LabelProps,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  type TooltipProps,
+  XAxis,
+  YAxis
+} from 'recharts';
+
+interface TwoRunsHistogramChartProps {
+  benchmarkBundles: BenchmarkBundle[];
+  metricExtractor: MetricExtractor;
+}
+
+interface PercentFrequency {
+  count: number;
+  benchmarks: string[];
+}
 
 // Shows a histogram as bar-charts with change bars from -100% to +100%
-export default class TwoRunsHistogramChart extends React.Component {
-  static propTypes = {
-    benchmarkBundles: PropTypes.array.isRequired,
-    metricExtractor: PropTypes.object.isRequired
-  };
-
+export default class TwoRunsHistogramChart extends React.Component<TwoRunsHistogramChartProps> {
   render() {
     const { benchmarkBundles, metricExtractor } = this.props;
 
     const benchmarkDiffs = flatten(
       benchmarkBundles.map((benchmarkBundle) =>
         benchmarkBundle.benchmarkMethods
-          .map((benchmarkMethod, i) => {
+          .map((benchmarkMethod, i): { index: number; key: string; scoreDiff: number } | undefined => {
             const shouldRoundScores = shouldRound(benchmarkBundle.benchmarkMethods, metricExtractor);
             let benchmarkKey = `${benchmarkBundle.key}#${benchmarkMethod.name}`;
             if (benchmarkMethod.params) {
@@ -39,7 +55,7 @@ export default class TwoRunsHistogramChart extends React.Component {
               const score1stRun = round(metricExtractor.extractScore(firstRunBenchmark), shouldRoundScores);
               const score2ndRun = round(metricExtractor.extractScore(secondRunBenchmark), shouldRoundScores);
 
-              let scoreDiff;
+              let scoreDiff: number;
               if (metricType?.increaseIsGood) {
                 // i.e. for throughput decrease is an increase, its worse basically
                 scoreDiff = round(((score2ndRun - score1stRun) / score1stRun) * 100, shouldRoundScores);
@@ -59,7 +75,7 @@ export default class TwoRunsHistogramChart extends React.Component {
       )
     );
 
-    const percentFrequencies = {};
+    const percentFrequencies: Record<number, PercentFrequency> = {};
     benchmarkDiffs.forEach((obj) => {
       const percentChange = Math.ceil(obj.scoreDiff / 10);
       if (percentFrequencies[percentChange]) {
@@ -74,7 +90,7 @@ export default class TwoRunsHistogramChart extends React.Component {
     });
     // console.debug(percentFrequencies);
 
-    const data = [];
+    const data: ({ scoreDiff: number } & PercentFrequency)[] = [];
     for (let i = -100; i <= 100; i += 10) {
       if (i === 0) {
         data.push({
@@ -94,7 +110,7 @@ export default class TwoRunsHistogramChart extends React.Component {
 
     const chartHeight = 108;
 
-    const tickFormatter = (value) => {
+    const tickFormatter = (value: number) => {
       if (value === -100 || value === 100 || percentFrequencies[value / 10]) {
         return `${value}%`;
       }
@@ -111,7 +127,7 @@ export default class TwoRunsHistogramChart extends React.Component {
               type="number"
               tick={{ transform: 'translate(0, 5)' }}
               ticks={[-100, -90, -80, -70, -60, -50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-              tickFormatter={tickFormatter}
+              tickFormatter={tickFormatter as (value: number) => string}
             />
             <YAxis />
             <ReferenceLine x={0} stroke={yellow} label={`(${percentFrequencies[0].count})`} />
@@ -135,8 +151,10 @@ export default class TwoRunsHistogramChart extends React.Component {
   }
 }
 
-function BarLabel(props) {
-  const { payload, textAnchor, x, y, width, height } = props; // eslint-disable-line react/prop-types
+// Bar passes its data point on as payload, which LabelProps doesn't cover
+function BarLabel(props: LabelProps & { payload?: PercentFrequency }) {
+  const { textAnchor, x, y, width, height } = props;
+  const payload = props.payload!;
 
   if (payload.count > 0) {
     return (
@@ -157,30 +175,14 @@ function BarLabel(props) {
   }
 }
 
-BarLabel.PropTypes = {
-  payload: PropTypes.array.isRequired
-};
-
-class ChartTooltip extends React.Component {
-  static propTypes = {
-    label: PropTypes.any,
-    payload: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.any,
-        color: PropTypes.any,
-        payload: PropTypes.any,
-        value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-        unit: PropTypes.any
-      })
-    )
-  };
-
+// payload is injected by recharts' Tooltip
+class ChartTooltip extends React.Component<{ payload?: TooltipProps<number, string>['payload'] }> {
   render() {
-    const { payload } = this.props;
+    const payload = this.props.payload!;
     if (payload.length === 0) {
       return null;
     }
-    const benchmarks = payload[0].payload.benchmarks;
+    const benchmarks: string[] = payload[0].payload.benchmarks;
     const benchmarksComponents = benchmarks.map((benchmark) => <div key={benchmark}>{benchmark}</div>);
 
     return (

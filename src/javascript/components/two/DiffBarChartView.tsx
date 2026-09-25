@@ -1,8 +1,9 @@
-import { createDataSetFromBenchmarks } from 'components/two/DiffBarDataSet.js';
-import DiffLabel from 'components/two/DiffLabel.jsx';
-import TwoRunsChartTooltip from 'components/two/TwoRunsChartTooltip.jsx';
+import { createDataSetFromBenchmarks } from 'components/two/DiffBarDataSet.ts';
+import DiffLabel from 'components/two/DiffLabel.tsx';
+import TwoRunsChartTooltip from 'components/two/TwoRunsChartTooltip.tsx';
 import { green, red, tooltipBackground, yellow } from 'functions/colors.ts';
-import PropTypes from 'prop-types';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
 import React from 'react';
 import {
   Bar,
@@ -18,15 +19,15 @@ import {
   YAxis
 } from 'recharts';
 
-// Chart showing increase/decrease in % for the benchmarks of a class from 2 runs.
-export default class DiffBarChartView extends React.Component {
-  static propTypes = {
-    runNames: PropTypes.array.isRequired,
-    benchmarkBundle: PropTypes.object.isRequired,
-    metricExtractor: PropTypes.object.isRequired,
-    sort: PropTypes.bool.isRequired
-  };
+interface DiffBarChartViewProps {
+  runNames: string[];
+  benchmarkBundle: BenchmarkBundle;
+  metricExtractor: MetricExtractor;
+  sort: boolean;
+}
 
+// Chart showing increase/decrease in % for the benchmarks of a class from 2 runs.
+export default class DiffBarChartView extends React.Component<DiffBarChartViewProps> {
   render() {
     const { runNames, benchmarkBundle, metricExtractor, sort } = this.props;
     const dataSet = createDataSetFromBenchmarks(benchmarkBundle, metricExtractor, sort);

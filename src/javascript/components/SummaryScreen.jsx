@@ -1,6 +1,6 @@
 import SplitPane from 'components/lib/SplitPane.tsx';
 import RunSideBar from 'components/RunSideBar.tsx';
-import SummaryView from 'components/summary/SummaryView.jsx';
+import SummaryView from 'components/summary/SummaryView.tsx';
 
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
 import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.ts';
