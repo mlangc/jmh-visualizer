@@ -1,23 +1,23 @@
-import MethodParamCheckboxList from 'components/lib/MethodParamCheckboxList.jsx';
-import TocList from 'components/TocList.jsx';
-import PropTypes from 'prop-types';
-import React from 'react';
+import MethodParamCheckboxList from 'components/lib/MethodParamCheckboxList.tsx';
+import TocList from 'components/TocList.tsx';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import React, { type ReactNode } from 'react';
 import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdKeyboardBackspace as BackIcon } from 'react-icons/md';
 import { actions } from 'store/store.ts';
 
-export default class DetailSideBar extends React.Component {
-  static propTypes = {
-    benchmarkBundle: PropTypes.object.isRequired,
-    benchmarkBundles: PropTypes.array.isRequired,
-    secondaryMetrics: PropTypes.array.isRequired,
-    deselectedMethods: PropTypes.object.isRequired,
-    deselectedParamValues: PropTypes.object.isRequired,
-    buttons: PropTypes.array
-  };
+interface DetailSideBarProps {
+  benchmarkBundle: BenchmarkBundle;
+  benchmarkBundles: BenchmarkBundle[];
+  secondaryMetrics: string[];
+  deselectedMethods: Set<string>;
+  deselectedParamValues: Set<string>;
+  buttons?: ReactNode[];
+}
 
+export default class DetailSideBar extends React.Component<DetailSideBarProps> {
   render() {
     const { benchmarkBundle, benchmarkBundles, secondaryMetrics, deselectedMethods, deselectedParamValues, buttons } =
       this.props;
@@ -52,7 +52,6 @@ export default class DetailSideBar extends React.Component {
         <TocList
           categories={['Metrics']}
           activeCategory={'Metrics'}
-          selectCategoryFunction={(category) => alert(category)}
           elementIds={metrics}
           elementNames={metrics}
           linkControlsCreators={[]}

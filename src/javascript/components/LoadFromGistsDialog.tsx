@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { type ChangeEvent } from 'react';
 
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 
-export default class LoadFromGistsDialog extends React.Component {
-  constructor(props, context) {
+interface LoadFromGistsDialogState {
+  gist1: string;
+  gist2: string;
+}
+
+export default class LoadFromGistsDialog extends React.Component<object, LoadFromGistsDialogState> {
+  constructor(props: object, context: unknown) {
     super(props, context);
     this.state = {
       gist1: '',
@@ -17,13 +22,13 @@ export default class LoadFromGistsDialog extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleGist1Change(event) {
+  handleGist1Change(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     this.setState({
       gist1: event.target.value
     });
   }
 
-  handleGist2Change(event) {
+  handleGist2Change(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     this.setState({
       gist2: event.target.value
     });

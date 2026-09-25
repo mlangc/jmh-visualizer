@@ -1,13 +1,18 @@
-import LoadFromGistsDialog from 'components/LoadFromGistsDialog.jsx';
-import LoadFromUrlsDialog from 'components/LoadFromUrlsDialog.jsx';
+import LoadFromGistsDialog from 'components/LoadFromGistsDialog.tsx';
+import LoadFromUrlsDialog from 'components/LoadFromUrlsDialog.tsx';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { FaRegHandPointRight as PointingHandIcon } from 'react-icons/fa';
 import { actions } from 'store/store.ts';
 
+interface UploadSideBarState {
+  urlDialogVisible: boolean;
+  gistDialogVisible: boolean;
+}
+
 //Sidebar for the upload view
-export default class UploadSideBar extends React.Component {
-  constructor(props, context) {
+export default class UploadSideBar extends React.Component<object, UploadSideBarState> {
+  constructor(props: object, context: unknown) {
     super(props, context);
 
     this.state = {
@@ -56,7 +61,7 @@ export default class UploadSideBar extends React.Component {
               multiple
               accept=".json"
               onChange={(event) => {
-                actions.uploadFiles([...event.target.files]);
+                actions.uploadFiles([...event.target.files!]);
               }}
               style={{ opacity: 0.0, position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}
             />

@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { type ChangeEvent } from 'react';
 
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 
-export default class LoadFromUrlsDialog extends React.Component {
-  constructor(props, context) {
+interface LoadFromUrlsDialogState {
+  url1: string;
+  url2: string;
+}
+
+export default class LoadFromUrlsDialog extends React.Component<object, LoadFromUrlsDialogState> {
+  constructor(props: object, context: unknown) {
     super(props, context);
     this.state = {
       url1: '',
@@ -17,13 +22,13 @@ export default class LoadFromUrlsDialog extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleUrl1Change(event) {
+  handleUrl1Change(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     this.setState({
       url1: event.target.value
     });
   }
 
-  handleUrl2Change(event) {
+  handleUrl2Change(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     this.setState({
       url2: event.target.value
     });

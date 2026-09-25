@@ -1,6 +1,6 @@
-import Tooltipped from 'components/lib/Tooltipped.jsx';
+import Tooltipped from 'components/lib/Tooltipped.tsx';
 import SingleRunBundle from 'components/single/SingleRunBundle.jsx';
-import TocElement from 'components/TocElement.jsx';
+import TocElement from 'components/TocElement.tsx';
 import { getUniqueBenchmarkModesAccrossBundles } from 'functions/parse.ts';
 import PropTypes from 'prop-types';
 import React from 'react';

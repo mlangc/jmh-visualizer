@@ -1,10 +1,11 @@
 import { blue, green } from 'functions/colors.ts';
+import type { CSSProperties } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import { useDropzone } from 'react-dropzone';
 import { FaCloudUploadAlt as UploadIcon } from 'react-icons/fa';
 import { actions } from 'store/store.ts';
 
-const style = {
+const style: CSSProperties = {
   width: '100%',
   height: '81vh',
   borderWidth: 1,
@@ -16,7 +17,7 @@ const style = {
   verticalAlign: 'middle'
 };
 
-const dragActiveStyle = { ...style, borderColor: green, borderWidth: 3, borderStyle: 'dotted' };
+const dragActiveStyle: CSSProperties = { ...style, borderColor: green, borderWidth: 3, borderStyle: 'dotted' };
 
 // Dopzone for JSON files to upload
 export default function UploadMainView() {

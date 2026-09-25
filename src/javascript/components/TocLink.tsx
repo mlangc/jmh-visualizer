@@ -1,14 +1,9 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import React, { type HTMLAttributes } from 'react';
 
 import { ScrollLink } from 'react-scroll';
 
 // A link in TocSidebar pointing to a TocElement
-class TocLink extends React.Component {
-  static propTypes = {
-    children: PropTypes.node.isRequired
-  };
-
+class TocLink extends React.Component<HTMLAttributes<HTMLLIElement>> {
   render() {
     return <li {...this.props}>{this.props.children}</li>;
   }

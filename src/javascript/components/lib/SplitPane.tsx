@@ -1,9 +1,14 @@
-import PropTypes from 'prop-types';
+import type { ReactElement } from 'react';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
-export default function SplitPane(props) {
+interface SplitPaneProps {
+  left: ReactElement;
+  right: ReactElement;
+}
+
+export default function SplitPane(props: SplitPaneProps) {
   return (
     <Container fluid={true}>
       <Row style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -17,8 +22,3 @@ export default function SplitPane(props) {
     </Container>
   );
 }
-
-SplitPane.propTypes = {
-  left: PropTypes.object.isRequired,
-  right: PropTypes.object.isRequired
-};

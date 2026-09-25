@@ -1,5 +1,4 @@
-/* eslint react/prop-types: 0 */
-const CustomTopBar = ({ title }) => {
+const CustomTopBar = ({ title }: { title: string }) => {
   return <h1 style={{ textAlign: 'center', paddingRight: '20%' }}>{title}</h1>;
 };
 

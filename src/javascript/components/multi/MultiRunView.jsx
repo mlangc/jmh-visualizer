@@ -1,5 +1,5 @@
 import MultiRunBundle from 'components/multi/MultiRunBundle.jsx';
-import TocElement from 'components/TocElement.jsx';
+import TocElement from 'components/TocElement.tsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Badge from 'react-bootstrap/Badge';

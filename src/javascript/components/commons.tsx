@@ -1,7 +1,7 @@
-import BadgeWithTooltip from 'components/lib/BadgeWithTooltip.jsx';
+import BadgeWithTooltip from 'components/lib/BadgeWithTooltip.tsx';
 import { getMetricType } from 'models/MetricType.ts';
 
-export function createMetricBadge(metricKey) {
+export function createMetricBadge(metricKey: string) {
   const metricType = getMetricType(metricKey);
   if (!metricType) {
     return null;

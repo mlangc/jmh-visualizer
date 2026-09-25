@@ -1,5 +1,7 @@
-import Tooltipped from 'components/lib/Tooltipped.jsx';
-import PropTypes from 'prop-types';
+import Tooltipped from 'components/lib/Tooltipped.tsx';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type BenchmarkMethod from 'models/BenchmarkMethod.ts';
+import type { MouseEvent } from 'react';
 import { actions, methodKey, paramValueKey } from 'store/store.ts';
 
 // Per-method and (nested) per-param-value checkboxes for one benchmark bundle.
@@ -12,20 +14,32 @@ import { actions, methodKey, paramValueKey } from 'store/store.ts';
 //   - a param value checkbox: exclusively selects that value among its param's values
 // Double-clicking text normally selects it (and can trigger a native lookup/search popup);
 // suppress that so double-click can be used as a control gesture here.
-const suppressTextSelectOnMultiClick = (e) => {
+const suppressTextSelectOnMultiClick = (e: MouseEvent) => {
   if (e.detail > 1) {
     e.preventDefault();
   }
 };
 
-export default function MethodParamCheckboxList({ bundleKey, bundle, deselectedMethods, deselectedParamValues }) {
+interface MethodParamCheckboxListProps {
+  bundleKey: string;
+  bundle?: BenchmarkBundle;
+  deselectedMethods: Set<string>;
+  deselectedParamValues: Set<string>;
+}
+
+export default function MethodParamCheckboxList({
+  bundleKey,
+  bundle,
+  deselectedMethods,
+  deselectedParamValues
+}: MethodParamCheckboxListProps) {
   if (!bundle || bundle.methodNames.length === 0) {
     return null;
   }
 
-  const paramListCreator = (methodName, methodInstances, methodEnabled) => {
-    const paramNames = [];
-    const valuesByParamName = {};
+  const paramListCreator = (methodName: string, methodInstances: BenchmarkMethod[], methodEnabled: boolean) => {
+    const paramNames: string[] = [];
+    const valuesByParamName: Record<string, Set<string>> = {};
     methodInstances.forEach((benchmarkMethod) => {
       (benchmarkMethod.params || []).forEach(([paramName, value]) => {
         if (!valuesByParamName[paramName]) {
@@ -181,10 +195,3 @@ export default function MethodParamCheckboxList({ bundleKey, bundle, deselectedM
     </ul>
   );
 }
-
-MethodParamCheckboxList.propTypes = {
-  bundleKey: PropTypes.string.isRequired,
-  bundle: PropTypes.object,
-  deselectedMethods: PropTypes.object.isRequired,
-  deselectedParamValues: PropTypes.object.isRequired
-};

@@ -1,5 +1,5 @@
-import SplitPane from 'components/lib/SplitPane.jsx';
-import RunSideBar from 'components/RunSideBar.jsx';
+import SplitPane from 'components/lib/SplitPane.tsx';
+import RunSideBar from 'components/RunSideBar.tsx';
 import SummaryView from 'components/summary/SummaryView.jsx';
 
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';

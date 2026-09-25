@@ -1,5 +1,5 @@
-import ChartHeader from 'components/ChartHeader.jsx';
-import { DetailsButton, ScaleButton, SortButton } from 'components/Icons.jsx';
+import ChartHeader from 'components/ChartHeader.tsx';
+import { DetailsButton, ScaleButton, SortButton } from 'components/Icons.tsx';
 import BarChartView from 'components/single/BarChartView.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';

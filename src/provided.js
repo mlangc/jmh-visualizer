@@ -1,6 +1,6 @@
 // provided.js can be overriden in order to have a predefined-report generated.
 
-// biome-ignore lint/correctness/noUnusedVariables: read as a global by store.ts/DefaultTopBar.jsx, set via the <script> tag in index.html
+// biome-ignore lint/correctness/noUnusedVariables: read as a global by store.ts/DefaultTopBar.tsx, set via the <script> tag in index.html
 var providedBenchmarks = [];
 // var providedBenchmarks = ['result'];
 

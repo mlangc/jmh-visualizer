@@ -1,12 +1,11 @@
-import { BugIcon, GithubIcon } from 'components/Icons.jsx';
+import { BugIcon, GithubIcon } from 'components/Icons.tsx';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import { connect } from 'store/store.ts';
 
-/* eslint react/prop-types: 0 */
-const Footer = ({ topBar }) => {
+const Footer = ({ topBar }: { topBar: string }) => {
   if (topBar === 'default') {
     return null;
   }

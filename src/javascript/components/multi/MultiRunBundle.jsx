@@ -1,5 +1,5 @@
-import ChartHeader from 'components/ChartHeader.jsx';
-import { DetailsButton, ScaleButton } from 'components/Icons.jsx';
+import ChartHeader from 'components/ChartHeader.tsx';
+import { DetailsButton, ScaleButton } from 'components/Icons.tsx';
 import LineChartView from 'components/multi/LineChartView.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';

@@ -1,4 +1,4 @@
-import TocElement from 'components/TocElement.jsx';
+import TocElement from 'components/TocElement.tsx';
 import TwoRunBundle from 'components/two/TwoRunBundle.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';

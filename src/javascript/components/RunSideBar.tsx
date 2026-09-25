@@ -1,28 +1,29 @@
-import MethodParamCheckboxList from 'components/lib/MethodParamCheckboxList.jsx';
-import Tooltipped from 'components/lib/Tooltipped.jsx';
-import TocList from 'components/TocList.jsx';
-import PropTypes from 'prop-types';
-import React from 'react';
+import MethodParamCheckboxList from 'components/lib/MethodParamCheckboxList.tsx';
+import Tooltipped from 'components/lib/Tooltipped.tsx';
+import TocList from 'components/TocList.tsx';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type MetricExtractor from 'models/MetricExtractor.ts';
+import React, { type MouseEvent, type ReactNode } from 'react';
 import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { FaSearchPlus as DetailsIcon, FaEye as EyeIcon } from 'react-icons/fa';
 import { actions, methodKey } from 'store/store.ts';
 
-// Side bar for SingleRunView, TwoRunViews, etc...
-export default class RunSideBar extends React.Component {
-  static propTypes = {
-    benchmarkBundles: PropTypes.array.isRequired,
-    metrics: PropTypes.array.isRequired,
-    metricExtractor: PropTypes.object.isRequired,
-    buttons: PropTypes.array,
-    focusedBenchmarkBundles: PropTypes.object.isRequired,
-    deselectedMethods: PropTypes.object.isRequired,
-    deselectedParamValues: PropTypes.object.isRequired,
-    categories: PropTypes.array.isRequired,
-    activeCategory: PropTypes.string.isRequired
-  };
+interface RunSideBarProps {
+  benchmarkBundles: BenchmarkBundle[];
+  metrics: string[];
+  metricExtractor: MetricExtractor;
+  buttons?: ReactNode[];
+  focusedBenchmarkBundles: Set<string>;
+  deselectedMethods: Set<string>;
+  deselectedParamValues: Set<string>;
+  categories: string[];
+  activeCategory: string;
+}
 
+// Side bar for SingleRunView, TwoRunViews, etc...
+export default class RunSideBar extends React.Component<RunSideBarProps> {
   render() {
     const {
       benchmarkBundles,
@@ -47,7 +48,7 @@ export default class RunSideBar extends React.Component {
     const elementIds = benchmarkBundles.map((bundle) => bundle.key);
     const elementNames = benchmarkBundles.map((bundle) => bundle.name);
 
-    const focusControlCreator = (elementId) => (
+    const focusControlCreator = (elementId: string) => (
       <span
         key={`focus-${elementId}`}
         onClick={(e) => {
@@ -61,7 +62,7 @@ export default class RunSideBar extends React.Component {
         </sup>{' '}
       </span>
     );
-    const detailsControlCreator = (elementId) => (
+    const detailsControlCreator = (elementId: string) => (
       <span
         key={`detail-${elementId}`}
         onClick={(e) => {
@@ -76,7 +77,7 @@ export default class RunSideBar extends React.Component {
       </span>
     );
 
-    const methodListCreator = (bundleKey) => {
+    const methodListCreator = (bundleKey: string) => {
       const bundle = benchmarkBundles.find((aBundle) => aBundle.key === bundleKey);
       return (
         <MethodParamCheckboxList
@@ -88,7 +89,7 @@ export default class RunSideBar extends React.Component {
       );
     };
 
-    const selectAllMethodsCreator = (bundleKey) => {
+    const selectAllMethodsCreator = (bundleKey: string) => {
       const bundle = benchmarkBundles.find((aBundle) => aBundle.key === bundleKey);
       if (!bundle || bundle.methodNames.length <= 1) {
         return null;
@@ -99,7 +100,7 @@ export default class RunSideBar extends React.Component {
       if (!anyDeselected) {
         return null;
       }
-      return (e) => {
+      return (e: MouseEvent) => {
         e.stopPropagation();
         actions.selectAllMethods(bundleKey, bundle.methodNames);
       };

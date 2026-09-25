@@ -1,9 +1,8 @@
-import CustomTopBar from 'components/global/CustomTopBar.jsx';
-import DefaultTopBar from 'components/global/DefaultTopBar.jsx';
+import CustomTopBar from 'components/global/CustomTopBar.tsx';
+import DefaultTopBar from 'components/global/DefaultTopBar.tsx';
 import { connect } from 'store/store.ts';
 
-/* eslint react/prop-types: 0 */
-const TopBar = ({ topBar }) => {
+const TopBar = ({ topBar }: { topBar: string }) => {
   switch (topBar) {
     case 'default':
       return <DefaultTopBar />;

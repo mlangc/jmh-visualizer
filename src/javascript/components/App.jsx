@@ -1,12 +1,12 @@
 import DetailScreen from 'components/DetailScreen.jsx';
-import DoingWorkSpinner from 'components/DoingWorkSpinner.jsx';
-import Footer from 'components/global/Footer.jsx';
-import TopBar from 'components/global/TopBar.jsx';
+import DoingWorkSpinner from 'components/DoingWorkSpinner.tsx';
+import Footer from 'components/global/Footer.tsx';
+import TopBar from 'components/global/TopBar.tsx';
 import RunScreen from 'components/RunScreen.jsx';
 
 import RunSelectionBar from 'components/RunSelectionBar.jsx';
 import SummaryScreen from 'components/SummaryScreen.jsx';
-import UploadScreen from 'components/UploadScreen.jsx';
+import UploadScreen from 'components/UploadScreen.tsx';
 import { connect } from 'store/store.ts';
 
 /* eslint react/prop-types: 0 */

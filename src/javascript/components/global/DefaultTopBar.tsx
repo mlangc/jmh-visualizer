@@ -1,6 +1,6 @@
-import AppLogo from 'components/AppLogo.jsx';
-import DoingWorkSpinner from 'components/DoingWorkSpinner.jsx';
-import { LinkIcon } from 'components/Icons.jsx';
+import AppLogo from 'components/AppLogo.tsx';
+import DoingWorkSpinner from 'components/DoingWorkSpinner.tsx';
+import { LinkIcon } from 'components/Icons.tsx';
 import React from 'react';
 import Container from 'react-bootstrap/Container';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -12,7 +12,7 @@ import Popover from 'react-bootstrap/Popover';
 export default class DefaultTopBar extends React.Component {
   onReset() {
     window.onbeforeunload = null;
-    window.location = window.location.href.split('#')[0].split('?')[0];
+    window.location.href = window.location.href.split('#')[0].split('?')[0];
   }
 
   render() {
@@ -40,13 +40,13 @@ export default class DefaultTopBar extends React.Component {
             <Dropdown id="logo-dropdown">
               <Dropdown.Toggle as={AppLogo} id="logo-dropdown-toggle" />
               <Dropdown.Menu data-bs-theme="light">
-                {showReset > 0 && (
+                {showReset && (
                   <Dropdown.Item role="menuitem" onClick={this.onReset}>
                     {' '}
                     Reset & Upload New
                   </Dropdown.Item>
                 )}
-                {showReset > 0 && <Dropdown.Divider />}
+                {showReset && <Dropdown.Divider />}
                 <Dropdown.Item
                   role="menuitem"
                   href="https://github.com/jzillmann/jmh-visualizer/issues"

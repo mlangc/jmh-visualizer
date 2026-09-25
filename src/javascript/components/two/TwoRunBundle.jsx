@@ -1,5 +1,5 @@
-import ChartHeader from 'components/ChartHeader.jsx';
-import { DetailsButton, SortButton } from 'components/Icons.jsx';
+import ChartHeader from 'components/ChartHeader.tsx';
+import { DetailsButton, SortButton } from 'components/Icons.tsx';
 import DiffBarChartView from 'components/two/DiffBarChartView.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';

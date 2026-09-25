@@ -1,7 +1,7 @@
-import DetailSideBar from 'components/DetailSideBar.jsx';
+import DetailSideBar from 'components/DetailSideBar.tsx';
 import DetailView from 'components/DetailView.jsx';
-import { ScaleButton, SortButton } from 'components/Icons.jsx';
-import SplitPane from 'components/lib/SplitPane.jsx';
+import { ScaleButton, SortButton } from 'components/Icons.tsx';
+import SplitPane from 'components/lib/SplitPane.tsx';
 import LineChartView from 'components/multi/LineChartView.jsx';
 import BarChartView from 'components/single/BarChartView.jsx';
 import DiffBarChartView from 'components/two/DiffBarChartView.jsx';

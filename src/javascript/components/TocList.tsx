@@ -1,37 +1,36 @@
-import Tooltipped from 'components/lib/Tooltipped.jsx';
-import TocLink from 'components/TocLink.jsx';
-import PropTypes from 'prop-types';
-import React from 'react';
+import Tooltipped from 'components/lib/Tooltipped.tsx';
+import TocLink from 'components/TocLink.tsx';
+import React, { type MouseEvent, type ReactNode } from 'react';
 import { scroller, scrollSpy } from 'react-scroll';
 import { actions } from 'store/store.ts';
 
 // Double-clicking text normally selects it (and can trigger a native lookup/search popup);
 // suppress that so double-click can be used as a control gesture here.
-const suppressTextSelectOnMultiClick = (e) => {
+const suppressTextSelectOnMultiClick = (e: MouseEvent) => {
   if (e.detail > 1) {
     e.preventDefault();
   }
 };
 
-//Constructs a sidebar with a set of controls and links to the MainView sections
-export default class TocList extends React.PureComponent {
-  static propTypes = {
-    categories: PropTypes.array.isRequired,
-    activeCategory: PropTypes.string.isRequired,
-    elementIds: PropTypes.array.isRequired,
-    elementNames: PropTypes.array.isRequired,
-    linkControlsCreators: PropTypes.array.isRequired,
-    subListCreator: PropTypes.func,
-    // Optional: (elementId) => onDoubleClick handler, or a falsy value to suppress the hint for that element
-    doubleClickCreator: PropTypes.func,
-    doubleClickTooltip: PropTypes.string
-  };
+interface TocListProps {
+  categories: string[];
+  activeCategory: string;
+  elementIds: string[];
+  elementNames: string[];
+  linkControlsCreators: ((elementId: string) => ReactNode)[];
+  subListCreator?: (elementId: string) => ReactNode;
+  // Returns the onDoubleClick handler, or a falsy value to suppress the hint for that element
+  doubleClickCreator?: (elementId: string) => ((e: MouseEvent) => void) | null;
+  doubleClickTooltip?: string;
+}
 
+//Constructs a sidebar with a set of controls and links to the MainView sections
+export default class TocList extends React.PureComponent<TocListProps> {
   componentDidMount() {
     scrollSpy.update();
   }
 
-  scrollTo(elementId) {
+  scrollTo(elementId: string) {
     scroller.scrollTo(elementId, {
       duration: 500,
       delay: 50,

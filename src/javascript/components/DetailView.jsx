@@ -1,6 +1,6 @@
-import { ChartDetailHeader } from 'components/ChartHeader.jsx';
-import { createMetricBadge } from 'components/commons.jsx';
-import TocElement from 'components/TocElement.jsx';
+import { ChartDetailHeader } from 'components/ChartHeader.tsx';
+import { createMetricBadge } from 'components/commons.tsx';
+import TocElement from 'components/TocElement.tsx';
 import { getUniqueBenchmarkModes } from 'functions/parse.ts';
 import PrimaryMetricExtractor from 'models/extractor/PrimaryMetricExtractor.ts';
 import SecondaryMetricExtractor from 'models/extractor/SecondaryMetricExtractor.ts';

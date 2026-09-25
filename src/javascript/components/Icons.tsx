@@ -1,5 +1,7 @@
-import Tooltipped from 'components/lib/Tooltipped.jsx';
+import Tooltipped from 'components/lib/Tooltipped.tsx';
 import { yellow } from 'functions/colors.ts';
+import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import type { IconType } from 'react-icons';
 import {
   FaBug as BugIcon,
   FaSearchPlus as DetailsIcon,
@@ -13,18 +15,22 @@ import { actions } from 'store/store.ts';
 export { BugIcon, GithubIcon, LinkIcon };
 
 const activeColor = yellow;
-/* eslint react/prop-types: 0 */
 
-export const SortButton = ({ active, action }) => {
+interface ToggleButtonProps {
+  active: boolean;
+  action: () => void;
+}
+
+export const SortButton = ({ active, action }: ToggleButtonProps) => {
   return <IconButton IconName={SortIcon} tooltip="Sort by Score/Name" active={active} action={action} />;
 };
 
-export const ScaleButton = ({ active, action }) => {
+export const ScaleButton = ({ active, action }: ToggleButtonProps) => {
   return <IconButton IconName={ScaleIcon} tooltip="Switch scale (log/linear)" active={active} action={action} />;
 };
 
-export const DetailsButton = ({ benchmarkBundle }) => {
-  const secondaryMetrics = new Set();
+export const DetailsButton = ({ benchmarkBundle }: { benchmarkBundle: BenchmarkBundle }) => {
+  const secondaryMetrics = new Set<string>();
   benchmarkBundle.allBenchmarks().forEach((benchmark) => {
     Object.keys(benchmark.secondaryMetrics).forEach((secondaryMetric) => {
       secondaryMetrics.add(secondaryMetric);
@@ -41,8 +47,13 @@ export const DetailsButton = ({ benchmarkBundle }) => {
   );
 };
 
-function IconButton({ IconName, tooltip, active, action }) {
-  const color = active ? activeColor : null;
+interface IconButtonProps extends ToggleButtonProps {
+  IconName: IconType;
+  tooltip: string;
+}
+
+function IconButton({ IconName, tooltip, active, action }: IconButtonProps) {
+  const color = active ? activeColor : undefined;
   return (
     <Tooltipped key={'ScaleButton'} tooltip={tooltip} position="top">
       <IconName size={'1em'} onClick={action} color={color} className="clickable" />
