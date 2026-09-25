@@ -11,8 +11,9 @@ e2e structurally can't pin.
 **Status:** `add-fixture-tests` and `add-filters-for-large-result-files` are
 both merged into `main`. The migration itself happens in its own feature
 branch/worktree off `main`. Merging back into `main` is planned once Step 3
-and the final checkpoint are done. Progress: Steps 1 and 2 are done and
-Checkpoints 1 and 2 are signed off; next up is Step 3.
+and the final checkpoint are done. Progress: Steps 1 to 3 are done and
+Checkpoints 1 and 2 are signed off; Checkpoint 3's two Opus reviews ran and
+their findings are addressed, so it awaits the maintainer's own look.
 
 ## Ground rules
 
