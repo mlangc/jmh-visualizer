@@ -30,6 +30,32 @@ html {
   --bs-link-hover-color-rgb: 35, 82, 124;
 }
 
+/* Bootstrap 3's btn-primary look. */
+.btn-primary {
+  --bs-btn-bg: #337ab7;
+  --bs-btn-border-color: #2e6da4;
+  --bs-btn-hover-bg: #286090;
+  --bs-btn-hover-border-color: #204d74;
+  --bs-btn-active-bg: #286090;
+  --bs-btn-active-border-color: #204d74;
+}
+
+/* Bootstrap 3's btn-default look, which these buttons had before Bootstrap 5. */
+.btn-outline-secondary {
+  --bs-btn-color: #333;
+  --bs-btn-border-color: #ccc;
+  --bs-btn-hover-color: #333;
+  --bs-btn-hover-bg: #e6e6e6;
+  --bs-btn-hover-border-color: #adadad;
+  --bs-btn-active-color: #333;
+  --bs-btn-active-bg: #e6e6e6;
+  --bs-btn-active-border-color: #adadad;
+}
+.btn-outline-secondary.btn-sm {
+  --bs-btn-padding-x: 10px;
+  --bs-btn-padding-y: 5px;
+}
+
 /* Bootstrap 3 had no pressed style for menu items. */
 .dropdown-menu {
   --bs-dropdown-link-active-bg: var(--bs-dropdown-link-hover-bg);
