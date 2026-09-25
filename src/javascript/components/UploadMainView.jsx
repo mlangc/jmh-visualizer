@@ -1,68 +1,64 @@
 import { blue, green } from 'functions/colors.js';
-import React from 'react';
 import Alert from 'react-bootstrap/Alert';
-import Dropzone from 'react-dropzone';
+import { useDropzone } from 'react-dropzone';
 import { FaCloudUploadAlt as UploadIcon } from 'react-icons/fa';
 import { actions } from 'store/store.js';
 
-// Dopzone for JSON files to upload
-export default class UploadMainView extends React.Component {
-  onDrop(files) {
-    actions.uploadFiles(files);
-  }
+const style = {
+  width: '100%',
+  height: '81vh',
+  borderWidth: 1,
+  borderColor: blue,
+  borderStyle: 'dashed',
+  borderRadius: 25,
+  padding: 20,
+  textAlign: 'center',
+  verticalAlign: 'middle'
+};
 
-  render() {
-    return (
-      <Dropzone
-        onDropAccepted={this.onDrop.bind(this)}
-        onDropRejected={() => alert('Only drop valid JSON files!')}
-        multiple={true}
-        accept=".json"
-        disableClick={true}
-        disablePreview={true}
-        className="container-fluid"
-        style={{
-          width: '100%',
-          height: '81vh',
-          borderWidth: 1,
-          borderColor: blue,
-          borderStyle: 'dashed',
-          borderRadius: 25,
-          padding: 20,
-          textAlign: 'center',
-          verticalAlign: 'middle'
-        }} //TODO seems to be a bug with dropzone... rejectStyle is always taken
-        rejectStyle={{ borderColor: green, borderWidth: 3, borderStyle: 'dotted' }}
-        activeStyle={{ borderColor: green, borderWidth: 3, borderStyle: 'dotted' }}
-      >
+const dragActiveStyle = { ...style, borderColor: green, borderWidth: 3, borderStyle: 'dotted' };
+
+// Dopzone for JSON files to upload
+export default function UploadMainView() {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDropAccepted: (files) => actions.uploadFiles(files),
+    onDropRejected: () => alert('Only drop valid JSON files!'),
+    multiple: true,
+    accept: { 'application/json': ['.json'] },
+    noClick: true,
+    noKeyboard: true
+  });
+
+  return (
+    <div {...getRootProps({ className: 'container-fluid', style: isDragActive ? dragActiveStyle : style })}>
+      <input {...getInputProps()} />
+      <div>
+        <h1 style={{ marginBottom: 20 }}>Dropzone</h1>
+        <h5>Drop your JMH JSON report file(s) here!</h5>
+      </div>
+      <h2>
+        <UploadIcon size={100} />
+      </h2>
+      <br />
+      <Alert variant="warning">
         <div>
-          <h1 style={{ marginBottom: 20 }}>Dropzone</h1>
-          <h5>Drop your JMH JSON report file(s) here!</h5>
-        </div>
-        <h2>
-          <UploadIcon size={100} />
-        </h2>
-        <br />
-        <Alert variant="warning">
+          <blockquote style={{ fontSize: 14, paddingLeft: 0, marginBottom: 5 }}>
+            <i>
+              &quot;<a href="http://openjdk.java.net/projects/code-tools/jmh/">JMH</a> is a Java harness for building,
+              running, and analysing nano/micro/milli/macro benchmarks written in Java and other languages targetting
+              the JVM.&quot;
+            </i>
+          </blockquote>
           <div>
-            <blockquote style={{ fontSize: 14, paddingLeft: 0, marginBottom: 5 }}>
-              <i>
-                &quot;<a href="http://openjdk.java.net/projects/code-tools/jmh/">JMH</a> is a Java harness for building,
-                running, and analysing nano/micro/milli/macro benchmarks written in Java and other languages targetting
-                the JVM.&quot;
-              </i>
-            </blockquote>
-            <div>
-              Use this tool to visually explore your benchmark results! Simply upload<sup>*</sup> any JMH result files
-              (in JSON format).
-            </div>
+            Use this tool to visually explore your benchmark results! Simply upload<sup>*</sup> any JMH result files (in
+            JSON format).
           </div>
-        </Alert>
-        <br />
-        <div style={{ fontSize: 12, textAlign: 'center' }}>
-          * Your data stays locally in your browser, it is not send to any server!
         </div>
-      </Dropzone>
-    );
-  }
+      </Alert>
+      <br />
+      <div style={{ fontSize: 12, textAlign: 'center' }}>
+        * Your data stays locally in your browser, it is not send to any server!
+      </div>
+    </div>
+  );
 }
