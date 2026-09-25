@@ -1,6 +1,6 @@
 # JMH Visualizer
 
-Visually explore your [JMH](http://openjdk.java.net/projects/code-tools/jmh/) Benchmarks! Online version at http://jmh.morethan.io!
+Visually explore your [JMH](http://openjdk.java.net/projects/code-tools/jmh/) Benchmarks! Online version at [mlangc.github.io/jmh-visualizer](https://mlangc.github.io/jmh-visualizer/)!
 
 Comes with 2 companion projects:
 - [Gradle plugin](https://github.com/jzillmann/gradle-jmh-report)
@@ -10,16 +10,16 @@ Comes with 2 companion projects:
 ## Features
 
 - Serverless architecture - All happens locally in your browser
-- Visualize the benchmarks of a [single run](http://jmh.morethan.io?example=single) (one JSON file) grouped by benchmark class
+- Visualize the benchmarks of a [single run](https://mlangc.github.io/jmh-visualizer/?example=single) (one JSON file) grouped by benchmark class
   - Vertical bar-chart with score and score error 
   - Link to the original JSON
   - Show individual runs as tooltip
-- Compare the benchmarks of [2 runs](http://jmh.morethan.io?example=two) (two JSON files) grouped by benchmark class
+- Compare the benchmarks of [2 runs](https://mlangc.github.io/jmh-visualizer/?example=two) (two JSON files) grouped by benchmark class
   - Summary of noteable changes
   - Vertical bar-chart from -100% to 100%
   - Link to the original JSON
   - Show score and error of both runs in tooltip
-- Compare the benchmarks of [multiple runs](http://jmh.morethan.io?example=multi) (n JSON files) grouped by benchmark class
+- Compare the benchmarks of [multiple runs](https://mlangc.github.io/jmh-visualizer/?example=multi) (n JSON files) grouped by benchmark class
   - Summary of noteable changes
   - Line chart
   - Show score and error on hover
@@ -60,17 +60,17 @@ While this app will visualize any valid JMH JSON you throw at it, you can write 
 
 | Name | Values | What you can do with it? | Example |
 | ------------- | ------------- | ------------- | ------------- |
-| source | $url | Load a single benchmark result from the provided URL | http://jmh.morethan.io?source=https://gist.githubusercontent.com/jzillmann/7d23b2382911cc434754a23773b06598/raw/1bcad4bb64624d8a2be15114a4eee4c406c3ae95/string-concatenation_jdk7.json |
-| sources | $url1,$url2,.. | Load multiple benchmark results from the provided URLs | http://jmh.morethan.io?sources=https://gist.githubusercontent.com/jzillmann/7d23b2382911cc434754a23773b06598/raw/1bcad4bb64624d8a2be15114a4eee4c406c3ae95/string-concatenation_jdk7.json,https://gist.githubusercontent.com/jzillmann/866d39d43b264f507a67368f2313baca/raw/d0ae1502e8c493e6814c83f2df345fecb763c078/string-concatenation_jdk8.json |
-| gist | $gistId | Load a single benchmark result from the provided gist | http://jmh.morethan.io?gist=7d23b2382911cc434754a23773b06598 |
-| gist (multi-file)| $gistId | Load multiple benchmark results from the provided gist | http://jmh.morethan.io?gist=4c9e282fff30b5fa455ae2496acf4e05 |
-| gists | $gistId1,$gistId2,... | Load multiple benchmark results from the provided gists | http://jmh.morethan.io?gists=7d23b2382911cc434754a23773b06598,866d39d43b264f507a67368f2313baca |
-| topBar | oneOf['default', 'off, 'my custom headline'] | Control the header | [Off](http://jmh.morethan.io?gist=7d23b2382911cc434754a23773b06598&topBar=off), [Custom Headline](http://jmh.morethan.io/?gist=7d23b2382911cc434754a23773b06598&topBar=Custom%20Headline) |
+| source | $url | Load a single benchmark result from the provided URL | https://mlangc.github.io/jmh-visualizer/?source=https://gist.githubusercontent.com/jzillmann/7d23b2382911cc434754a23773b06598/raw/1bcad4bb64624d8a2be15114a4eee4c406c3ae95/string-concatenation_jdk7.json |
+| sources | $url1,$url2,.. | Load multiple benchmark results from the provided URLs | https://mlangc.github.io/jmh-visualizer/?sources=https://gist.githubusercontent.com/jzillmann/7d23b2382911cc434754a23773b06598/raw/1bcad4bb64624d8a2be15114a4eee4c406c3ae95/string-concatenation_jdk7.json,https://gist.githubusercontent.com/jzillmann/866d39d43b264f507a67368f2313baca/raw/d0ae1502e8c493e6814c83f2df345fecb763c078/string-concatenation_jdk8.json |
+| gist | $gistId | Load a single benchmark result from the provided gist | https://mlangc.github.io/jmh-visualizer/?gist=7d23b2382911cc434754a23773b06598 |
+| gist (multi-file)| $gistId | Load multiple benchmark results from the provided gist | https://mlangc.github.io/jmh-visualizer/?gist=4c9e282fff30b5fa455ae2496acf4e05 |
+| gists | $gistId1,$gistId2,... | Load multiple benchmark results from the provided gists | https://mlangc.github.io/jmh-visualizer/?gists=7d23b2382911cc434754a23773b06598,866d39d43b264f507a67368f2313baca |
+| topBar | oneOf['default', 'off, 'my custom headline'] | Control the header | [Off](https://mlangc.github.io/jmh-visualizer/?gist=7d23b2382911cc434754a23773b06598&topBar=off), [Custom Headline](https://mlangc.github.io/jmh-visualizer/?gist=7d23b2382911cc434754a23773b06598&topBar=Custom%20Headline) |
 
 
 ## Contribute
 
-Use the [issue tracker](https://github.com/jzillmann/jmh-visualizer/issues) and/or open [pull requests](https://github.com/jzillmann/jmh-visualizer/pulls)!
+Use the [issue tracker](https://github.com/mlangc/jmh-visualizer/issues) and/or open [pull requests](https://github.com/mlangc/jmh-visualizer/pulls)!
 
 #### Useful Commands
 

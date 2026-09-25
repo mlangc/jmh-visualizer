@@ -29,7 +29,7 @@
   "license": "AGPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jzillmann/jmh-visualizer"
+    "url": "https://github.com/mlangc/jmh-visualizer"
   },
   "browserslist": [
     "> 0.5%",

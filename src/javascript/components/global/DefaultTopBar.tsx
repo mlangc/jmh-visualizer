@@ -47,15 +47,11 @@ export default class DefaultTopBar extends React.Component {
                   </Dropdown.Item>
                 )}
                 {showReset && <Dropdown.Divider />}
-                <Dropdown.Item
-                  role="menuitem"
-                  href="https://github.com/jzillmann/jmh-visualizer/issues"
-                  target="_blank"
-                >
+                <Dropdown.Item role="menuitem" href="https://github.com/mlangc/jmh-visualizer/issues" target="_blank">
                   <LinkIcon />
                   {' Feedback & Bug Reports '}
                 </Dropdown.Item>
-                <Dropdown.Item role="menuitem" href="http://github.com/jzillmann/jmh-visualizer" target="_blank">
+                <Dropdown.Item role="menuitem" href="https://github.com/mlangc/jmh-visualizer" target="_blank">
                   <LinkIcon />
                   {' Code @ Github '}
                 </Dropdown.Item>
