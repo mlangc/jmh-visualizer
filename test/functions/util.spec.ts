@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { cartesianProduct, flatten, getUniqueNames } from '../../src/javascript/functions/util.ts';
+import { cartesianProduct, flatten, getUniqueNames } from '../../src/app/functions/util.ts';
 
 describe('functions: cartesianProduct', () => {
   it('default', () => {

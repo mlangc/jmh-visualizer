@@ -4,16 +4,16 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const SOURCE_DIR = path.resolve(__dirname, 'src');
-const JAVASCRIPT_DIR = `${SOURCE_DIR}/javascript`;
+const APP_DIR = `${SOURCE_DIR}/app`;
 const BUILD_DIR = path.resolve(__dirname, 'build');
 
 module.exports = {
   context: SOURCE_DIR,
   resolve: {
-    modules: [path.resolve(JAVASCRIPT_DIR), 'node_modules']
+    modules: [path.resolve(APP_DIR), 'node_modules']
   },
   entry: {
-    app: './javascript/entry.tsx'
+    app: './app/entry.tsx'
   },
   output: {
     path: BUILD_DIR,
@@ -25,7 +25,7 @@ module.exports = {
         test: /\.[jt]sx?$/,
         loader: 'babel-loader',
         // Skip any files outside of your project's `src` directory
-        include: [JAVASCRIPT_DIR]
+        include: [APP_DIR]
       },
       {
         test: /\.css$/,

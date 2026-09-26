@@ -5,7 +5,7 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "paths": {
-      "*": ["./src/javascript/*"]
+      "*": ["./src/app/*"]
     },
     "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
@@ -15,5 +15,5 @@
     "skipLibCheck": true,
     "types": []
   },
-  "include": ["src/javascript", "src/*.d.ts"]
+  "include": ["src/app", "src/*.d.ts"]
 }

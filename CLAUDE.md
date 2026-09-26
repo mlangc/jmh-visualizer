@@ -52,12 +52,12 @@ bodies empty by default.
 ## Architecture quick map
 
 - Language: TypeScript (`strict`). Imports are bare paths rooted at
-  `src/javascript` (webpack's `resolve.modules`, `tsconfig.json`'s `paths`,
+  `src/app` (webpack's `resolve.modules`, `tsconfig.json`'s `paths`,
   mocha's `NODE_PATH`) with explicit `.ts`/`.tsx` extensions. Three kinds of
   files deliberately stay plain JS, typed by a sibling `.d.ts`:
   `src/settings.js` and `src/provided.js` (globals loaded via `<script>` tags,
   meant to be edited post-build) and the generated `exampleBenchmark*.js`.
-- State: `src/javascript/store/store.ts`, a Zustand store (single
+- State: `src/app/store/store.ts`, a Zustand store (single
   global store + actions, not Redux). Key state: `benchmarkRuns`,
   `selectedMetric`, `focusedBundles` (class-level solo/isolate filter, toggled
   by the sidebar eye icon), `deselectedMethods` (method-level hide filter,

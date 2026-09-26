@@ -4,11 +4,11 @@ import {
   parseBenchmarkBundles,
   parseBenchmarkName,
   parseMethodName
-} from '../../src/javascript/functions/parse.ts';
-import type { Benchmark } from '../../src/javascript/models/Benchmark.ts';
-import BenchmarkBundle from '../../src/javascript/models/BenchmarkBundle.ts';
-import BenchmarkMethod from '../../src/javascript/models/BenchmarkMethod.ts';
-import BenchmarkRun from '../../src/javascript/models/BenchmarkRun.ts';
+} from '../../src/app/functions/parse.ts';
+import type { Benchmark } from '../../src/app/models/Benchmark.ts';
+import BenchmarkBundle from '../../src/app/models/BenchmarkBundle.ts';
+import BenchmarkMethod from '../../src/app/models/BenchmarkMethod.ts';
+import BenchmarkRun from '../../src/app/models/BenchmarkRun.ts';
 
 describe('functions: parseMethodName', () => {
   it('default', () => {

@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["mocha"]
   },
-  "include": [".", "../src/*.d.ts", "../src/javascript/**/*.d.ts"]
+  "include": [".", "../src/*.d.ts", "../src/app/**/*.d.ts"]
 }
