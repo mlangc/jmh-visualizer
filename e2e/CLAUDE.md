@@ -186,6 +186,9 @@ is which.
   `.recharts-tooltip-wrapper`.
 - `support/start-screen-assertions.ts` — `expectStartScreen()`, shared by the
   start-screen spec and the post-reset check in the multi-run spec.
+- `support/brand-menu-assertions.ts` — `expectBrandMenu()`, the brand
+  dropdown's menu items, visible or not per `opts.visible`; used by the
+  start-screen spec and the harness spec.
 - `support/summary-comparison-assertions.ts` —
   `expectDeclinedBenchmarks()`/`expectImprovedBenchmarks()`/
   `expectUnchangedBenchmarks()`, shared checks for the Summary screen's 3
@@ -258,6 +261,7 @@ npm ci && npx playwright install chromium   # one-time
 npm test                                    # headless run
 npm run test:headed                         # headed, for debugging
 npm run report                              # open the HTML report
+npm run typecheck                           # tsc, no emit
 npm run lint                                # biome check (formatting + lint), no writes
 npm run format                              # biome check --write, applies safe fixes
 ```
@@ -302,7 +306,7 @@ check, which only holds against a build that doesn't implement filters (set
 
 `SKIP_NEEDS_FIX` (env var, same parsing as `INCLUDE_FILTERS`) opts *out* of
 `@needs-fix`-tagged tests — tests that need an app fix this suite ships
-alongside. Like `@filters`, they run by default: the fix is in this branch's
+alongside. Like `@filters`, they run by default: the fix is in `main`'s
 `src/`, so the default build has it. Set the flag when `APP_BUILD_DIR` points
 at a build that predates the fix (an older branch, `master` before the fix
 lands, a bisect):
@@ -331,7 +335,7 @@ would be covered by the same switch if a second one ever earns its own name.
 - **Don't click while the bar labels are animating in.** `BarChartView`'s
   `LabelList` animates over ~540ms after a load, and on builds still on
   recharts 1.x (anything before the modernization's recharts 2 bump, e.g.
-  `master` and `main`), a re-render during that window — a sort, or a filter
+  `master`), a re-render during that window — a sort, or a filter
   click the app refuses — drops the labels permanently: the chart keeps its
   bars, axes and category names, but the per-bar value labels never come
   back. A spec
@@ -355,23 +359,13 @@ value` space-before-colon — that's JMH's own JSON writer, not a style
 choice), and reformatting them would trade that authenticity for a purely
 cosmetic diff.
 
-`src/`/`test/` are now covered too, by their own standalone root
-`../biome.json` — not this one, and not a shared/extended config. Biome 2.x
-treats a nested `biome.json` (this one) as a conflicting root when the outer
-one scans a bare `.`, so the outer config path-scopes itself explicitly
-(`files.includes: ["src/**", "test/**", "webpack.config.js", "tsconfig.json"]`) rather than
-unifying the two. The two configs' formatter settings (2-space indent,
-single quotes, semicolons, no trailing commas, 120-col width) were kept in
-sync deliberately — this directory's settings were picked years earlier to
-match `src/`'s own dominant conventions where one existed, so extending
-Biome to `src/` later stayed a small diff, as intended. Indent width was the
-one exception (`src/` split ~58/68 files at 4-space with no discernible
-pattern; 2-space was a deliberate call to match Biome/Prettier's own default
-instead). The lint preset is `recommended` in both, with a small set of
-rules turned off in the root config for `src/`'s patterns (see
-`../biome.json`) — nothing's been relaxed here since it hasn't produced any
-noise in this directory (all violations to date: one rule, `useImportType`,
-always safe-fixable).
+The app's `src/`/`test/` use their own standalone root `../biome.json`, not
+this one, and not a shared/extended config (the outer config path-scopes
+itself, since Biome 2.x treats this nested `biome.json` as a conflicting root
+otherwise). Keep the two configs' formatter settings (2-space indent, single
+quotes, semicolons, no trailing commas, 120-col width) in sync. Both use the
+`recommended` lint preset; only the root config turns a few rules off, for
+`src/`'s patterns.
 
 ## Constraints
 
@@ -398,8 +392,7 @@ always safe-fixable).
   falsification check that only holds against a build without filters,
   excluded the other way by the same `INCLUDE_FILTERS` toggle.
 - Second, `@needs-fix` cuts the other way: those tests describe behaviour only a build
-  carrying this branch's `src/` fix has, so they run by default and get
+  carrying `main`'s `src/` fix has, so they run by default and get
   excluded with `SKIP_NEEDS_FIX=1` when testing an older build (see Commands
-  above). Both directions are verified: the full suite is green against the
-  filters-branch build with `INCLUDE_FILTERS=1 SKIP_NEEDS_FIX=1`, and against
-  a pre-fix build with `SKIP_NEEDS_FIX=1`.
+  above). A `master` build needs both switches:
+  `INCLUDE_FILTERS=0 SKIP_NEEDS_FIX=1`.

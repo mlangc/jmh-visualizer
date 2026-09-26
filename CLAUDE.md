@@ -19,10 +19,6 @@
 - `npm run check` = lint + typecheck + test; `npm run release` = check +
   release-build
 
-Webpack is on 5.x — no `NODE_OPTIONS=--openssl-legacy-provider` needed
-anymore (that was a webpack-4-with-modern-OpenSSL workaround; webpack 5's
-default hasher doesn't touch Node's crypto module).
-
 `e2e/` is a separate, isolated Playwright/TS black-box test suite (own
 `package.json`/`node_modules`, own `biome.json`) — see `e2e/CLAUDE.md`. The
 root Biome config (`biome.json`) deliberately only targets `src`, `test`,
@@ -84,21 +80,13 @@ bodies empty by default.
   feature must drop empty bundles before they reach `SingleRunView` /
   `TwoRunsView` / `MultiRunView`.
 
-## Known dependency landmines
+## Known dependency debt
 
-- `recharts` is on 2.x (`^2.15.4`), a deliberate stop short of 3.x — the
-  modernization plan (`plans/2026-09-21-MODERNIZATION-PLAN.md`, Step 2.f)
-  treats 3.x as a second breaking rewrite, out of scope for now. The old
-  1.8.5/1.8.6 landmine (a webpack `resolve.modules` absolute path couldn't
-  reach `recharts/node_modules/core-js@3`) no longer applies: that override
-  was changed to a bare `'node_modules'` string as part of the webpack 5
-  bump, restoring webpack's normal nested-lookup resolution.
-- `d3-scale-chromatic` is on 3.x — its ESM-only packaging (previously
-  blocked under webpack 4/Babel 6) resolves cleanly now that both are
-  modernized.
-- Several other minor/patch Dependabot bumps have already been applied
-  safely (via `npm update` / `npm install --no-save`, within their existing
-  `package.json` ranges), each verified with a real build.
+- `recharts` is pinned to 2.x (`^2.15.4`), a stale line: 2.15.4 (2025-06)
+  is its last release, all fixes now land in 3.x only. 3.x is a breaking
+  rewrite, deferred by the modernization plan
+  (`plans/2026-09-21-MODERNIZATION-PLAN.md`, Step 2.f) — migrating is a
+  pending task of its own, not a routine bump.
 
 ## General notes
 
