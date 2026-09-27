@@ -71,37 +71,39 @@ export default class BarChartView extends React.Component<BarChartViewProps> {
 
     return (
       <div>
-        <ResponsiveContainer width="100%" height={chartHeight}>
-          <BarChart
-            layout="vertical"
-            height={chartHeight}
-            data={dataSet.data}
-            margin={{ top: 20, right: chartMarginRight, left: maxMethodNameLength * 4, bottom: 5 }}
-          >
-            <XAxis
-              type="number"
-              domain={[domainMin, domainMax]}
-              scale={scale}
-              allowDataOverflow
-              tickFormatter={tickFormatter}
-            />
-            <YAxis dataKey="name" type="category" />
-            <CartesianGrid strokeDasharray="3 3" />
-            <Tooltip
-              content={
-                <SingleRunChartTooltip
-                  scoreUnit={dataSet.scoreUnit}
-                  roundScores={dataSet.roundScores}
-                  paramNames={paramNames}
-                />
-              }
-              cursor={{ stroke: green, strokeWidth: 2 }}
-              wrapperStyle={{ backgroundColor: tooltipBackground, opacity: 0.95 }}
-            />
-            <Legend />
-            {bars}
-          </BarChart>
-        </ResponsiveContainer>
+        {/* responsive rather than a ResponsiveContainer, whose size would override the tooltip's own charts' */}
+        <BarChart
+          responsive
+          layout="vertical"
+          width="100%"
+          height={chartHeight}
+          data={dataSet.data}
+          margin={{ top: 20, right: chartMarginRight, left: maxMethodNameLength * 4, bottom: 5 }}
+        >
+          <XAxis
+            type="number"
+            domain={[domainMin, domainMax]}
+            scale={scale}
+            niceTicks="none"
+            allowDataOverflow
+            tickFormatter={tickFormatter}
+          />
+          <YAxis dataKey="name" type="category" />
+          <CartesianGrid strokeDasharray="3 3" />
+          <Legend itemSorter={null} labelStyle={{ color: 'inherit' }} />
+          <Tooltip
+            content={
+              <SingleRunChartTooltip
+                scoreUnit={dataSet.scoreUnit}
+                roundScores={dataSet.roundScores}
+                paramNames={paramNames}
+              />
+            }
+            cursor={{ stroke: green, strokeWidth: 2 }}
+            wrapperStyle={{ backgroundColor: tooltipBackground, opacity: 0.95 }}
+          />
+          {bars}
+        </BarChart>
         {paramNames.length > 0 && (
           <div>
             <div>

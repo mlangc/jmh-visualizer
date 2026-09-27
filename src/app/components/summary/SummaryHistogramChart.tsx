@@ -1,4 +1,5 @@
 import type { BenchmarkDiff } from 'components/summary/SummaryView.tsx';
+import { keepTooltipOrder } from 'functions/charts.ts';
 import { blue, green, red, yellow } from 'functions/colors.ts';
 import React from 'react';
 import {
@@ -7,12 +8,13 @@ import {
   CartesianGrid,
   Cell,
   Legend,
-  type LegendProps,
   ReferenceLine,
   ResponsiveContainer,
   Surface,
   Symbols,
   Tooltip,
+  type TooltipPayloadEntry,
+  type TooltipValueType,
   XAxis,
   YAxis
 } from 'recharts';
@@ -37,7 +39,16 @@ interface HistogramDataPoint {
   scoreUnit: string;
 }
 
-type LegendPayload = NonNullable<LegendProps['payload']>;
+interface HistogramDataSet {
+  dataKey: 'scoreDiff' | 'errorDiff';
+  color: string;
+}
+
+// recharts' Legend lists only the rendered Bars, so it's fed these instead, keeping disabled ones toggleable
+const dataSets: HistogramDataSet[] = [
+  { dataKey: 'scoreDiff', color: green },
+  { dataKey: 'errorDiff', color: blue }
+];
 
 class SummaryHistogramChart extends React.Component<SummaryHistogramChartProps, SummaryHistogramChartState> {
   constructor(props: SummaryHistogramChartProps) {
@@ -75,29 +86,24 @@ class SummaryHistogramChart extends React.Component<SummaryHistogramChartProps, 
       })
     );
 
-    const dataSets = [
-      { dataKey: 'scoreDiff', color: green },
-      { dataKey: 'errorDiff', color: blue }
-    ];
-
     return (
       <ResponsiveContainer width="100%" height={150}>
         <BarChart data={data} margin={{ top: 5, right: 20, left: -20, bottom: 5 }} barGap={0} barCategoryGap="9%">
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="idx" />
           <YAxis />
-          <Tooltip
-            offset={10}
-            position={{ x: 90, y: 144 }}
-            labelFormatter={(idx) => (data[idx] ? data[idx].name : 'N/A')}
-            formatter={tooltipFormat}
-          />
           <Legend
             align="center"
             verticalAlign="top"
             wrapperStyle={{ lineHeight: '40px' }}
-            payload={dataSets as LegendPayload}
             content={this.renderCusomizedLegend.bind(this)}
+          />
+          <Tooltip
+            itemSorter={keepTooltipOrder}
+            offset={10}
+            position={{ x: 90, y: 144 }}
+            labelFormatter={(idx) => (data[idx as number] ? data[idx as number].name : 'N/A')}
+            formatter={tooltipFormat}
           />
           <ReferenceLine y={0} stroke="#000" />
           {dataSets
@@ -130,11 +136,10 @@ class SummaryHistogramChart extends React.Component<SummaryHistogramChartProps, 
     }
   }
 
-  renderCusomizedLegend({ payload }: { payload?: LegendPayload }) {
+  renderCusomizedLegend() {
     return (
       <div style={{ textAlign: 'center' }}>
-        {payload!.map((entry) => {
-          const { dataKey, color } = entry as { dataKey: string; color: string };
+        {dataSets.map(({ dataKey, color }) => {
           const active = this.state.disabledLabels.includes(dataKey);
           const style = {
             marginRight: 10,
@@ -163,8 +168,12 @@ class SummaryHistogramChart extends React.Component<SummaryHistogramChartProps, 
 
 export default SummaryHistogramChart;
 
-function tooltipFormat(value: number, name: string, props: { payload?: HistogramDataPoint }) {
-  const payload = props.payload!;
+function tooltipFormat(
+  value: TooltipValueType | undefined,
+  name: string | number | undefined,
+  item: TooltipPayloadEntry
+) {
+  const payload: HistogramDataPoint = item.payload;
   const valueString = value != null ? value : 'N/A';
   let rawValueString: string;
   if (name === 'scoreDiff') {

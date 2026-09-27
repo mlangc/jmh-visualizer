@@ -2,13 +2,13 @@ import { blue, red } from 'functions/colors.ts';
 import { formatNumber } from 'functions/util.ts';
 import { Component } from 'react';
 import Table from 'react-bootstrap/Table';
-import type { TooltipProps } from 'recharts';
+import type { TooltipContentProps } from 'recharts';
 
 // label and payload are injected by recharts' Tooltip
 interface MultiRunChartTooltipProps {
   label?: string;
   roundScores: boolean;
-  payload?: TooltipProps<number, string>['payload'];
+  payload?: TooltipContentProps['payload'];
 }
 
 // Tooltip for LineChartView
@@ -21,7 +21,7 @@ export default class MultiRunChartTooltip extends Component<MultiRunChartTooltip
     const tableRows = payload!.map((dataPoint) => (
       <tr key={dataPoint.name}>
         <td>{dataPoint.name}</td>
-        <td style={{ color: blue }}>{formatNumber(dataPoint.value, roundScores)}</td>
+        <td style={{ color: blue }}>{formatNumber(dataPoint.value as number, roundScores)}</td>
         <td style={{ color: blue }}>{formatNumber(dataPoint.payload[`${dataPoint.name}-minMax`][0], roundScores)}</td>
         <td style={{ color: blue }}>{formatNumber(dataPoint.payload[`${dataPoint.name}-minMax`][1], roundScores)}</td>
         <td style={{ color: red }}>{formatNumber(dataPoint.payload[`${dataPoint.name}-scoreError`], roundScores)}</td>

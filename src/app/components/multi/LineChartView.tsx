@@ -160,7 +160,12 @@ export default class LineChartView extends React.Component<LineChartViewProps, L
           <XAxis dataKey="name" />
           <YAxis {...logScaleProps} tickFormatter={tickFormatter} />
           <CartesianGrid strokeDasharray="3 3" />
-          <Legend onMouseEnter={this.activateLineFromLegend.bind(this)} onMouseLeave={this.deactivateLine.bind(this)} />
+          <Legend
+            itemSorter={null}
+            labelStyle={{ color: 'inherit' }}
+            onMouseEnter={this.activateLineFromLegend.bind(this)}
+            onMouseLeave={this.deactivateLine.bind(this)}
+          />
           {tooltip}
           {lines}
         </LineChart>

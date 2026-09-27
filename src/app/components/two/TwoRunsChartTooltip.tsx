@@ -2,14 +2,14 @@ import { blue, green, red } from 'functions/colors.ts';
 import { formatNumber } from 'functions/util.ts';
 import { Component } from 'react';
 import Table from 'react-bootstrap/Table';
-import type { TooltipProps } from 'recharts';
+import type { TooltipContentProps } from 'recharts';
 
 // label and payload are injected by recharts' Tooltip
 interface TwoRunsChartTooltipProps {
   label?: string;
   runNames: string[];
   roundScores: boolean;
-  payload?: TooltipProps<number, string>['payload'];
+  payload?: TooltipContentProps['payload'];
 }
 
 export default class TwoRunsChartTooltip extends Component<TwoRunsChartTooltipProps> {

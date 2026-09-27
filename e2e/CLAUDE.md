@@ -342,8 +342,8 @@ would be covered by the same switch if a second one ever earns its own name.
   that interacts straight after `uploadReport()` and then asserts on a label
   will fail there in a way that looks like a filtering bug. Wait the labels
   out first (`await expect(chart.getByText(/s\/op/)).toHaveCount(4)`), which
-  several specs do as their first assertion anyway. recharts 2 fixed it, so
-  it's deliberately not pinned either way.
+  several specs do as their first assertion anyway. recharts 2 fixed it (and
+  3.x kept it fixed), so it's deliberately not pinned either way.
 - **A tooltip changes what `.recharts-wrapper` matches.** `SingleRunChartTooltip`
   renders its "Raw Data" iteration charts as recharts charts of their own, so
   while one is open the page has several wrappers nested inside the first. Use

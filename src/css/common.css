@@ -280,3 +280,9 @@ a {
 #scales-sync:focus-visible {
   box-shadow: 0 0 2px 3px #0099e0;
 }
+
+/* recharts 3 makes its z-index layers focusable, though not tabbable
+   (tabindex="-1"), so a mouse click on a chart outlined the layer it hit. */
+.recharts-wrapper g[tabindex="-1"]:focus {
+  outline: none;
+}

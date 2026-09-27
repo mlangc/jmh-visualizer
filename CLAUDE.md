@@ -79,14 +79,24 @@ bodies empty by default.
   reaching the chart views crashes to a blank page. Any future filtering
   feature must drop empty bundles before they reach `SingleRunView` /
   `TwoRunsView` / `MultiRunView`.
+- **Gotcha**: recharts 3 stacks a chart's `<Legend>` and `<Tooltip>` overlays
+  in JSX order, so the `<Tooltip>` must come after the `<Legend>` to be drawn
+  on top of it. Both also sort their entries by default (by name/value), so
+  wherever chart order matters they get an explicit `itemSorter`. And a chart
+  inside a `ResponsiveContainer` takes the container's size over its own
+  `width`/`height`, including charts nested in its tooltip — which is why
+  `BarChartView` (whose tooltip holds the "Raw Data" charts) uses the chart's
+  own `responsive` prop instead.
 
 ## Known dependency debt
 
-- `recharts` is pinned to 2.x (`^2.15.4`), a stale line: 2.15.4 (2025-06)
-  is its last release, all fixes now land in 3.x only. 3.x is a breaking
-  rewrite, deferred by the modernization plan
-  (`plans/2026-09-21-MODERNIZATION-PLAN.md`, Step 2.f) — migrating is a
-  pending task of its own, not a routine bump.
+- `recharts` 3.x deprecated `Cell` (3.7, slated for removal in 4.x) in favor
+  of each graphical element's `shape` prop; `DiffBarChartView`,
+  `SummaryChangeChart` and `SummaryHistogramChart` still use it.
+  `ResponsiveContainer` is only promised to keep working for the life of 3.x,
+  its successor being the charts' own `responsive` prop (3.3). `Legend`'s
+  `align`/`verticalAlign` are deprecated too (3.10) in favor of `position`;
+  `DiffBarChartView` and `SummaryHistogramChart` still use them.
 
 ## General notes
 

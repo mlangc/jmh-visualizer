@@ -10,14 +10,27 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  DefaultLegendContent,
+  type DefaultLegendContentProps,
   LabelList,
   Legend,
+  type LegendPayload,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis
 } from 'recharts';
+
+// The Bar's own legend entry would be its dataKey in a single color, not what its Cells' colors mean
+const legendPayload: LegendPayload[] = [
+  { value: 'Decrease in %', color: red, type: 'rect' },
+  { value: 'Increase in %', color: green, type: 'rect' }
+];
+
+const DiffLegendContent = (props: DefaultLegendContentProps) => (
+  <DefaultLegendContent {...props} payload={legendPayload} />
+);
 
 interface DiffBarChartViewProps {
   runNames: string[];
@@ -53,18 +66,11 @@ export default class DiffBarChartView extends React.Component<DiffBarChartViewPr
           <XAxis type="number" domain={[-100, 100]} />
           <YAxis dataKey="name" type="category" />
           <CartesianGrid strokeDasharray="3 3" />
+          <Legend verticalAlign="top" content={DiffLegendContent} labelStyle={{ color: 'inherit' }} height={30} />
           <Tooltip
             content={<TwoRunsChartTooltip runNames={runNames} roundScores={dataSet.roundScores} />}
             cursor={{ stroke: green, strokeWidth: 2 }}
             wrapperStyle={{ backgroundColor: tooltipBackground, opacity: 0.95 }}
-          />
-          <Legend
-            verticalAlign="top"
-            payload={[
-              { value: 'Decrease in %', color: red, type: 'rect' },
-              { value: 'Increase in %', color: green, type: 'rect' }
-            ]}
-            height={30}
           />
           <Bar dataKey="scoreDiff" unit=" %" isAnimationActive={true} animationDuration={900}>
             {dataSet.data.map((_entry, index) => {
