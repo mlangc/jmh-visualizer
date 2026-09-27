@@ -11,6 +11,7 @@ import {
   CartesianGrid,
   Cell,
   DefaultLegendContent,
+  type DefaultLegendContentProps,
   LabelList,
   Legend,
   type LegendPayload,
@@ -26,6 +27,10 @@ const legendPayload: LegendPayload[] = [
   { value: 'Decrease in %', color: red, type: 'rect' },
   { value: 'Increase in %', color: green, type: 'rect' }
 ];
+
+const DiffLegendContent = (props: DefaultLegendContentProps) => (
+  <DefaultLegendContent {...props} payload={legendPayload} />
+);
 
 interface DiffBarChartViewProps {
   runNames: string[];
@@ -61,11 +66,7 @@ export default class DiffBarChartView extends React.Component<DiffBarChartViewPr
           <XAxis type="number" domain={[-100, 100]} />
           <YAxis dataKey="name" type="category" />
           <CartesianGrid strokeDasharray="3 3" />
-          <Legend
-            verticalAlign="top"
-            content={(props) => <DefaultLegendContent {...props} payload={legendPayload} />}
-            height={30}
-          />
+          <Legend verticalAlign="top" content={DiffLegendContent} height={30} />
           <Tooltip
             content={<TwoRunsChartTooltip runNames={runNames} roundScores={dataSet.roundScores} />}
             cursor={{ stroke: green, strokeWidth: 2 }}
