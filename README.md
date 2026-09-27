@@ -112,5 +112,4 @@ Babel, webpack, react,... and many more for an enjoyable webstack!
 
 ## Donating
 
-[![Support via PayPal](https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg)](https://www.paypal.com/paypalme/mlangc)
-
+[![Support via PayPal](https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg)](https://www.paypal.me/JohannesZillmann/5.4)
