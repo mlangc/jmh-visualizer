@@ -61,6 +61,7 @@ const SummaryChangeChart = ({ benchmarkDiffs, minDeviation }: SummaryChangeChart
           position={{ x: 45, y: 144 }}
           cursor={{ stroke: yellow, strokeWidth: 2 }}
           wrapperStyle={{ backgroundColor: tooltipBackground, opacity: 0.95 }}
+          itemStyle={{ color: '#000' }}
         />
       </PieChart>
     </ResponsiveContainer>
