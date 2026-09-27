@@ -1,4 +1,5 @@
 import type { BenchmarkDiff } from 'components/summary/SummaryView.tsx';
+import { keepTooltipOrder } from 'functions/charts.ts';
 import { blue, green, red, yellow } from 'functions/colors.ts';
 import React from 'react';
 import {
@@ -98,6 +99,7 @@ class SummaryHistogramChart extends React.Component<SummaryHistogramChartProps, 
             content={this.renderCusomizedLegend.bind(this)}
           />
           <Tooltip
+            itemSorter={keepTooltipOrder}
             offset={10}
             position={{ x: 90, y: 144 }}
             labelFormatter={(idx) => (data[idx as number] ? data[idx as number].name : 'N/A')}

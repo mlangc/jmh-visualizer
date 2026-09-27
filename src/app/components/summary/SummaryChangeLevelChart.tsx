@@ -1,4 +1,5 @@
 import type { BenchmarkDiff } from 'components/summary/SummaryView.tsx';
+import { keepTooltipOrder } from 'functions/charts.ts';
 import { green, red, tooltipBackground, yellow } from 'functions/colors.ts';
 import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -48,6 +49,7 @@ const SummaryChangeLevelChart = ({ minDeviation, benchmarkDiffs }: SummaryChange
         <Radar name="Improvement" dataKey="increase" stroke={green} fill={green} fillOpacity={0.6} />
         <Radar name="Decline" dataKey="decrease" stroke={red} fill={red} fillOpacity={0.6} />
         <Tooltip
+          itemSorter={keepTooltipOrder}
           offset={10}
           position={{ x: 45, y: 144 }}
           cursor={{ stroke: yellow, strokeWidth: 2 }}

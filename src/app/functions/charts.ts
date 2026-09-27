@@ -1,3 +1,6 @@
+// For a Tooltip's itemSorter: lists its entries in chart order, not recharts' default of sorted by name
+export const keepTooltipOrder = () => 0;
+
 export const tickFormatter = (tick: number) => {
   return String(shortenLargeNumber(tick, 20));
 };
