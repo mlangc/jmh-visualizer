@@ -10,9 +10,8 @@ changes. Those are the implementer's call.
 The migration happens in its own feature branch/worktree off `main`. Merging it back into `main` is left to the
 maintainer; the implementer doesn't merge.
 
-**Status:** Steps 1–3 and the final checkpoint's Opus review done on branch `recharts-3-migration`; awaiting the
-maintainer's side-by-side comparison. The implementer keeps this line current, including when it hands over for the maintainer's
-comparison.
+**Status:** done. Steps 1–3 and the final checkpoint (Opus review and the maintainer's side-by-side comparison) are
+complete on branch `recharts-3-migration`, ready for the maintainer to merge.
 
 ## Ground rules
 
