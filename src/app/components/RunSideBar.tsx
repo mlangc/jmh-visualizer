@@ -108,7 +108,7 @@ export default class RunSideBar extends React.Component<RunSideBarProps> {
 
     return (
       <div>
-        <FormGroup controlId="formControlsSelectMultiple">
+        <FormGroup>
           <InputGroup>
             <Tooltipped tooltip="No secondary metrics found!!" position="bottom" disabled={metrics.length > 1}>
               <Form.Select

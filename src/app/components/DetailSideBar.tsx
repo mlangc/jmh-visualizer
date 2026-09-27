@@ -36,7 +36,7 @@ export default class DetailSideBar extends React.Component<DetailSideBarProps> {
         </a>
         <br />
         <br />
-        <FormGroup controlId="theForm">
+        <FormGroup>
           <InputGroup>
             <Form.Select
               size="sm"
