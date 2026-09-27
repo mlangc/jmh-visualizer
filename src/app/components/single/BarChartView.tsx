@@ -90,6 +90,7 @@ export default class BarChartView extends React.Component<BarChartViewProps> {
           />
           <YAxis dataKey="name" type="category" />
           <CartesianGrid strokeDasharray="3 3" />
+          <Legend />
           <Tooltip
             content={
               <SingleRunChartTooltip
@@ -101,7 +102,6 @@ export default class BarChartView extends React.Component<BarChartViewProps> {
             cursor={{ stroke: green, strokeWidth: 2 }}
             wrapperStyle={{ backgroundColor: tooltipBackground, opacity: 0.95 }}
           />
-          <Legend />
           {bars}
         </BarChart>
         {paramNames.length > 0 && (

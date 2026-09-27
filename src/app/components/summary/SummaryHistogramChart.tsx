@@ -91,17 +91,17 @@ class SummaryHistogramChart extends React.Component<SummaryHistogramChartProps, 
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="idx" />
           <YAxis />
-          <Tooltip
-            offset={10}
-            position={{ x: 90, y: 144 }}
-            labelFormatter={(idx) => (data[idx as number] ? data[idx as number].name : 'N/A')}
-            formatter={tooltipFormat}
-          />
           <Legend
             align="center"
             verticalAlign="top"
             wrapperStyle={{ lineHeight: '40px' }}
             content={this.renderCusomizedLegend.bind(this)}
+          />
+          <Tooltip
+            offset={10}
+            position={{ x: 90, y: 144 }}
+            labelFormatter={(idx) => (data[idx as number] ? data[idx as number].name : 'N/A')}
+            formatter={tooltipFormat}
           />
           <ReferenceLine y={0} stroke="#000" />
           {dataSets
