@@ -66,7 +66,7 @@ export default class DiffBarChartView extends React.Component<DiffBarChartViewPr
           <XAxis type="number" domain={[-100, 100]} />
           <YAxis dataKey="name" type="category" />
           <CartesianGrid strokeDasharray="3 3" />
-          <Legend verticalAlign="top" content={DiffLegendContent} height={30} />
+          <Legend verticalAlign="top" content={DiffLegendContent} labelStyle={{ color: 'inherit' }} height={30} />
           <Tooltip
             content={<TwoRunsChartTooltip runNames={runNames} roundScores={dataSet.roundScores} />}
             cursor={{ stroke: green, strokeWidth: 2 }}

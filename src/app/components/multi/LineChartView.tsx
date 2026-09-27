@@ -162,6 +162,7 @@ export default class LineChartView extends React.Component<LineChartViewProps, L
           <CartesianGrid strokeDasharray="3 3" />
           <Legend
             itemSorter={null}
+            labelStyle={{ color: 'inherit' }}
             onMouseEnter={this.activateLineFromLegend.bind(this)}
             onMouseLeave={this.deactivateLine.bind(this)}
           />
