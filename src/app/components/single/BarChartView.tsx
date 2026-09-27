@@ -82,6 +82,7 @@ export default class BarChartView extends React.Component<BarChartViewProps> {
               type="number"
               domain={[domainMin, domainMax]}
               scale={scale}
+              niceTicks="none"
               allowDataOverflow
               tickFormatter={tickFormatter}
             />

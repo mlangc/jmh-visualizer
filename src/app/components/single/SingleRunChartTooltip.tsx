@@ -3,7 +3,7 @@ import { blue, red } from 'functions/colors.ts';
 import { formatNumber, round } from 'functions/util.ts';
 import { Component, type ReactNode } from 'react';
 import Table from 'react-bootstrap/Table';
-import { Bar, BarChart, LabelList, type TooltipProps, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, LabelList, type TooltipContentProps, XAxis, YAxis } from 'recharts';
 
 // label and payload are injected by recharts' Tooltip
 interface SingleRunChartTooltipProps {
@@ -11,7 +11,7 @@ interface SingleRunChartTooltipProps {
   paramNames: string[];
   scoreUnit: string | undefined;
   roundScores: boolean;
-  payload?: TooltipProps<number, string>['payload'];
+  payload?: TooltipContentProps['payload'];
 }
 
 export default class SingleRunChartTooltip extends Component<SingleRunChartTooltipProps> {
@@ -34,13 +34,15 @@ export default class SingleRunChartTooltip extends Component<SingleRunChartToolt
 
     // Assemble table rows showing score, error, etc... per bar
     const tableRows = payload.map((barPayload) => {
-      const score = formatNumber(barPayload.payload[barPayload.dataKey!], roundScores);
-      const minMax = barPayload.payload[`${barPayload.dataKey}MinMax`];
+      // The Bars' dataKeys are the bar group names, always strings
+      const dataKey = barPayload.dataKey as string;
+      const score = formatNumber(barPayload.payload[dataKey], roundScores);
+      const minMax = barPayload.payload[`${dataKey}MinMax`];
       const min = formatNumber(minMax[0], roundScores);
       const max = formatNumber(minMax[1], roundScores);
       const columnValues: ReactNode[] = [];
       if (payload.length > 1) {
-        columnValues.push(<td key="run">{barPayload.dataKey}</td>);
+        columnValues.push(<td key="run">{dataKey}</td>);
       }
       columnValues.push(
         <td key="score" style={{ color: blue }}>
@@ -59,7 +61,7 @@ export default class SingleRunChartTooltip extends Component<SingleRunChartToolt
       );
       columnValues.push(
         <td key="error" style={{ color: red }}>
-          {formatNumber(barPayload.payload[`${barPayload.dataKey}Error`], roundScores)}
+          {formatNumber(barPayload.payload[`${dataKey}Error`], roundScores)}
         </td>
       );
       columnValues.push(<td key="unit">{scoreUnit}</td>);
