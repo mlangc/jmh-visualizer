@@ -7,6 +7,7 @@
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
+    "check": "npm run typecheck && npm run lint && npm run test",
     "report": "playwright show-report",
     "typecheck": "tsc",
     "lint": "biome check .",

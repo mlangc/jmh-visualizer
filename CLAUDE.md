@@ -12,12 +12,16 @@
 - Lint: `npm run lint` (Biome — formatting + lint, no writes)
 - Format: `npm run format` (same checks as `lint`, but applies formatting,
   import sorting and safe lint fixes; keep its path list in sync with `lint`)
+- `npm run format-unsafe`: like `format`, but also applies unsafe lint fixes
+  (`--unsafe`); keep its path list in sync too, and run it on a clean tree
 - Type check: `npm run typecheck` (`tsc`, no emit: Babel strips the types for
   webpack and mocha, so only this catches type errors; `test/tsconfig.json`
   checks the mocha specs separately, keeping mocha's globals out of `src`)
 - Test: `npm run test` (mocha 12, via `@babel/register`; see `.mocharc.json`)
 - `npm run check` = lint + typecheck + test; `npm run release` = check +
   release-build
+- `npm run build-and-check-all` = check + build + `e2e`'s check (which serves
+  `build/`, so it needs the fresh build)
 
 `e2e/` is a separate, isolated Playwright/TS black-box test suite (own
 `package.json`/`node_modules`, own `biome.json`) — see `e2e/CLAUDE.md`. The

@@ -262,6 +262,7 @@ npm test                                    # headless run
 npm run test:headed                         # headed, for debugging
 npm run report                              # open the HTML report
 npm run typecheck                           # tsc, no emit
+npm run check                               # typecheck + lint + test
 npm run lint                                # biome check (formatting + lint), no writes
 npm run format                              # biome check --write, applies safe fixes
 ```
