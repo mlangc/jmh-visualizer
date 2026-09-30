@@ -57,7 +57,7 @@ const DetailView = ({
   return (
     <div>
       <h3>
-        Details of <i>{benchmarkBundle.key}</i>
+        Details of <i>{benchmarkBundle.fullyQualifiedClassName}</i>
       </h3>
       <br />
       {[scoreMetricView, ...secondaryMetricViews]}

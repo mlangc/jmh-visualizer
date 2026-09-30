@@ -12,12 +12,12 @@ export function filterBenchmarkBundle(
 
   if (deselectedMethods.size > 0) {
     const deselectedNames = filtered.methodNames.filter((methodName) =>
-      deselectedMethods.has(methodKey(filtered.key, methodName))
+      deselectedMethods.has(methodKey(filtered.fullyQualifiedClassName, methodName))
     );
     if (deselectedNames.length > 0) {
       filtered = new BenchmarkBundle({
-        key: filtered.key,
-        name: filtered.name,
+        fullyQualifiedClassName: filtered.fullyQualifiedClassName,
+        simpleClassName: filtered.simpleClassName,
         methodNames: filtered.methodNames.filter((methodName) => !deselectedNames.includes(methodName)),
         benchmarkMethods: filtered.benchmarkMethods.filter(
           (benchmarkMethod) => !deselectedNames.includes(benchmarkMethod.name)
@@ -28,13 +28,14 @@ export function filterBenchmarkBundle(
 
   if (deselectedParamValues.size > 0) {
     const survivingMethods = filtered.benchmarkMethods.filter(
-      (benchmarkMethod) => !isMethodInstanceDeselected(filtered.key, benchmarkMethod, deselectedParamValues)
+      (benchmarkMethod) =>
+        !isMethodInstanceDeselected(filtered.fullyQualifiedClassName, benchmarkMethod, deselectedParamValues)
     );
     if (survivingMethods.length !== filtered.benchmarkMethods.length) {
       const survivingNames = new Set(survivingMethods.map((benchmarkMethod) => benchmarkMethod.name));
       filtered = new BenchmarkBundle({
-        key: filtered.key,
-        name: filtered.name,
+        fullyQualifiedClassName: filtered.fullyQualifiedClassName,
+        simpleClassName: filtered.simpleClassName,
         methodNames: filtered.methodNames.filter((methodName) => survivingNames.has(methodName)),
         benchmarkMethods: survivingMethods
       });

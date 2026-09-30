@@ -81,7 +81,7 @@ export default class SingleRunView extends React.Component<SingleRunViewProps, S
 
     benchmarkBundles.forEach((bundle) => {
       elements.push(
-        <TocElement key={bundle.key} name={bundle.key}>
+        <TocElement key={bundle.fullyQualifiedClassName} name={bundle.fullyQualifiedClassName}>
           <SingleRunBundle
             benchmarkBundle={bundle}
             metricExtractor={metricExtractor}

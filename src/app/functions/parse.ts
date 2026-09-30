@@ -6,14 +6,14 @@ import type MetricExtractor from 'models/MetricExtractor.ts';
 
 //TODO cleanup
 
-export function parseFullClassName(benchmark: Pick<Benchmark, 'benchmark'>) {
+export function parseFullyQualifiedClassName(benchmark: Pick<Benchmark, 'benchmark'>) {
   const nameParts = benchmark.benchmark.split('.');
   nameParts.pop(); //remove the method part
   return nameParts.join('.');
 }
 
-export function parseClassNameFromFullName(fullName: string) {
-  return fullName.split('.').reverse()[0];
+export function parseSimpleClassNameFromFullyQualifiedName(fullyQualifiedName: string) {
+  return fullyQualifiedName.split('.').reverse()[0];
 }
 
 // Extracts the benchmarks method name
@@ -66,7 +66,7 @@ export function getUniqueBenchmarkModesAccrossBundles(
 export function parseBenchmarkBundles(benchmarkRuns: BenchmarkRun[]) {
   const classToBenchmarksMap = parseMultiRunBenchmarkMap(benchmarkRuns);
   const benchmarkBundles: BenchmarkBundle[] = [];
-  for (const [fullName, benchmarkRunMap] of classToBenchmarksMap) {
+  for (const [fullyQualifiedClassName, benchmarkRunMap] of classToBenchmarksMap) {
     const benchmarkMethods: BenchmarkMethod[] = [];
     const methodNames = new Set<string>();
     for (const [key, benchmarks] of benchmarkRunMap) {
@@ -84,9 +84,9 @@ export function parseBenchmarkBundles(benchmarkRuns: BenchmarkRun[]) {
     }
     benchmarkBundles.push(
       new BenchmarkBundle({
-        key: fullName,
-        name: parseClassNameFromFullName(fullName),
-        benchmarkMethods: benchmarkMethods,
+        fullyQualifiedClassName,
+        simpleClassName: parseSimpleClassNameFromFullyQualifiedName(fullyQualifiedClassName),
+        benchmarkMethods,
         methodNames: [...methodNames]
       })
     );
@@ -103,11 +103,11 @@ function parseMultiRunBenchmarkMap(benchmarkRuns: BenchmarkRun[]) {
   const classToBenchmarksMap = new Map<string, Map<string, (Benchmark | null)[]>>();
   benchmarkRuns.forEach((benchmarkRun, benchmarkRunIndex) => {
     benchmarkRun.benchmarks.forEach((benchmark) => {
-      const fullClassName = parseFullClassName(benchmark);
-      let methodMap = classToBenchmarksMap.get(fullClassName);
+      const fullyQualifiedClassName = parseFullyQualifiedClassName(benchmark);
+      let methodMap = classToBenchmarksMap.get(fullyQualifiedClassName);
       if (methodMap === undefined) {
         methodMap = new Map();
-        classToBenchmarksMap.set(fullClassName, methodMap);
+        classToBenchmarksMap.set(fullyQualifiedClassName, methodMap);
       }
       let methodName = parseBenchmarkName(benchmark);
       let runArray = methodMap.get(methodName);

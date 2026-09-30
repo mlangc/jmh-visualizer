@@ -4,14 +4,19 @@ import type BenchmarkMethod from 'models/BenchmarkMethod.ts';
 
 // Holds a collection of benchmarks, typically those from a benchmark class
 export default class BenchmarkBundle {
-  key: string;
-  name: string;
+  fullyQualifiedClassName: string;
+  simpleClassName: string;
   methodNames: string[];
   benchmarkMethods: BenchmarkMethod[];
 
-  constructor(options: { key: string; name: string; methodNames: string[]; benchmarkMethods: BenchmarkMethod[] }) {
-    this.key = options.key; // com.company.ClassA
-    this.name = options.name; //ClassA
+  constructor(options: {
+    fullyQualifiedClassName: string;
+    simpleClassName: string;
+    methodNames: string[];
+    benchmarkMethods: BenchmarkMethod[];
+  }) {
+    this.fullyQualifiedClassName = options.fullyQualifiedClassName; // com.company.ClassA
+    this.simpleClassName = options.simpleClassName; //ClassA
     this.methodNames = options.methodNames; //unique method names (can occur multiple times because of params)
     this.benchmarkMethods = options.benchmarkMethods; //BenchmarkMethod(name, benchmarks[])[]
   }

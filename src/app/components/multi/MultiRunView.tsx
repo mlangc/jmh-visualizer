@@ -28,7 +28,7 @@ export default class MultiRunView extends React.Component<MultiRunViewProps> {
 
     benchmarkBundles.forEach((benchmarkBundle) => {
       elements.push(
-        <TocElement key={benchmarkBundle.key} name={benchmarkBundle.key}>
+        <TocElement key={benchmarkBundle.fullyQualifiedClassName} name={benchmarkBundle.fullyQualifiedClassName}>
           <MultiRunBundle
             runNames={runNames}
             benchmarkBundle={benchmarkBundle}

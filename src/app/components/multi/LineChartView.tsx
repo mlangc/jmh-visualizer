@@ -48,7 +48,7 @@ export default class LineChartView extends React.Component<LineChartViewProps, L
   shouldComponentUpdate(nextProps: LineChartViewProps, nextState: LineChartViewState) {
     return (
       this.props.runNames[0] !== nextProps.runNames[0] ||
-      this.props.benchmarkBundle.key !== nextProps.benchmarkBundle.key ||
+      this.props.benchmarkBundle.fullyQualifiedClassName !== nextProps.benchmarkBundle.fullyQualifiedClassName ||
       this.props.metricExtractor.metricKey !== nextProps.metricExtractor.metricKey ||
       this.props.logScale !== nextProps.logScale ||
       this.state.activeLine !== nextState.activeLine

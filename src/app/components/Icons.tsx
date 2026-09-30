@@ -42,7 +42,7 @@ export const DetailsButton = ({ benchmarkBundle }: { benchmarkBundle: BenchmarkB
       IconName={DetailsIcon}
       tooltip={`Show details with ${secondaryMetrics.size} secondary metrics results`}
       active={false}
-      action={() => actions.detailBenchmarkBundle(benchmarkBundle.key)}
+      action={() => actions.detailBenchmarkBundle(benchmarkBundle.fullyQualifiedClassName)}
     />
   );
 };

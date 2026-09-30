@@ -160,8 +160,13 @@ const config = {
       }
       return { focusedBundles: clonedFocusedBundles };
     },
-    toggleMethod: (state: State, _actions: Actions, benchmarkBundleKey: string, methodName: string): StateUpdate => {
-      const key = methodKey(benchmarkBundleKey, methodName);
+    toggleMethod: (
+      state: State,
+      _actions: Actions,
+      fullyQualifiedClassName: string,
+      methodName: string
+    ): StateUpdate => {
+      const key = methodKey(fullyQualifiedClassName, methodName);
       const clonedDeselectedMethods = new Set(state.deselectedMethods);
       const alreadyDeselected = clonedDeselectedMethods.has(key);
       if (alreadyDeselected) {
@@ -174,12 +179,12 @@ const config = {
     toggleParamValue: (
       state: State,
       _actions: Actions,
-      benchmarkBundleKey: string,
+      fullyQualifiedClassName: string,
       methodName: string,
       paramName: string,
       value: string
     ): StateUpdate => {
-      const key = paramValueKey(benchmarkBundleKey, methodName, paramName, value);
+      const key = paramValueKey(fullyQualifiedClassName, methodName, paramName, value);
       const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
       const alreadyDeselected = clonedDeselectedParamValues.has(key);
       if (alreadyDeselected) {
@@ -187,11 +192,13 @@ const config = {
       } else {
         clonedDeselectedParamValues.add(key);
         const benchmarkSelection = new BenchmarkSelection(state.benchmarkRuns, state.runSelection);
-        const bundle = benchmarkSelection.benchmarkBundles.find((aBundle) => aBundle.key === benchmarkBundleKey);
+        const bundle = benchmarkSelection.benchmarkBundles.find(
+          (aBundle) => aBundle.fullyQualifiedClassName === fullyQualifiedClassName
+        );
         const survives = bundle?.benchmarkMethods.some(
           (benchmarkMethod) =>
             benchmarkMethod.name === methodName &&
-            !isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, clonedDeselectedParamValues)
+            !isMethodInstanceDeselected(fullyQualifiedClassName, benchmarkMethod, clonedDeselectedParamValues)
         );
         if (!survives) {
           return {}; // would hide every instance of this method - refuse the toggle
@@ -203,13 +210,13 @@ const config = {
     selectOnlyMethod: (
       state: State,
       _actions: Actions,
-      benchmarkBundleKey: string,
+      fullyQualifiedClassName: string,
       methodName: string,
       allMethodNames: string[]
     ): StateUpdate => {
       const clonedDeselectedMethods = new Set(state.deselectedMethods);
       allMethodNames.forEach((otherMethodName) => {
-        const key = methodKey(benchmarkBundleKey, otherMethodName);
+        const key = methodKey(fullyQualifiedClassName, otherMethodName);
         if (otherMethodName === methodName) {
           clonedDeselectedMethods.delete(key);
         } else {
@@ -222,12 +229,12 @@ const config = {
     selectAllMethods: (
       state: State,
       _actions: Actions,
-      benchmarkBundleKey: string,
+      fullyQualifiedClassName: string,
       allMethodNames: string[]
     ): StateUpdate => {
       const clonedDeselectedMethods = new Set(state.deselectedMethods);
       allMethodNames.forEach((methodName) => {
-        clonedDeselectedMethods.delete(methodKey(benchmarkBundleKey, methodName));
+        clonedDeselectedMethods.delete(methodKey(fullyQualifiedClassName, methodName));
       });
       return { deselectedMethods: clonedDeselectedMethods };
     },
@@ -235,7 +242,7 @@ const config = {
     selectOnlyParamValue: (
       state: State,
       _actions: Actions,
-      benchmarkBundleKey: string,
+      fullyQualifiedClassName: string,
       methodName: string,
       paramName: string,
       value: string,
@@ -243,7 +250,7 @@ const config = {
     ): StateUpdate => {
       const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
       allValues.forEach((aValue) => {
-        const key = paramValueKey(benchmarkBundleKey, methodName, paramName, aValue);
+        const key = paramValueKey(fullyQualifiedClassName, methodName, paramName, aValue);
         if (aValue === value) {
           clonedDeselectedParamValues.delete(key);
         } else {
@@ -251,11 +258,13 @@ const config = {
         }
       });
       const benchmarkSelection = new BenchmarkSelection(state.benchmarkRuns, state.runSelection);
-      const bundle = benchmarkSelection.benchmarkBundles.find((aBundle) => aBundle.key === benchmarkBundleKey);
+      const bundle = benchmarkSelection.benchmarkBundles.find(
+        (aBundle) => aBundle.fullyQualifiedClassName === fullyQualifiedClassName
+      );
       const survives = bundle?.benchmarkMethods.some(
         (benchmarkMethod) =>
           benchmarkMethod.name === methodName &&
-          !isMethodInstanceDeselected(benchmarkBundleKey, benchmarkMethod, clonedDeselectedParamValues)
+          !isMethodInstanceDeselected(fullyQualifiedClassName, benchmarkMethod, clonedDeselectedParamValues)
       );
       if (!survives) {
         return {}; // would hide every instance of this method - refuse the change
@@ -266,23 +275,23 @@ const config = {
     selectAllParamValues: (
       state: State,
       _actions: Actions,
-      benchmarkBundleKey: string,
+      fullyQualifiedClassName: string,
       methodName: string,
       paramName: string,
       allValues: string[]
     ): StateUpdate => {
       const clonedDeselectedParamValues = new Set(state.deselectedParamValues);
       allValues.forEach((value) => {
-        clonedDeselectedParamValues.delete(paramValueKey(benchmarkBundleKey, methodName, paramName, value));
+        clonedDeselectedParamValues.delete(paramValueKey(fullyQualifiedClassName, methodName, paramName, value));
       });
       return { deselectedParamValues: clonedDeselectedParamValues };
     },
     selectCategory: (_state: State, _actions: Actions, category: string): StateUpdate => {
       return { activeCategory: category, focusedBundles: new Set() };
     },
-    detailBenchmarkBundle: (_state: State, _actions: Actions, benchmarkBundleKey: string): StateUpdate => {
+    detailBenchmarkBundle: (_state: State, _actions: Actions, fullyQualifiedClassName: string): StateUpdate => {
       history.push('#details');
-      return { detailedBenchmarkBundle: benchmarkBundleKey };
+      return { detailedBenchmarkBundle: fullyQualifiedClassName };
     },
     undetailBenchmarkBundle: (): StateUpdate => {
       return { detailedBenchmarkBundle: null };
@@ -382,17 +391,17 @@ export function connect<StateProps extends object>(mapStateToProps: (state: Stat
   };
 }
 
-export function methodKey(benchmarkBundleKey: string, methodName: string) {
-  return `${benchmarkBundleKey}::${methodName}`;
+export function methodKey(fullyQualifiedClassName: string, methodName: string) {
+  return `${fullyQualifiedClassName}::${methodName}`;
 }
 
-export function paramValueKey(benchmarkBundleKey: string, methodName: string, paramName: string, value: string) {
-  return `${methodKey(benchmarkBundleKey, methodName)}::${paramName}=${value}`;
+export function paramValueKey(fullyQualifiedClassName: string, methodName: string, paramName: string, value: string) {
+  return `${methodKey(fullyQualifiedClassName, methodName)}::${paramName}=${value}`;
 }
 
 // Whether a specific parameterized BenchmarkMethod instance is hidden because one of its param values got deselected
 export function isMethodInstanceDeselected(
-  benchmarkBundleKey: string,
+  fullyQualifiedClassName: string,
   benchmarkMethod: BenchmarkMethod,
   deselectedParamValues: Set<string>
 ) {
@@ -400,7 +409,7 @@ export function isMethodInstanceDeselected(
     return false;
   }
   return benchmarkMethod.params.some(([paramName, value]) =>
-    deselectedParamValues.has(paramValueKey(benchmarkBundleKey, benchmarkMethod.name, paramName, value))
+    deselectedParamValues.has(paramValueKey(fullyQualifiedClassName, benchmarkMethod.name, paramName, value))
   );
 }
 

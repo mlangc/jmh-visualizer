@@ -41,7 +41,7 @@ const RunScreen = ({
   const sideBarBenchmarks = filteredBenchmarkBundles;
   if (focusedBundles.size > 0) {
     filteredBenchmarkBundles = filteredBenchmarkBundles.filter((benchmarkBundle) =>
-      focusedBundles.has(benchmarkBundle.key)
+      focusedBundles.has(benchmarkBundle.fullyQualifiedClassName)
     );
   }
   if (deselectedMethods.size > 0 || deselectedParamValues.size > 0) {

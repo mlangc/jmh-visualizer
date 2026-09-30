@@ -21,14 +21,14 @@ const suppressTextSelectOnMultiClick = (e: MouseEvent) => {
 };
 
 interface MethodParamCheckboxListProps {
-  bundleKey: string;
+  fullyQualifiedClassName: string;
   bundle?: BenchmarkBundle;
   deselectedMethods: Set<string>;
   deselectedParamValues: Set<string>;
 }
 
 export default function MethodParamCheckboxList({
-  bundleKey,
+  fullyQualifiedClassName,
   bundle,
   deselectedMethods,
   deselectedParamValues
@@ -59,7 +59,7 @@ export default function MethodParamCheckboxList({
           const singleValue = values.length === 1;
 
           const anyValueDeselected = values.some((value) =>
-            deselectedParamValues.has(paramValueKey(bundleKey, methodName, paramName, value))
+            deselectedParamValues.has(paramValueKey(fullyQualifiedClassName, methodName, paramName, value))
           );
           const paramNameDoubleClickEnabled = methodEnabled && !singleValue && anyValueDeselected;
           const paramNameSpan = (
@@ -71,7 +71,7 @@ export default function MethodParamCheckboxList({
                 paramNameDoubleClickEnabled
                   ? (e) => {
                       e.stopPropagation();
-                      actions.selectAllParamValues(bundleKey, methodName, paramName, values);
+                      actions.selectAllParamValues(fullyQualifiedClassName, methodName, paramName, values);
                     }
                   : undefined
               }
@@ -91,7 +91,7 @@ export default function MethodParamCheckboxList({
               )}
               <ul className="param-value-list">
                 {values.map((value) => {
-                  const key = paramValueKey(bundleKey, methodName, paramName, value);
+                  const key = paramValueKey(fullyQualifiedClassName, methodName, paramName, value);
                   const checked = singleValue || !deselectedParamValues.has(key);
                   const disabled = singleValue || !methodEnabled;
 
@@ -99,7 +99,7 @@ export default function MethodParamCheckboxList({
                   const isOnlyValueSelected =
                     checked &&
                     otherValues.every((aValue) =>
-                      deselectedParamValues.has(paramValueKey(bundleKey, methodName, paramName, aValue))
+                      deselectedParamValues.has(paramValueKey(fullyQualifiedClassName, methodName, paramName, aValue))
                     );
                   const valueDoubleClickEnabled = !disabled && !isOnlyValueSelected;
 
@@ -111,7 +111,13 @@ export default function MethodParamCheckboxList({
                         valueDoubleClickEnabled
                           ? (e) => {
                               e.stopPropagation();
-                              actions.selectOnlyParamValue(bundleKey, methodName, paramName, value, values);
+                              actions.selectOnlyParamValue(
+                                fullyQualifiedClassName,
+                                methodName,
+                                paramName,
+                                value,
+                                values
+                              );
                             }
                           : undefined
                       }
@@ -121,7 +127,7 @@ export default function MethodParamCheckboxList({
                         type="checkbox"
                         checked={checked}
                         disabled={disabled}
-                        onChange={() => actions.toggleParamValue(bundleKey, methodName, paramName, value)}
+                        onChange={() => actions.toggleParamValue(fullyQualifiedClassName, methodName, paramName, value)}
                       />{' '}
                       {value}
                     </label>
@@ -150,7 +156,7 @@ export default function MethodParamCheckboxList({
   return (
     <ul className="method-list">
       {bundle.methodNames.map((methodName) => {
-        const key = methodKey(bundleKey, methodName);
+        const key = methodKey(fullyQualifiedClassName, methodName);
         const checked = !deselectedMethods.has(key);
         const methodInstances = bundle.benchmarkMethods.filter(
           (benchmarkMethod) => benchmarkMethod.name === methodName
@@ -158,7 +164,10 @@ export default function MethodParamCheckboxList({
 
         const otherMethodNames = bundle.methodNames.filter((aMethodName) => aMethodName !== methodName);
         const isOnlyMethodSelected =
-          checked && otherMethodNames.every((aMethodName) => deselectedMethods.has(methodKey(bundleKey, aMethodName)));
+          checked &&
+          otherMethodNames.every((aMethodName) =>
+            deselectedMethods.has(methodKey(fullyQualifiedClassName, aMethodName))
+          );
         const methodDoubleClickEnabled = bundle.methodNames.length > 1 && !isOnlyMethodSelected;
 
         const methodLabel = (
@@ -169,12 +178,16 @@ export default function MethodParamCheckboxList({
               methodDoubleClickEnabled
                 ? (e) => {
                     e.stopPropagation();
-                    actions.selectOnlyMethod(bundleKey, methodName, bundle.methodNames);
+                    actions.selectOnlyMethod(fullyQualifiedClassName, methodName, bundle.methodNames);
                   }
                 : undefined
             }
           >
-            <input type="checkbox" checked={checked} onChange={() => actions.toggleMethod(bundleKey, methodName)} />{' '}
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() => actions.toggleMethod(fullyQualifiedClassName, methodName)}
+            />{' '}
             {methodName}
           </label>
         );

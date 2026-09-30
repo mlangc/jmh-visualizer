@@ -22,8 +22,8 @@ export default class DetailSideBar extends React.Component<DetailSideBarProps> {
     const { benchmarkBundle, benchmarkBundles, secondaryMetrics, deselectedMethods, deselectedParamValues, buttons } =
       this.props;
     const benchmarkBundleOptions = benchmarkBundles.map((bundle) => (
-      <option key={bundle.key} value={bundle.key}>
-        {bundle.name}
+      <option key={bundle.fullyQualifiedClassName} value={bundle.fullyQualifiedClassName}>
+        {bundle.simpleClassName}
       </option>
     ));
 
@@ -41,7 +41,7 @@ export default class DetailSideBar extends React.Component<DetailSideBarProps> {
             <Form.Select
               size="sm"
               onChange={(event) => actions.detailBenchmarkBundle(event.target.value)}
-              defaultValue={benchmarkBundle.key}
+              defaultValue={benchmarkBundle.fullyQualifiedClassName}
             >
               {benchmarkBundleOptions}
             </Form.Select>
@@ -59,7 +59,7 @@ export default class DetailSideBar extends React.Component<DetailSideBarProps> {
         <hr style={{ marginTop: '10px', marginBottom: '10px' }} />
         <div className="nav">
           <MethodParamCheckboxList
-            bundleKey={benchmarkBundle.key}
+            fullyQualifiedClassName={benchmarkBundle.fullyQualifiedClassName}
             bundle={benchmarkBundle}
             deselectedMethods={deselectedMethods}
             deselectedParamValues={deselectedParamValues}

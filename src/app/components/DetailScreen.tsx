@@ -6,7 +6,7 @@ import LineChartView from 'components/multi/LineChartView.tsx';
 import BarChartView from 'components/single/BarChartView.tsx';
 import DiffBarChartView from 'components/two/DiffBarChartView.tsx';
 import { filterBenchmarkBundle } from 'functions/benchmarkFilter.ts';
-import { parseClassNameFromFullName } from 'functions/parse.ts';
+import { parseSimpleClassNameFromFullyQualifiedName } from 'functions/parse.ts';
 import BenchmarkBundle from 'models/BenchmarkBundle.ts';
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
 import type MetricExtractor from 'models/MetricExtractor.ts';
@@ -29,18 +29,18 @@ const DetailScreen = ({
   const runNames = benchmarkSelection.runNames;
 
   const rawDetailBundle =
-    benchmarkBundles.find((bundle) => bundle.key === detailedBenchmarkBundle) ||
+    benchmarkBundles.find((bundle) => bundle.fullyQualifiedClassName === detailedBenchmarkBundle) ||
     new BenchmarkBundle({
-      key: detailedBenchmarkBundle,
-      name: parseClassNameFromFullName(detailedBenchmarkBundle),
+      fullyQualifiedClassName: detailedBenchmarkBundle,
+      simpleClassName: parseSimpleClassNameFromFullyQualifiedName(detailedBenchmarkBundle),
       methodNames: [],
       benchmarkMethods: []
     });
   const detailBundle =
     filterBenchmarkBundle(rawDetailBundle, deselectedMethods, deselectedParamValues) ||
     new BenchmarkBundle({
-      key: rawDetailBundle.key,
-      name: rawDetailBundle.name,
+      fullyQualifiedClassName: rawDetailBundle.fullyQualifiedClassName,
+      simpleClassName: rawDetailBundle.simpleClassName,
       methodNames: [],
       benchmarkMethods: []
     });

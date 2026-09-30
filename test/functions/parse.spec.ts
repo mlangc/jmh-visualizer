@@ -1,14 +1,9 @@
 import { expect } from 'chai';
-import {
-  getUniqueParamValues,
-  parseBenchmarkBundles,
-  parseBenchmarkName,
-  parseMethodName
-} from '../../src/app/functions/parse.ts';
-import type { Benchmark } from '../../src/app/models/Benchmark.ts';
-import BenchmarkBundle from '../../src/app/models/BenchmarkBundle.ts';
-import BenchmarkMethod from '../../src/app/models/BenchmarkMethod.ts';
-import BenchmarkRun from '../../src/app/models/BenchmarkRun.ts';
+import { getUniqueParamValues, parseBenchmarkBundles, parseBenchmarkName, parseMethodName } from 'functions/parse.ts';
+import type { Benchmark } from 'models/Benchmark.ts';
+import BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import BenchmarkMethod from 'models/BenchmarkMethod.ts';
+import BenchmarkRun from 'models/BenchmarkRun.ts';
 
 describe('functions: parseMethodName', () => {
   it('default', () => {
@@ -135,8 +130,8 @@ describe('functions: parseBenchmarkBundles', () => {
     const benchmarkBundles = parseBenchmarkBundles([run1, run2]);
     const expectedBundles = [
       new BenchmarkBundle({
-        key: 'com.A',
-        name: 'A',
+        fullyQualifiedClassName: 'com.A',
+        simpleClassName: 'A',
         methodNames: ['bench'],
         benchmarkMethods: [
           new BenchmarkMethod({
@@ -147,8 +142,8 @@ describe('functions: parseBenchmarkBundles', () => {
         ]
       }),
       new BenchmarkBundle({
-        key: 'com.B',
-        name: 'B',
+        fullyQualifiedClassName: 'com.B',
+        simpleClassName: 'B',
         methodNames: ['bench', 'bench2'],
         benchmarkMethods: [
           new BenchmarkMethod({
@@ -164,8 +159,8 @@ describe('functions: parseBenchmarkBundles', () => {
         ]
       }),
       new BenchmarkBundle({
-        key: 'com.C',
-        name: 'C',
+        fullyQualifiedClassName: 'com.C',
+        simpleClassName: 'C',
         methodNames: ['bench'],
         benchmarkMethods: [
           new BenchmarkMethod({

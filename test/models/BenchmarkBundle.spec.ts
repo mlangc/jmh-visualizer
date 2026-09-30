@@ -1,14 +1,14 @@
 import { expect } from 'chai';
-import type { Benchmark } from '../../src/app/models/Benchmark.ts';
+import type { Benchmark } from 'models/Benchmark.ts';
 
-import BenchmarkBundle from '../../src/app/models/BenchmarkBundle.ts';
-import BenchmarkMethod from '../../src/app/models/BenchmarkMethod.ts';
+import BenchmarkBundle from 'models/BenchmarkBundle.ts';
+import BenchmarkMethod from 'models/BenchmarkMethod.ts';
 
-describe('functions: parseBenchmarkCollections', () => {
+describe('models: BenchmarkBundle', () => {
   it('default', () => {
     const benchmarkBundle = new BenchmarkBundle({
-      key: 'com.A',
-      name: 'A',
+      fullyQualifiedClassName: 'com.A',
+      simpleClassName: 'A',
       methodNames: ['bench', 'bench2', 'bench3'],
       benchmarkMethods: [
         new BenchmarkMethod({

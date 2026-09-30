@@ -39,9 +39,15 @@ const SummaryTable = ({ name, benchmarkDiffs, lastRunIndex }: SummaryTableProps)
       <tr key={i}>
         <td>{i}</td>
         <td>
-          <Tooltipped tooltip={`${benchmarkDiff.bundleKey}#${benchmarkDiff.benchmarkMethod.name}()`} position="right">
-            <span className="clickable" onClick={() => actions.detailBenchmarkBundle(benchmarkDiff.bundleKey)}>
-              {`${benchmarkDiff.bundleName} - ${benchmarkDiff.benchmarkMethod.name} `}
+          <Tooltipped
+            tooltip={`${benchmarkDiff.fullyQualifiedClassName}#${benchmarkDiff.benchmarkMethod.name}()`}
+            position="right"
+          >
+            <span
+              className="clickable"
+              onClick={() => actions.detailBenchmarkBundle(benchmarkDiff.fullyQualifiedClassName)}
+            >
+              {`${benchmarkDiff.simpleClassName} - ${benchmarkDiff.benchmarkMethod.name} `}
               <span style={{ color: color }}>
                 {icon} {benchmarkDiff.scoreDiff}%
               </span>

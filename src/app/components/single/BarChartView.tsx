@@ -6,18 +6,7 @@ import { barColors, blue, green, lightBlack, tooltipBackground } from 'functions
 import type BenchmarkBundle from 'models/BenchmarkBundle.ts';
 import type MetricExtractor from 'models/MetricExtractor.ts';
 import React from 'react';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ErrorBar,
-  LabelList,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis
-} from 'recharts';
+import { Bar, BarChart, CartesianGrid, ErrorBar, LabelList, Legend, Tooltip, XAxis, YAxis } from 'recharts';
 import type { ChartConfig } from 'store/store.ts';
 
 interface BarChartViewProps {

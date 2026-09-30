@@ -75,7 +75,7 @@ class SummaryHistogramChart extends React.Component<SummaryHistogramChartProps, 
     const data = benchmarkDiffs.map(
       (benchmarkDiff, i): HistogramDataPoint => ({
         idx: i,
-        name: `${benchmarkDiff.bundleName}#${benchmarkDiff.benchmarkMethod.name}(${benchmarkDiff.benchmarkMethod.params ? benchmarkDiff.benchmarkMethod.params.map((param) => `${param[0]}=${param[1]}`).join(':') : ''})`,
+        name: `${benchmarkDiff.simpleClassName}#${benchmarkDiff.benchmarkMethod.name}(${benchmarkDiff.benchmarkMethod.params ? benchmarkDiff.benchmarkMethod.params.map((param) => `${param[0]}=${param[1]}`).join(':') : ''})`,
         scoreDiff: Math.max(-100, Math.min(100, benchmarkDiff.scoreDiff)),
         errorDiff: Math.max(-100, Math.min(100, benchmarkDiff.scoreErrorDiff)),
         score1stRun: benchmarkDiff.score1stRun,

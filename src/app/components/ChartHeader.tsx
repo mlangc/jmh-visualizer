@@ -19,7 +19,11 @@ const ChartHeader = ({ benchmarkBundle, metricExtractor, children }: ChartHeader
   const benchmarkModeBadges = benchmarkModes.map((mode) => createMetricBadge(mode));
 
   return (
-    <Header fullName={benchmarkBundle.key} name={benchmarkBundle.name} badges={benchmarkModeBadges}>
+    <Header
+      fullName={benchmarkBundle.fullyQualifiedClassName}
+      name={benchmarkBundle.simpleClassName}
+      badges={benchmarkModeBadges}
+    >
       {children.map((child) => {
         return (
           <span key={child.key} className="superscript">

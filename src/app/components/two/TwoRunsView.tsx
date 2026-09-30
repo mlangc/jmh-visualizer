@@ -29,7 +29,7 @@ export default class TwoRunsView extends React.Component<TwoRunsViewProps> {
 
     benchmarkBundles.forEach((benchmarkBundle) => {
       elements.push(
-        <TocElement key={benchmarkBundle.key} name={benchmarkBundle.key}>
+        <TocElement key={benchmarkBundle.fullyQualifiedClassName} name={benchmarkBundle.fullyQualifiedClassName}>
           <TwoRunBundle
             runNames={runNames}
             benchmarkBundle={benchmarkBundle}

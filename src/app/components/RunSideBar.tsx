@@ -45,8 +45,8 @@ export default class RunSideBar extends React.Component<RunSideBarProps> {
         </option>
       ));
 
-    const elementIds = benchmarkBundles.map((bundle) => bundle.key);
-    const elementNames = benchmarkBundles.map((bundle) => bundle.name);
+    const elementIds = benchmarkBundles.map((bundle) => bundle.fullyQualifiedClassName);
+    const elementNames = benchmarkBundles.map((bundle) => bundle.simpleClassName);
 
     const focusControlCreator = (elementId: string) => (
       <span
@@ -77,11 +77,11 @@ export default class RunSideBar extends React.Component<RunSideBarProps> {
       </span>
     );
 
-    const methodListCreator = (bundleKey: string) => {
-      const bundle = benchmarkBundles.find((aBundle) => aBundle.key === bundleKey);
+    const methodListCreator = (fullyQualifiedClassName: string) => {
+      const bundle = benchmarkBundles.find((aBundle) => aBundle.fullyQualifiedClassName === fullyQualifiedClassName);
       return (
         <MethodParamCheckboxList
-          bundleKey={bundleKey}
+          fullyQualifiedClassName={fullyQualifiedClassName}
           bundle={bundle}
           deselectedMethods={deselectedMethods}
           deselectedParamValues={deselectedParamValues}
@@ -89,20 +89,20 @@ export default class RunSideBar extends React.Component<RunSideBarProps> {
       );
     };
 
-    const selectAllMethodsCreator = (bundleKey: string) => {
-      const bundle = benchmarkBundles.find((aBundle) => aBundle.key === bundleKey);
+    const selectAllMethodsCreator = (fullyQualifiedClassName: string) => {
+      const bundle = benchmarkBundles.find((aBundle) => aBundle.fullyQualifiedClassName === fullyQualifiedClassName);
       if (!bundle || bundle.methodNames.length <= 1) {
         return null;
       }
       const anyDeselected = bundle.methodNames.some((methodName) =>
-        deselectedMethods.has(methodKey(bundleKey, methodName))
+        deselectedMethods.has(methodKey(fullyQualifiedClassName, methodName))
       );
       if (!anyDeselected) {
         return null;
       }
       return (e: MouseEvent) => {
         e.stopPropagation();
-        actions.selectAllMethods(bundleKey, bundle.methodNames);
+        actions.selectAllMethods(fullyQualifiedClassName, bundle.methodNames);
       };
     };
 

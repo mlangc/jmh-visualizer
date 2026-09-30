@@ -9,8 +9,8 @@ import React from 'react';
 
 // How one benchmark method changed between the two compared runs
 export interface BenchmarkDiff {
-  bundleKey: string;
-  bundleName: string;
+  fullyQualifiedClassName: string;
+  simpleClassName: string;
   benchmarkMethod: BenchmarkMethod;
   score1stRun: number;
   score2ndRun: number;
@@ -87,8 +87,8 @@ export default class SummaryView extends React.Component<SummaryViewProps, Summa
               );
 
               return {
-                bundleKey: benchmarkBundle.key,
-                bundleName: benchmarkBundle.name,
+                fullyQualifiedClassName: benchmarkBundle.fullyQualifiedClassName,
+                simpleClassName: benchmarkBundle.simpleClassName,
                 benchmarkMethod: benchmarkMethod,
                 score1stRun: score1stRun,
                 score2ndRun: score2ndRun,
