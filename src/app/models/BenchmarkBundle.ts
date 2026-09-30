@@ -4,9 +4,16 @@ import type BenchmarkMethod from 'models/BenchmarkMethod.ts';
 
 // Holds a collection of benchmarks, typically those from a benchmark class
 export default class BenchmarkBundle {
+  /** A fully qualified class name like com.company.ClassA */
   fullyQualifiedClassName: string;
+
+  /** A simple class name like ClassA */
   simpleClassName: string;
+
+  /** Unique method names (the same method might appear multiple times in {@link benchmarkMethods} with different params) */
   methodNames: string[];
+
+  /** Per method and param combination benchmark data */
   benchmarkMethods: BenchmarkMethod[];
 
   constructor(options: {
@@ -15,10 +22,10 @@ export default class BenchmarkBundle {
     methodNames: string[];
     benchmarkMethods: BenchmarkMethod[];
   }) {
-    this.fullyQualifiedClassName = options.fullyQualifiedClassName; // com.company.ClassA
-    this.simpleClassName = options.simpleClassName; //ClassA
-    this.methodNames = options.methodNames; //unique method names (can occur multiple times because of params)
-    this.benchmarkMethods = options.benchmarkMethods; //BenchmarkMethod(name, benchmarks[])[]
+    this.fullyQualifiedClassName = options.fullyQualifiedClassName;
+    this.simpleClassName = options.simpleClassName;
+    this.methodNames = options.methodNames;
+    this.benchmarkMethods = options.benchmarkMethods;
   }
 
   //Returns all non-null benchmarks for all runs
