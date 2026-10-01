@@ -1,4 +1,7 @@
-// One entry of a JMH JSON result file (only the parts this app reads)
+/**
+ * One entry of a JMH JSON result file (only the parts this app reads).
+ * Property names mirror the JSON, so they must not be renamed.
+ */
 export interface Benchmark {
   benchmark: string; // com.company.ClassA.method
   mode: string; // thrpt, avgt, sample, ss
@@ -7,6 +10,10 @@ export interface Benchmark {
   secondaryMetrics: Record<string, Metric>;
 }
 
+/**
+ * A metric of a JMH JSON result entry.
+ * Property names mirror the JSON, so they must not be renamed.
+ */
 export interface Metric {
   score: number;
   // JMH writes the string "NaN" when it has no error estimate; the code relies on the
