@@ -24,7 +24,7 @@ export function parseMethodName(benchmark: Pick<Benchmark, 'benchmark'>) {
 
 // Extracts the benchmarks method name
 export function parseBenchmarkName(benchmark: Pick<Benchmark, 'benchmark' | 'params'>) {
-  var benchmarkName = parseMethodName(benchmark);
+  let benchmarkName = parseMethodName(benchmark);
   if (benchmark.params) {
     const keys = Object.keys(benchmark.params);
     keys.forEach((key) => {
