@@ -6,7 +6,7 @@ import type BenchmarkMethod from 'models/BenchmarkMethod.ts';
 import BenchmarkRun from 'models/BenchmarkRun.ts';
 import BenchmarkSelection from 'models/BenchmarkSelection.ts';
 import Examples from 'models/Examples.ts';
-import { type ComponentType, createElement, memo, type ReactNode } from 'react';
+import { type ComponentType, createElement, memo } from 'react';
 import {
   addSettingsFromParameters,
   type BenchmarkLoadFunction,
@@ -369,11 +369,6 @@ export const actions = Object.fromEntries(
 ) as Actions;
 
 type ActionCreator = (state: State, actions: Actions, ...args: unknown[]) => StateUpdate | Promise<StateUpdate>;
-
-// The store is module-level, so there's nothing to provide. Kept so entry.tsx stays unchanged.
-export function Provider({ children }: { children: ReactNode }) {
-  return children;
-}
 
 // Subscribes to the whole state, which keeps its identity between updates, and maps it
 // to props during render rather than in a selector: mapStateToProps may build fresh
