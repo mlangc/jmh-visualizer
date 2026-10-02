@@ -19,6 +19,10 @@ import {
 import { expectSummaryHeader } from '../support/summary-header-assertions';
 import { expectTwoRunCompare, LINKED_HASH_PAIR_COMPARE } from '../support/two-run-compare-assertions';
 
+// Tests the assertion routines back, so they can't be vacuously green: each shared
+// `expect*` routine must reject a blank page, a page showing different data, and a
+// page that matches in count but not in content.
+
 // This timeout is used for negative assertions, where failure means success.
 // Using the default value makes these tests slow. Using a value that is too low
 // risks making these tests pass for the wrong reason.
