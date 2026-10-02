@@ -83,7 +83,7 @@ test('the multi-run example offers all three runs and compares the last two', as
   await expect(page.getByRole('heading', { name: /^Declined Benchmarks/ })).toHaveCount(0);
   // The header sentence naming run2 and run3 (rather than run1) is pinned once, on
   // the fixtures, in summary-header.spec.ts -- it needs an app fix older builds lack,
-  // and one @needs-fix-tagged test per fix is enough.
+  // and one @needs-fix-for-*-tagged test per fix is enough.
 
   // Compare, i.e. MultiRunView: unlike the Summary above, it spans every loaded run.
   // The line charts plot all three, which shows up as the x-axis' categories -- and

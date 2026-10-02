@@ -185,6 +185,7 @@ export default function MethodParamCheckboxList({
           >
             <input
               type="checkbox"
+              disabled={isOnlyMethodSelected}
               checked={checked}
               onChange={() => actions.toggleMethod(fullyQualifiedClassName, methodName)}
             />{' '}

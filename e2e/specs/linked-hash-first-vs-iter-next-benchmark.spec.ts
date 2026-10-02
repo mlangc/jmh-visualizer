@@ -5,6 +5,7 @@ import {
   expectFiltersBeingPresent
 } from '../support/linked-hash-first-vs-iter-next-filters-assertions';
 import { watchDialogsAndErrors } from '../support/page-watchers';
+import { Tags } from '../support/tags';
 
 // The suite's first interaction-driven spec: beyond static presence, it
 // drives the scale toggle and the details/back navigation and checks their
@@ -90,7 +91,7 @@ test('linked-hash-first-vs-iter-next-benchmark.json supports scale toggle and de
 });
 
 test('linked-hash-first-vs-iter-next-benchmark.json supports filters', {
-  tag: '@filters'
+  tag: Tags.Filters
 }, async ({ page }) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 

@@ -2,11 +2,12 @@ import { expect, test } from '@playwright/test';
 import { JmhApp } from '../support/jmh-app';
 import { watchDialogsAndErrors } from '../support/page-watchers';
 import { expectSummaryHeader } from '../support/summary-header-assertions';
+import { Tags } from '../support/tags';
 
 // The Summary screen's header sentence is what tells the user which two runs the
 // Improved/Declined/Unchanged tables are about. Kept in its own spec rather than
 // folded into multi-run-workflow.ts: the 3-run case needs an app fix that older
-// builds don't have (see @needs-fix in playwright.config.ts), and tagging it here
+// builds don't have (see @needs-fix-for-summary-run-names in playwright.config.ts), and tagging it here
 // keeps that dependency off the shared workflow every other multi-run spec uses.
 
 const LINKED_HASH_PAIR = [
@@ -36,7 +37,9 @@ test('the Summary header names both runs when exactly 2 are loaded', async ({ pa
   expect(pageErrors).toEqual([]);
 });
 
-test('the Summary header names the last two runs when 3 are loaded', { tag: '@needs-fix' }, async ({ page }) => {
+test('the Summary header names the last two runs when 3 are loaded', { tag: Tags.NeedsFixForSummaryRunNames }, async ({
+  page
+}) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);

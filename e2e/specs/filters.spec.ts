@@ -3,6 +3,7 @@ import { JmhApp } from '../support/jmh-app';
 import { watchDialogsAndErrors } from '../support/page-watchers';
 import { wrapAgnostic } from '../support/regex-util';
 import { expectDeclinedBenchmarks, LINKED_HASH_PAIR_ROWS } from '../support/summary-comparison-assertions';
+import { Tags } from '../support/tags';
 
 // The filter checkboxes beyond what `linked-hash-first-vs-iter-next-benchmark.spec.ts`
 // already covers, which is single-run, single-class, sidebar-only. Everything here is
@@ -20,9 +21,9 @@ const LINKED_HASH_PAIR = [
   'linked-hash-first-vs-iter-next-on-battery-benchmark.json'
 ];
 
-test('deselecting every method of the only class empties the report without breaking it', { tag: '@filters' }, async ({
-  page
-}) => {
+test('deselecting every method of the only class empties the report without breaking it', {
+  tag: [Tags.Filters, Tags.MustNotHaveFixForSingleMethod]
+}, async ({ page }) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);
@@ -51,7 +52,31 @@ test('deselecting every method of the only class empties the report without brea
   expect(pageErrors).toEqual([]);
 });
 
-test('a param value whose method has none left is refused', { tag: '@filters' }, async ({ page }) => {
+test('the last remaining method cannot be deselected', {
+  tag: [Tags.Filters, Tags.NeedsFixForSingleMethod]
+}, async ({ page }) => {
+  const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+  const app = new JmhApp(page);
+  await page.goto('/');
+  await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
+
+  await app.benchmarkFilter(LINKED_HASH, 'entryIteratorNext').click();
+  await expect(app.benchmarkFilter(LINKED_HASH, 'firstEntry')).toBeDisabled();
+  await expect(page.getByText(/^1 different benchmark classes for single run/)).toBeVisible();
+  await expect(page.locator('.recharts-wrapper')).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Show JSON' })).toHaveCount(1);
+
+  // The sidebar still lists the class and both methods
+  await expect(app.benchmarkClassLink(LINKED_HASH)).toBeVisible();
+  await expect(app.benchmarkFilter(LINKED_HASH, 'entryIteratorNext')).toBeVisible();
+  await expect(app.benchmarkFilter(LINKED_HASH, 'firstEntry')).toBeVisible();
+
+  expect(dialogs).toEqual([]);
+  expect(pageErrors).toEqual([]);
+});
+
+test('a param value whose method has none left is refused', { tag: Tags.Filters }, async ({ page }) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);
@@ -91,7 +116,9 @@ test('a param value whose method has none left is refused', { tag: '@filters' },
   expect(pageErrors).toEqual([]);
 });
 
-test('the Details screen filters too, down to having nothing left to show', { tag: '@filters' }, async ({ page }) => {
+test('the Details screen filters too, down to having nothing left to show', {
+  tag: [Tags.Filters, Tags.MustNotHaveFixForSingleMethod]
+}, async ({ page }) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);
@@ -124,7 +151,47 @@ test('the Details screen filters too, down to having nothing left to show', { ta
   expect(pageErrors).toEqual([]);
 });
 
-test('filters reach the two-run Compare screen but not the Summary', { tag: '@filters' }, async ({ page }) => {
+test('the Details screen filters too, but always keeps one method selected', {
+  tag: [Tags.Filters, Tags.NeedsFixForSingleMethod]
+}, async ({ page }) => {
+  const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+  const app = new JmhApp(page);
+  await page.goto('/');
+  await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
+  await app.showDetails();
+  await expect(page.locator('.recharts-wrapper')).toHaveCount(5); // Score + 4 secondary metrics
+
+  // DetailSideBar carries its own copy of the checkbox tree, over the *unfiltered*
+  // bundle, so it stays usable no matter what is deselected.
+  const firstEntry = page.getByRole('checkbox', { name: 'firstEntry', exact: true });
+  await firstEntry.click();
+
+  // gc.time comes from firstEntry alone, so its whole section goes with it.
+  await expect(page.locator('.recharts-wrapper')).toHaveCount(4);
+  await expect(page.getByRole('heading', { name: 'gc.time gc.time' })).toHaveCount(0);
+
+  // entryIteratorNext is the last enabled method - the checkbox is therefore disabled
+  const entryIteratorNext = page.getByRole('checkbox', { name: 'entryIteratorNext', exact: true });
+  await expect(entryIteratorNext).toBeDisabled();
+
+  // this checks firstEntry again and deselects entryIteratorNext
+  await firstEntry.click();
+  await entryIteratorNext.click();
+  await expect(entryIteratorNext).not.toBeChecked();
+  await expect(firstEntry).toBeChecked();
+  await expect(firstEntry).toBeDisabled();
+
+  // firstEntry alone carries every one of this fixture's secondary metrics, so with it
+  // checked again all 5 sections are back -- just without entryIteratorNext's bars.
+  await expect(page.locator('.recharts-wrapper')).toHaveCount(5);
+  await expect(page.getByRole('heading', { name: 'gc.time gc.time' })).toBeVisible();
+
+  expect(dialogs).toEqual([]);
+  expect(pageErrors).toEqual([]);
+});
+
+test('filters reach the two-run Compare screen but not the Summary', { tag: Tags.Filters }, async ({ page }) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);
@@ -168,7 +235,7 @@ test('filters reach the two-run Compare screen but not the Summary', { tag: '@fi
   expect(pageErrors).toEqual([]);
 });
 
-test('double-clicking a class re-selects all of its methods', { tag: '@filters' }, async ({ page }) => {
+test('double-clicking a class re-selects all of its methods', { tag: Tags.Filters }, async ({ page }) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);
@@ -197,7 +264,7 @@ test('double-clicking a class re-selects all of its methods', { tag: '@filters' 
   expect(pageErrors).toEqual([]);
 });
 
-test('a param with a single value is shown as fixed, not as a filter', { tag: '@filters' }, async ({ page }) => {
+test('a param with a single value is shown as fixed, not as a filter', { tag: Tags.Filters }, async ({ page }) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);
@@ -212,6 +279,29 @@ test('a param with a single value is shown as fixed, not as a filter', { tag: '@
     await expect(batchSize).toBeChecked();
     await expect(batchSize).toBeDisabled();
   }
+
+  expect(dialogs).toEqual([]);
+  expect(pageErrors).toEqual([]);
+});
+
+test("the checkbox of a class's only method is disabled", {
+  tag: [Tags.Filters, Tags.NeedsFixForSingleMethod]
+}, async ({ page }) => {
+  const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+  const app = new JmhApp(page);
+  await page.goto('/');
+
+  // The fixture's name refers to an unrelated bug; it's used here only because it has a single class with a single method.
+  await app.uploadReport('benchmark-from-orig-project-issue-51.json');
+
+  const header = page.getByRole('heading', { name: /MyRealWorldBenchmarkLocal/ });
+  await expect(header).toBeVisible();
+
+  const localCheckbox = app.benchmarkFilter('MyRealWorldBenchmarkLocal', 'local');
+  await expect(localCheckbox).toBeVisible();
+  await expect(localCheckbox).toBeDisabled();
+  await expect(localCheckbox).toBeChecked();
 
   expect(dialogs).toEqual([]);
   expect(pageErrors).toEqual([]);

@@ -64,8 +64,8 @@ is which.
   a single option and its "No secondary metrics found!!" hint suppressed.
 - `specs/summary-header.spec.ts` — the Summary screen's "Comparing … for 'X'
   and 'Y' …" sentence, the only place the app names *which* two runs the
-  comparison tables are about. The 3-run test is `@needs-fix`-tagged (see
-  Commands below).
+  comparison tables are about. The 3-run test is `@needs-fix-for-summary-run-names`-tagged
+  (see Flags and tags below).
 - `specs/load-errors.spec.ts` — the failure paths every other spec asserts
   *don't* happen: an unparseable upload (an inline buffer, not a vendored
   broken file) alerting and leaving the start screen usable, and a 404 on a
@@ -112,12 +112,14 @@ is which.
   the user's to lose, and doesn't.
 - `specs/filters.spec.ts` — the filter checkboxes beyond the single-run,
   single-class, sidebar-only coverage in
-  `linked-hash-first-vs-iter-next-benchmark.spec.ts`: deselecting *every*
-  method of the only loaded class (zero bundles reaching `SingleRunView`, the
-  shape of the `BarDataSet` gotcha in the root `CLAUDE.md`), `toggleParamValue`
-  silently refusing a change that would hide a method's last instance, the
-  Details screen's own checkbox tree and its `All benchmark methods are
-  filtered out` branch, the two-run Compare screen (and the Summary screen,
+  `linked-hash-first-vs-iter-next-benchmark.spec.ts`: the last
+  remaining method of the only loaded class refusing to be deselected (or, on
+  builds without that guard, deselecting *every* method — zero bundles reaching
+  `SingleRunView`, the shape of the `BarDataSet` gotcha in the root
+  `CLAUDE.md`), `toggleParamValue` silently refusing a change that would hide a
+  method's last instance, the Details screen's own checkbox tree (likewise with
+  and without that guard, the latter ending in its `All benchmark methods are
+  filtered out` branch), the two-run Compare screen (and the Summary screen,
   which ignores the filters entirely), the class row's double-click
   "select all methods" gesture, and a single-valued param rendering fixed
   rather than filterable. All `@filters`-tagged.
@@ -286,50 +288,53 @@ git worktree add <path> <branch>
 APP_BUILD_DIR=<path>/build npm test
 ```
 
-`INCLUDE_FILTERS` (env var; `1`/`true`/`yes` to opt in, `0`/`false`/`no` to
-opt out, empty or unset to default to **on** — anything else aborts the run)
-gates the `@filters`-tagged specs — tests for the benchmark/param filter
-checkboxes originally added on `add-filters-for-large-result-files`, now
-merged into `main`. Since a default build already has that UI, these specs
-run by default; set it to `0`/`false`/`no` to exclude them, which only makes
-sense against a build that predates the filters UI (a `master` build, or an
-older `main` commit) — combine with `APP_BUILD_DIR` the same way as above:
+### Flags and tags
+
+Some specs only hold against builds that have a certain UI or app fix. Each is
+tagged, and an env var decides whether the tag is run. All flags are booleans
+(`1`/`true`/`yes` or `0`/`false`/`no`; empty or unset means the default,
+anything else aborts the run) and all default to **on**, since a default build
+(this checkout's own) has everything. Set one to `0` only when `APP_BUILD_DIR`
+points at a build that predates the feature or fix — an older branch, `master`,
+a bisect. The flags are independent and combine.
+
+| Flag | Default | Set to `0` when the build… |
+| --- | --- | --- |
+| `INCLUDE_FILTERS` | on | predates the benchmark/param filter checkboxes (`master`, or an older `main` commit). They were added on `add-filters-for-large-result-files` and are now merged into `main`. |
+| `HAS_FIX_FOR_SUMMARY_RUN_NAMES` | on | predates the fix of `SummaryScreen.tsx` passing the full run-name list to `SummaryView` (see below). |
+| `HAS_FIX_FOR_SINGLE_METHOD` | on | predates the guard that disables the checkbox of a class's last selected method (see below). |
+
+| Tag | Runs when | Description |
+| --- | --- | --- |
+| `@filters` | `INCLUDE_FILTERS` on | Tests for the benchmark/param filter checkboxes. |
+| `@no-filters` | `INCLUDE_FILTERS` off | Mirror image of `@filters`: `harness.spec.ts`'s "rejects filters are not implemented" falsification check, which only holds against a build without filters. |
+| `@needs-fix-for-summary-run-names` | `HAS_FIX_FOR_SUMMARY_RUN_NAMES` on | The Summary header naming the last two of 3 loaded runs correctly. |
+| `@needs-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` on | Tests of the guard: the last selected method's checkbox is disabled, so a class can't be emptied. |
+| `@must-not-have-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` off | Mirror image of the above: the old tests that deselect every method of a class. They only hold against builds without the guard. |
+
+The tag names live in `support/tags.ts`, the switches in `playwright.config.ts`.
+
+Examples, each combined with `APP_BUILD_DIR` the same way as above:
 
 ```bash
-INCLUDE_FILTERS=0 APP_BUILD_DIR=<path-to-pre-filters-build>/build npm test
+# A build with the filters and the Summary fix, but without the single-method guard
+HAS_FIX_FOR_SINGLE_METHOD=0 APP_BUILD_DIR=<path-to-older-build>/build npm test
+
+# An old `master` build that predates all of it
+INCLUDE_FILTERS=0 HAS_FIX_FOR_SINGLE_METHOD=0 HAS_FIX_FOR_SUMMARY_RUN_NAMES=0 \
+  APP_BUILD_DIR=<old-master-build>/build npm test
 ```
 
-The same `grepInvert` toggle excludes the mirror-image `@no-filters` tag
-whenever `INCLUDE_FILTERS` resolves to `true` (the default) —
-`harness.spec.ts`'s "rejects filters are not implemented" falsification
-check, which only holds against a build that doesn't implement filters (set
-`INCLUDE_FILTERS=0` to run it).
+The fixes the `HAS_FIX_FOR_*` flags stand for:
 
-`SKIP_NEEDS_FIX` (env var, same parsing as `INCLUDE_FILTERS`) opts *out* of
-`@needs-fix`-tagged tests — tests that need an app fix this suite ships
-alongside. Like `@filters`, they run by default: the fix is in `main`'s
-`src/`, so the default build has it. Set the flag when `APP_BUILD_DIR` points
-at a build that predates the fix (an older branch, `master` before the fix
-lands, a bisect):
-
-```bash
-SKIP_NEEDS_FIX=1 APP_BUILD_DIR=<path-to-older-build>/build npm test
-```
-
-The two tag axes are independent and combine — checking an old `master`
-build that predates both the filters UI and the fix needs both:
-
-```bash
-INCLUDE_FILTERS=0 SKIP_NEEDS_FIX=1 APP_BUILD_DIR=<old-master-build>/build npm test
-```
-
-The only fix currently tagged is `SummaryScreen.tsx` passing the full run-name
-list to `SummaryView`: before it, a Summary comparing 3+ runs indexed an
-already-sliced 2-element array with absolute run indices, so with 3 runs it
-named the *last* run first and left the second name empty — and with 4+ runs
-both names came out empty. `/@needs-fix/` is
-matched without a trailing `\b`, so a per-fix tag (`@needs-fix-summary-run-names`)
-would be covered by the same switch if a second one ever earns its own name.
+- **Summary run names:** before it, a Summary comparing 3+ runs indexed an
+  already-sliced 2-element array with absolute run indices, so with 3 runs it
+  named the *last* run first and left the second name empty — and with 4+ runs
+  both names came out empty.
+- **Single method:** the sidebar checkbox of a class's last selected method is
+  disabled, so the selection can never be emptied (and a class with just one
+  method can't be deselected at all). Before it, deselecting every method left
+  a report with nothing in it.
 
 ## Gotchas
 
@@ -373,7 +378,7 @@ quotes, semicolons, no trailing commas, 120-col width) in sync. Both use the
 - **No app-source changes for the suite's own benefit** — no test-only hooks,
   ids or attributes were ever added to `src/` to make something testable, and
   the suite runs unmodified against a vanilla checkout apart from the
-  `@needs-fix` tests described below, which need a genuine behavioural fix
+  `@needs-fix-for-*` tests described below, which need a genuine behavioural fix
   (not a test affordance) that older builds lack. Where semantic locators (`getByRole`/`getByText`) fall short, only
   four non-semantic hooks are used: `.recharts-wrapper`, `ul.nav ul.nav`,
   `div.btn`, and `Tooltipped.tsx`'s `data-tooltip` attribute. No generated /
@@ -384,16 +389,18 @@ quotes, semicolons, no trailing commas, 120-col width) in sync. Both use the
 - Every spec must pass unmodified on both `master` and `main` (which carries
   the filter checkboxes, merged in from `add-filters-for-large-result-files`)
   — it characterizes *shared* behaviour, not branch-only UI. Two deliberate
-  exceptions, both tagged and both switchable from the environment. First,
-  `@filters`-tagged tests characterize the filter checkboxes that only exist
-  on `main`. They run by default (opt out with `INCLUDE_FILTERS=0`, see
-  Commands above), so plain `npm test` passes unmodified against a `main`
-  build; testing against an older, pre-filters `master` build needs
-  `INCLUDE_FILTERS=0`. `@no-filters` is this exception's mirror image: a
-  falsification check that only holds against a build without filters,
-  excluded the other way by the same `INCLUDE_FILTERS` toggle.
-- Second, `@needs-fix` cuts the other way: those tests describe behaviour only a build
-  carrying `main`'s `src/` fix has, so they run by default and get
-  excluded with `SKIP_NEEDS_FIX=1` when testing an older build (see Commands
-  above). A `master` build needs both switches:
-  `INCLUDE_FILTERS=0 SKIP_NEEDS_FIX=1`.
+  exceptions, both tagged and both switchable from the environment (see Flags
+  and tags above). First, `@filters`-tagged tests characterize the filter
+  checkboxes that only exist on `main`. They run by default, so plain
+  `npm test` passes unmodified against a `main` build; testing against an
+  older, pre-filters `master` build needs `INCLUDE_FILTERS=0`. `@no-filters` is
+  this exception's mirror image, a falsification check that only holds against
+  a build without filters.
+- Second, `@needs-fix-for-*` cuts the other way: those tests describe
+  behaviour only a build carrying `main`'s `src/` fix has, so they run by
+  default and get excluded with the matching `HAS_FIX_FOR_*=0` when testing an
+  older build. A `master` build needs all the switches:
+  `INCLUDE_FILTERS=0 HAS_FIX_FOR_SINGLE_METHOD=0 HAS_FIX_FOR_SUMMARY_RUN_NAMES=0`.
+  Where a fix changes behaviour rather than fixing a bug, the old behaviour's
+  tests are tagged `@must-not-have-fix-for-*` and run only against builds
+  without it.

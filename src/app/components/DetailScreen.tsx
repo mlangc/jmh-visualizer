@@ -55,10 +55,12 @@ const DetailScreen = ({
 
   let error: string | undefined, chartGeneratorFunction: ChartGeneratorFunction | undefined;
   if (detailBundle.methodNames.length === 0) {
-    error =
-      rawDetailBundle.methodNames.length === 0 && runNames.length === 1
-        ? `No benchmark results for run  ${runNames[0]}`
-        : 'All benchmark methods are filtered out';
+    if (rawDetailBundle.methodNames.length === 0 && runNames.length === 1) {
+      error = `No benchmark results for run  ${runNames[0]}`;
+    } else {
+      // Not reachable from the UI - but kept just in case, since the store still allows it.
+      error = 'All benchmark methods are filtered out';
+    }
   } else if (runNames.length === 1) {
     chartGeneratorFunction = singleRunChartGenerator;
   } else if (runNames.length === 2) {

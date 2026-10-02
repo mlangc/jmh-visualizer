@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { Tags } from './support/tags';
 
 function parseFlag(name: string, defaultValue: boolean = false): boolean {
   const value = process.env[name];
@@ -18,18 +19,24 @@ function parseFlag(name: string, defaultValue: boolean = false): boolean {
 }
 
 const INCLUDE_FILTERS = parseFlag('INCLUDE_FILTERS', true);
-// Opts *out* of tests that need an app fix this suite ships alongside -- set it when
-// pointing APP_BUILD_DIR at a build that predates the fix. The two tag axes are
-// independent: @filters/@no-filters says which branch's UI is under test, @needs-fix
-// says which app fixes the build has. /@needs-fix/ has no trailing \b on purpose, so a
-// per-fix tag (@needs-fix-summary-run-names) is covered by the same switch.
-const SKIP_NEEDS_FIX = parseFlag('SKIP_NEEDS_FIX');
+// One HAS_FIX_FOR_* flag per app fix this suite ships alongside -- set it to 0 when
+// pointing APP_BUILD_DIR at a build that predates the fix. The tag axes are
+// independent: @filters/@no-filters says which branch's UI is under test, while each
+// @needs-fix-for-* tag says which app fix the build has.
+const HAS_FIX_FOR_SUMMARY_RUN_NAMES = parseFlag('HAS_FIX_FOR_SUMMARY_RUN_NAMES', true);
+const HAS_FIX_FOR_SINGLE_METHOD = parseFlag('HAS_FIX_FOR_SINGLE_METHOD', true);
 const BUILD_DIR = process.env.APP_BUILD_DIR ?? '../build';
 const PORT = 4173;
 
 const grepInvert = [INCLUDE_FILTERS ? /@no-filters\b/ : /@filters\b/];
-if (SKIP_NEEDS_FIX) {
-  grepInvert.push(/@needs-fix/);
+if (!HAS_FIX_FOR_SUMMARY_RUN_NAMES) {
+  grepInvert.push(new RegExp(Tags.NeedsFixForSummaryRunNames));
+}
+
+if (HAS_FIX_FOR_SINGLE_METHOD) {
+  grepInvert.push(new RegExp(Tags.MustNotHaveFixForSingleMethod));
+} else {
+  grepInvert.push(new RegExp(Tags.NeedsFixForSingleMethod));
 }
 
 export default defineConfig({

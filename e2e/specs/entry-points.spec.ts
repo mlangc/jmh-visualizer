@@ -16,7 +16,8 @@ test.describe('bundled examples by URL', () => {
     ['two', /Comparing\s*95\s*results out of\s*19\s*benchmark classes/],
     // The multi-run case's header sentence is asserted in summary-header.spec.ts
     // instead -- naming the right two of three runs needs an app fix older builds
-    // lack, and that dependency belongs on one @needs-fix test, not on this one.
+    // lack, and that dependency belongs on one @needs-fix-for-summary-run-names test,
+    // not on this one.
     ['multi', /Comparing\s*98\s*results out of\s*19\s*benchmark classes/]
   ] as const) {
     test(`?example=${kind} loads the ${kind}-run example`, async ({ page }) => {
