@@ -99,6 +99,8 @@ Now you can access the UI on ```http://localhost```.
 - For major releases, add an entry to [Major Changes](#major-changes) and commit it
 - ```npm version $releaseVersion -m "Release %s"``` Bumps `package.json` & `package-lock.json`, commits and tags (no `v` prefix, see `.npmrc`)
 - ```git push --follow-tags``` Pushes the release commit & tag; every push to `main` deploys the app to [GitHub Pages](https://mlangc.github.io/jmh-visualizer/)
+  and the tag triggers a workflow that creates a draft [GitHub Release](https://github.com/mlangc/jmh-visualizer/releases) with `jmh-visualizer.zip` attached; check it, edit the generated notes if needed and publish it manually
+- If `package.json` is still at `1.0.0` (which has no tag yet), use ```npm version 1.0.0 --allow-same-version -m "Release %s"``` once
 
 
 ## Credits

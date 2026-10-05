@@ -1,4 +1,5 @@
 build/
+jmh-visualizer.zip
 node_modules/
 .vscode/settings.json
 .idea/
