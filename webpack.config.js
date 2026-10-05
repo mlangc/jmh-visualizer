@@ -2,6 +2,7 @@ const path = require('node:path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const version = require('./version');
 
 const SOURCE_DIR = path.resolve(__dirname, 'src');
 const APP_DIR = `${SOURCE_DIR}/app`;
@@ -39,7 +40,7 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       'process.env': {
-        version: JSON.stringify(process.env.npm_package_version),
+        version: JSON.stringify(version.resolve()),
         NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
       }
     }),
