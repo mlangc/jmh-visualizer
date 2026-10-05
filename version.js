@@ -19,7 +19,11 @@ function fromDescribe(described) {
 
 function resolve() {
   try {
-    const described = execFileSync('git', DESCRIBE_ARGS, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    const described = execFileSync('git', DESCRIBE_ARGS, {
+      cwd: __dirname,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    });
     const version = fromDescribe(described);
     if (version) {
       return version;
