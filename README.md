@@ -3,8 +3,10 @@
 Visually explore your [JMH](http://openjdk.java.net/projects/code-tools/jmh/) Benchmarks! Online version at [mlangc.github.io/jmh-visualizer](https://mlangc.github.io/jmh-visualizer/)!
 
 Comes with 2 companion projects:
-- [Gradle plugin](https://github.com/jzillmann/gradle-jmh-report)
-- [Jenkins plugin](https://github.com/jenkinsci/jmh-report-plugin)
+- [Gradle plugin](https://github.com/mlangc/gradle-jmh-report): Currently being modernized. You can still use the
+  [old version](https://github.com/jzillmann/gradle-jmh-report).
+- **~~Jenkins plugin~~**: Discontinued for now. You can still use 
+  the [old version](https://github.com/jenkinsci/jmh-report-plugin). Let me know if you use this.
 
 
 ## Features
