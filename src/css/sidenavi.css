@@ -158,3 +158,14 @@
   color: #bbb;
   cursor: default;
 }
+
+/* The tooltip wrapper of the metric dropdown must span the sidebar and must not
+   pull the sort/scale buttons below it up with its negative bottom margin. */
+.bs-docs-sidebar .input-group > [data-tooltip] {
+  flex: 1 1 auto;
+  margin-bottom: 0;
+}
+
+.bs-docs-sidebar .input-group > [data-tooltip] > .form-select {
+  width: 100%;
+}
