@@ -22,7 +22,7 @@ interface TocListProps {
   // Returns the onDoubleClick handler, or a falsy value to suppress the hint for that element
   doubleClickCreator?: (elementId: string) => ((e: MouseEvent) => void) | null;
   doubleClickTooltip?: string;
-  // Wraps the active category's elements in the sidebar's scrollable list box
+  // Wraps each category's elements in the sidebar's scrollable list box
   scrollableList?: boolean;
 }
 

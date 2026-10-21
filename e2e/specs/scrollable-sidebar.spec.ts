@@ -15,10 +15,10 @@ import { Tags } from '../support/tags';
 // scrolling needs; the bundled examples spread their methods over 18 classes instead.
 // The one spec that needs a list that fits uses the small linked-hash fixture.
 
-const CLASS_NAME = 'HashVsLinkedHashMapBenchmark';
 const ONE_THREAD = 'linked-hash-vs-hash-multiple-benchmarks-1-thread.json';
 const TWO_THREADS = 'linked-hash-vs-hash-multiple-benchmarks-2-threads.json';
 const THREE_THREADS = 'linked-hash-vs-hash-multiple-benchmarks-3-threads.json';
+const CLASS_NAME = 'HashVsLinkedHashMapBenchmark';
 const METHODS = [
   'accumulateAndCopyToArray',
   'copyToArray',
@@ -36,6 +36,10 @@ const METRIC_HEADINGS = [
   'gc.time gc.time'
 ];
 
+// The longest bar of the single-run Score chart, getAnyEntryUsingIteratorNext's, ends
+// in this label
+const LONGEST_BAR_LABEL = '313,421,199 ops/s';
+
 // The two-run rows and the multi-run lines are one per method and param combination,
 // named after BenchmarkMethod's key
 const GET_KEY = 'get [impl=HASH:keySpread=1.5:loadFactor=0.5:size=50000]';
@@ -49,6 +53,8 @@ const FIRST_KEY_BAR_LABEL = '93';
 // Scrolls are allowed to animate, and layout rounds to fractions of a pixel
 const TOLERANCE_PX = 2;
 
+type Point = [x: number, y: number];
+
 test.describe('the sidebar list', { tag: Tags.ScrollingEnhancements }, () => {
   test('scrolls on its own below a header that stays put', async ({ page }) => {
     const { dialogs, pageErrors } = watchDialogsAndErrors(page);
@@ -58,20 +64,20 @@ test.describe('the sidebar list', { tag: Tags.ScrollingEnhancements }, () => {
     await app.uploadReport(ONE_THREAD);
 
     const list = app.sidebarList();
+    const header = runSidebarHeader(page, app, 'single');
     expect((await scrollState(list)).maxScrollTop).toBeGreaterThan(0);
-    await expectRunSidebarHeaderInViewport(page);
-    await expect(list).toBeInViewport({ ratio: 1 });
+    await expectAllInViewport([...header, list]);
 
     // A wheel over the list scrolls the list, down to its end, but never the report
     await wheelOver(page, list, 100_000);
     await expect.poll(async () => isScrolledToEnd(list)).toBe(true);
     await expect(list.getByRole('checkbox').last()).toBeInViewport({ ratio: 1 });
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
-    await expectRunSidebarHeaderInViewport(page);
+    await expectAllInViewport(header);
 
     await wheelOver(page, list, -100_000);
     await expect.poll(async () => (await scrollState(list)).scrollTop).toBe(0);
-    await expect(app.benchmarkClassLink(CLASS_NAME)).toBeInViewport({ ratio: 1 });
+    await expect(list.getByRole('checkbox').first()).toBeInViewport({ ratio: 1 });
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
 
     expect(dialogs).toEqual([]);
@@ -86,12 +92,9 @@ test.describe('the sidebar list', { tag: Tags.ScrollingEnhancements }, () => {
     const app = new JmhApp(page);
     await page.goto('/');
     await app.uploadReport(ONE_THREAD);
+    const header = runSidebarHeader(page, app, 'single');
 
-    await expectWholeRunSidebarReachable(page, app);
-    await scrollReportTo(page, 'middle');
-    await expectWholeRunSidebarReachable(page, app);
-    await scrollReportTo(page, 'bottom');
-    await expectWholeRunSidebarReachable(page, app);
+    await expectWholeSidebarReachableWhereverScrolled(page, app, header);
 
     for (const size of [
       { width: 1280, height: 480 },
@@ -99,24 +102,77 @@ test.describe('the sidebar list', { tag: Tags.ScrollingEnhancements }, () => {
     ]) {
       await page.setViewportSize(size);
       await scrollReportTo(page, 'bottom');
-      await expectWholeRunSidebarReachable(page, app);
+      await expectWholeSidebarReachable(page, app, header);
     }
     await page.setViewportSize({ width: 1280, height: 720 });
 
     // Shorten the report to a single method, from the bottom of the report: the
     // sidebar is then taller than the report, and the page scrolls back up under it
+    const chart = page.locator('.recharts-wrapper').first();
     for (const methodName of METHODS.slice(1)) {
       await app.benchmarkFilter(CLASS_NAME, methodName).click();
     }
-    await expect(page.locator('.recharts-wrapper').first().getByText('put', { exact: true })).toHaveCount(0);
+    await expect(rowLabel(chart, 'put')).toHaveCount(0);
     await scrollReportTo(page, 'bottom');
-    await expectWholeRunSidebarReachable(page, app);
+    await expectWholeSidebarReachable(page, app, header);
 
     // ...and lengthen it again (a double-click on the class re-selects every method)
     await app.benchmarkClassLink(CLASS_NAME).dblclick();
-    await expect(page.locator('.recharts-wrapper').first().getByText('put', { exact: true })).toBeVisible();
+    await expect(rowLabel(chart, 'put')).toBeVisible();
     await scrollReportTo(page, 'bottom');
-    await expectWholeRunSidebarReachable(page, app);
+    await expectWholeSidebarReachable(page, app, header);
+
+    expect(dialogs).toEqual([]);
+    expect(pageErrors).toEqual([]);
+  });
+
+  test('stays reachable with 2 runs, on the Run and the Details screen', async ({ page }) => {
+    const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReports([ONE_THREAD, TWO_THREADS]);
+    await app.clickAllRunsButton(); // Summary -> Compare
+    await expect(rowLabel(page.locator('.recharts-wrapper').first(), FIRST_KEY)).toBeVisible();
+    await expectWholeSidebarReachableWhereverScrolled(page, app, runSidebarHeader(page, app, 'two'));
+
+    await app.showDetails();
+    await expect(page.locator('.recharts-wrapper')).toHaveCount(METRIC_HEADINGS.length);
+    await expectWholeSidebarReachableWhereverScrolled(page, app, detailsSidebarHeader(page, app, 'two'));
+
+    expect(dialogs).toEqual([]);
+    expect(pageErrors).toEqual([]);
+  });
+
+  test('stays reachable with 3 runs, on the Run and the Details screen', async ({ page }) => {
+    // Three runs make for a line per result, 64 of them in each chart, which render slowly
+    test.slow();
+    const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReports([ONE_THREAD, TWO_THREADS, THREE_THREADS]);
+    await app.clickAllRunsButton(); // Summary -> Compare
+    await expect(page.locator('.recharts-wrapper').first()).toBeVisible();
+    await expectWholeSidebarReachableWhereverScrolled(page, app, runSidebarHeader(page, app, 'multi'));
+
+    await app.showDetails();
+    await expect(page.locator('.recharts-wrapper')).toHaveCount(METRIC_HEADINGS.length);
+    await expectWholeSidebarReachableWhereverScrolled(page, app, detailsSidebarHeader(page, app, 'multi'));
+
+    expect(dialogs).toEqual([]);
+    expect(pageErrors).toEqual([]);
+  });
+
+  test('stays reachable on the Details screen of a single run', async ({ page }) => {
+    const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReport(ONE_THREAD);
+    await app.showDetails();
+    await expect(page.locator('.recharts-wrapper')).toHaveCount(METRIC_HEADINGS.length);
+    await expectWholeSidebarReachableWhereverScrolled(page, app, detailsSidebarHeader(page, app, 'single'));
 
     expect(dialogs).toEqual([]);
     expect(pageErrors).toEqual([]);
@@ -152,6 +208,8 @@ test.describe('the sidebar list', { tag: Tags.ScrollingEnhancements }, () => {
     expect(pageErrors).toEqual([]);
   });
 
+  // Holds on builds without the feature too: a guard against the box cutting off or
+  // padding out a list that fits
   test("doesn't scroll when it fits", async ({ page }) => {
     const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
@@ -161,6 +219,10 @@ test.describe('the sidebar list', { tag: Tags.ScrollingEnhancements }, () => {
 
     const list = app.sidebarList();
     expect((await scrollState(list)).maxScrollTop).toBe(0);
+    const spareHeight = await list.evaluate(
+      (element) => element.clientHeight - (element.firstElementChild?.getBoundingClientRect().height ?? 0)
+    );
+    expect(Math.abs(spareHeight)).toBeLessThanOrEqual(1);
     await expect(list.getByRole('checkbox').last()).toBeInViewport({ ratio: 1 });
 
     expect(dialogs).toEqual([]);
@@ -176,20 +238,16 @@ test.describe('clicking a chart', { tag: Tags.ScrollingEnhancements }, () => {
     await page.goto('/');
     await app.uploadReport(ONE_THREAD);
     const chart = page.locator('.recharts-wrapper').first();
-    // The longest bar of the chart, getAnyEntryUsingIteratorNext's, ends in this label
-    const longestBarLabel = '313,421,199 ops/s';
-    await expect(chart.getByText(longestBarLabel, { exact: true })).toBeVisible();
+    await expect(chart.getByText(LONGEST_BAR_LABEL, { exact: true })).toBeVisible();
 
-    await expectClickCentresMethod(page, app, 'get', () => clickRowLabel(page, chart, 'get'));
-    await expectClickCentresMethod(page, app, 'getAnyEntryUsingIteratorNext', () =>
-      clickBar(page, chart, longestBarLabel)
-    );
+    await expectClickCentresMethod(page, app, 'get', () => rowLabelPoint(chart, 'get'));
+    await expectClickCentresMethod(page, app, 'getAnyEntryUsingIteratorNext', () => barPoint(chart, LONGEST_BAR_LABEL));
     // Near the ends of the list, where the method can't be centred
     await expectClickCentresMethod(page, app, 'accumulateAndCopyToArray', () =>
-      clickRowGap(page, chart, 'accumulateAndCopyToArray')
+      rowGapPoint(chart, 'accumulateAndCopyToArray')
     );
-    await expectClickCentresMethod(page, app, 'put', () => clickRowLabel(page, chart, 'put'));
-    await expectClickCentresMethod(page, app, 'merge', () => clickRowGap(page, chart, 'merge'));
+    await expectClickCentresMethod(page, app, 'put', () => rowLabelPoint(chart, 'put'));
+    await expectClickCentresMethod(page, app, 'merge', () => rowGapPoint(chart, 'merge'));
 
     // Hover tooltips still work
     await movePointerTo(page, ...(await rowGapPoint(chart, 'copyToArray')));
@@ -209,12 +267,10 @@ test.describe('clicking a chart', { tag: Tags.ScrollingEnhancements }, () => {
     const chart = page.locator('.recharts-wrapper').first();
     await expect(rowLabel(chart, FIRST_KEY)).toBeVisible();
 
-    await expectClickCentresMethod(page, app, 'get', () => clickRowLabel(page, chart, GET_KEY));
-    await expectClickCentresMethod(page, app, 'accumulateAndCopyToArray', () =>
-      clickBar(page, chart, FIRST_KEY_BAR_LABEL)
-    );
-    await expectClickCentresMethod(page, app, 'merge', () => clickRowGap(page, chart, MERGE_KEY));
-    await expectClickCentresMethod(page, app, 'put', () => clickRowGap(page, chart, PUT_KEY));
+    await expectClickCentresMethod(page, app, 'get', () => rowLabelPoint(chart, GET_KEY));
+    await expectClickCentresMethod(page, app, 'accumulateAndCopyToArray', () => barPoint(chart, FIRST_KEY_BAR_LABEL));
+    await expectClickCentresMethod(page, app, 'merge', () => rowGapPoint(chart, MERGE_KEY));
+    await expectClickCentresMethod(page, app, 'put', () => rowGapPoint(chart, PUT_KEY));
 
     await movePointerTo(page, ...(await rowGapPoint(chart, COPY_TO_ARRAY_KEY)));
     await expect(page.getByRole('heading', { name: COPY_TO_ARRAY_KEY, exact: true })).toBeVisible();
@@ -224,6 +280,8 @@ test.describe('clicking a chart', { tag: Tags.ScrollingEnhancements }, () => {
   });
 
   test('centres the method of a multi-run line chart legend entry in the sidebar list', async ({ page }) => {
+    // Three runs make for a line per result, 64 of them in each chart, which render slowly
+    test.slow();
     const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
     const app = new JmhApp(page);
@@ -239,18 +297,18 @@ test.describe('clicking a chart', { tag: Tags.ScrollingEnhancements }, () => {
       ['put', PUT_KEY],
       ['get', GET_KEY]
     ]) {
-      await expectClickCentresMethod(page, app, methodName, () => clickLegendEntry(page, legendEntry(page, key)));
+      await expectClickCentresMethod(page, app, methodName, () => centreOf(legendEntry(page, key)));
     }
 
     // Hovering a legend entry still highlights its line, which then carries a value
-    // label per run, and hovering the plot still shows the tooltip
+    // label ("5,957 ops/s") per run, and hovering the plot still shows the tooltip
     await page.mouse.move(0, 0);
-    const numbers = chart.getByText(/^[\d.,]+$/).filter({ visible: true });
-    const numberCountBefore = await numbers.count();
+    const valueLabels = chart.getByText(/^[\d.,]+ \S+$/).filter({ visible: true });
+    const valueLabelCountBefore = await valueLabels.count();
     await legendEntry(page, COPY_TO_ARRAY_KEY).hover();
-    await expect(numbers).toHaveCount(numberCountBefore + 3);
+    await expect(valueLabels).toHaveCount(valueLabelCountBefore + 3);
     await page.mouse.move(0, 0);
-    await expect(numbers).toHaveCount(numberCountBefore);
+    await expect(valueLabels).toHaveCount(valueLabelCountBefore);
     await chart.scrollIntoViewIfNeeded();
     const chartBox = await boxOf(chart);
     await movePointerTo(page, chartBox.x + chartBox.width * 0.15, chartBox.y + chartBox.height * 0.36);
@@ -260,6 +318,7 @@ test.describe('clicking a chart', { tag: Tags.ScrollingEnhancements }, () => {
     expect(pageErrors).toEqual([]);
   });
 
+  // One click per metric chart, cycling through the click targets
   test('on the Details screen of a single run centres the method in the Details sidebar list', async ({ page }) => {
     const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
@@ -268,15 +327,21 @@ test.describe('clicking a chart', { tag: Tags.ScrollingEnhancements }, () => {
     await app.uploadReport(ONE_THREAD);
     await app.showDetails();
     await expect(page.locator('.recharts-wrapper')).toHaveCount(METRIC_HEADINGS.length);
-    expect((await scrollState(app.sidebarList())).maxScrollTop).toBeGreaterThan(0);
 
-    // A label and a gap per chart, each of another method
-    const gapMethods = ['merge', 'put', 'accumulateAndCopyToArray', 'copyToArray', 'get'];
-    for (const [i, heading] of METRIC_HEADINGS.entries()) {
-      const chart = app.benchmarkSection(heading).locator('.recharts-wrapper');
-      await expectClickCentresMethod(page, app, METHODS[i], () => clickRowLabel(page, chart, METHODS[i]));
-      await expectClickCentresMethod(page, app, gapMethods[i], () => clickRowGap(page, chart, gapMethods[i]));
-    }
+    const charts = METRIC_HEADINGS.map((heading) => app.benchmarkSection(heading).locator('.recharts-wrapper'));
+    await expect(charts[0].getByText(LONGEST_BAR_LABEL, { exact: true })).toBeVisible();
+    await expectClickCentresMethod(page, app, 'getAnyEntryUsingIteratorNext', () =>
+      barPoint(charts[0], LONGEST_BAR_LABEL)
+    );
+    await expectClickCentresMethod(page, app, 'accumulateAndCopyToArray', () =>
+      rowLabelPoint(charts[1], 'accumulateAndCopyToArray')
+    );
+    await expectClickCentresMethod(page, app, 'merge', () => rowGapPoint(charts[2], 'merge'));
+    await expectClickCentresMethod(page, app, 'put', () => rowLabelPoint(charts[3], 'put'));
+    await expectClickCentresMethod(page, app, 'get', () => rowGapPoint(charts[4], 'get'));
+
+    await movePointerTo(page, ...(await rowGapPoint(charts[1], 'copyToArray')));
+    await expect(page.getByRole('heading', { name: 'copyToArray', exact: true })).toBeVisible();
 
     expect(dialogs).toEqual([]);
     expect(pageErrors).toEqual([]);
@@ -291,19 +356,28 @@ test.describe('clicking a chart', { tag: Tags.ScrollingEnhancements }, () => {
     await app.clickAllRunsButton(); // Summary -> Compare
     await app.showDetails();
     await expect(page.locator('.recharts-wrapper')).toHaveCount(METRIC_HEADINGS.length);
-    expect((await scrollState(app.sidebarList())).maxScrollTop).toBeGreaterThan(0);
 
-    for (const heading of METRIC_HEADINGS) {
-      const chart = app.benchmarkSection(heading).locator('.recharts-wrapper');
-      await expectClickCentresMethod(page, app, 'get', () => clickRowLabel(page, chart, GET_KEY));
-      await expectClickCentresMethod(page, app, 'put', () => clickRowGap(page, chart, PUT_KEY));
-    }
+    const charts = METRIC_HEADINGS.map((heading) => app.benchmarkSection(heading).locator('.recharts-wrapper'));
+    await expect(charts[0].getByText(FIRST_KEY_BAR_LABEL, { exact: true })).toBeVisible();
+    await expectClickCentresMethod(page, app, 'accumulateAndCopyToArray', () =>
+      barPoint(charts[0], FIRST_KEY_BAR_LABEL)
+    );
+    await expectClickCentresMethod(page, app, 'copyToArray', () => rowLabelPoint(charts[1], COPY_TO_ARRAY_KEY));
+    await expectClickCentresMethod(page, app, 'put', () => rowGapPoint(charts[2], PUT_KEY));
+    await expectClickCentresMethod(page, app, 'merge', () => rowLabelPoint(charts[3], MERGE_KEY));
+    // copyToArray has no gc.time results, unlike this get
+    await expectClickCentresMethod(page, app, 'get', () => rowGapPoint(charts[4], GET_KEY));
+
+    await movePointerTo(page, ...(await rowGapPoint(charts[1], COPY_TO_ARRAY_KEY)));
+    await expect(page.getByRole('heading', { name: COPY_TO_ARRAY_KEY, exact: true })).toBeVisible();
 
     expect(dialogs).toEqual([]);
     expect(pageErrors).toEqual([]);
   });
 
   test('on the Details screen of three runs centres the method in the Details sidebar list', async ({ page }) => {
+    // Three runs make for a line per result, 64 of them in each chart, which render slowly
+    test.slow();
     const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
     const app = new JmhApp(page);
@@ -312,13 +386,12 @@ test.describe('clicking a chart', { tag: Tags.ScrollingEnhancements }, () => {
     await app.clickAllRunsButton(); // Summary -> Compare
     await app.showDetails();
     await expect(page.locator('.recharts-wrapper')).toHaveCount(METRIC_HEADINGS.length);
-    expect((await scrollState(app.sidebarList())).maxScrollTop).toBeGreaterThan(0);
 
-    for (const heading of METRIC_HEADINGS) {
-      const section = app.benchmarkSection(heading);
-      await expectClickCentresMethod(page, app, 'merge', () => clickLegendEntry(page, legendEntry(section, MERGE_KEY)));
-      await expectClickCentresMethod(page, app, 'copyToArray', () =>
-        clickLegendEntry(page, legendEntry(section, COPY_TO_ARRAY_KEY))
+    const keys = [MERGE_KEY, FIRST_KEY, PUT_KEY, COPY_TO_ARRAY_KEY, GET_KEY];
+    for (const [i, heading] of METRIC_HEADINGS.entries()) {
+      const methodName = keys[i].split(' ')[0];
+      await expectClickCentresMethod(page, app, methodName, () =>
+        centreOf(legendEntry(app.benchmarkSection(heading), keys[i]))
       );
     }
 
@@ -349,7 +422,9 @@ async function boxOf(locator: Locator): Promise<{ x: number; y: number; width: n
   return box;
 }
 
-async function centreOf(locator: Locator): Promise<[number, number]> {
+/** The centre of what `locator` points at, scrolled into view. */
+async function centreOf(locator: Locator): Promise<Point> {
+  await locator.scrollIntoViewIfNeeded();
   const box = await boxOf(locator);
   return [box.x + box.width / 2, box.y + box.height / 2];
 }
@@ -372,44 +447,80 @@ async function scrollReportTo(page: Page, position: 'top' | 'middle' | 'bottom')
   }, position);
 }
 
-async function expectRunSidebarHeaderInViewport(page: Page): Promise<void> {
-  await expect(page.locator('select')).toBeInViewport({ ratio: 1 });
-  await expect(page.locator('[data-tooltip^="Sort by"]').last()).toBeInViewport({ ratio: 1 });
-  await expect(page.locator('[data-tooltip^="Switch scale"]').last()).toBeInViewport({ ratio: 1 });
-  await expect(page.getByText('Benchmarks', { exact: true })).toBeInViewport({ ratio: 1 });
+/**
+ * The Run screen's sidebar header: the metric dropdown (the screen's only `select`),
+ * the Sort and/or Scale controls the view has, and the list's heading.
+ */
+function runSidebarHeader(page: Page, app: JmhApp, view: 'single' | 'two' | 'multi'): Locator[] {
+  return [
+    page.locator('select'),
+    ...(view === 'multi' ? [] : [app.sortForAllChartsControl()]),
+    ...(view === 'two' ? [] : [app.scaleForAllChartsControl()]),
+    page.getByText('Benchmarks', { exact: true })
+  ];
 }
 
 /**
- * The Run screen's sidebar header and its list's box are in full view, and the list
- * scrolls far enough to show its first and last entries -- so every entry in between
- * can be brought into view too.
+ * The Details screen's sidebar header: the "Back.." link, the class dropdown (the
+ * screen's only `select`), the Sort and/or Scale controls and the list of metrics.
  */
-async function expectWholeRunSidebarReachable(page: Page, app: JmhApp): Promise<void> {
+function detailsSidebarHeader(page: Page, app: JmhApp, view: 'single' | 'two' | 'multi'): Locator[] {
+  return [
+    page.getByText('Back..'),
+    page.locator('select'),
+    ...(view === 'multi' ? [] : [app.sortForAllChartsControl()]),
+    ...(view === 'two' ? [] : [app.scaleForAllChartsControl()]),
+    page.getByText('Metrics', { exact: true }),
+    page.locator('ul.nav ul.nav').getByText('gc.time', { exact: true })
+  ];
+}
+
+async function expectAllInViewport(locators: Locator[]): Promise<void> {
+  for (const locator of locators) {
+    await expect(locator).toBeInViewport({ ratio: 1 });
+  }
+}
+
+/** `expectWholeSidebarReachable` with the report at its top, middle and bottom. */
+async function expectWholeSidebarReachableWhereverScrolled(page: Page, app: JmhApp, header: Locator[]): Promise<void> {
+  for (const position of ['top', 'middle', 'bottom'] as const) {
+    await scrollReportTo(page, position);
+    await expectWholeSidebarReachable(page, app, header);
+  }
+}
+
+/**
+ * The sidebar's header and its list's box are in full view, and the list scrolls far
+ * enough to show its first and last checkboxes -- so every entry in between can be
+ * brought into view too.
+ */
+async function expectWholeSidebarReachable(page: Page, app: JmhApp, header: Locator[]): Promise<void> {
   const list = app.sidebarList();
-  await expectRunSidebarHeaderInViewport(page);
-  await expect(list).toBeInViewport({ ratio: 1 });
+  await expectAllInViewport([...header, list]);
 
   await wheelOver(page, list, 100_000);
   await expect(list.getByRole('checkbox').last()).toBeInViewport({ ratio: 1 });
   await wheelOver(page, list, -100_000);
-  await expect(app.benchmarkClassLink(CLASS_NAME)).toBeInViewport({ ratio: 1 });
-  await expectRunSidebarHeaderInViewport(page);
+  await expect(list.getByRole('checkbox').first()).toBeInViewport({ ratio: 1 });
+  await expectAllInViewport(header);
 }
 
 /**
- * Performs `click` on a chart and expects it to scroll the sidebar list so that the
- * block of `methodName` ends up centred in it, as far as the list can scroll -- and
- * to change nothing else: the report stays where it is, and every checkbox keeps its
- * state.
+ * Clicks a chart at the point `aim` returns and expects the click to scroll the sidebar
+ * list so that the block of `methodName` ends up centred in it, as far as the list can
+ * scroll -- and to change nothing else: the report stays where it is, every checkbox
+ * keeps its state, and the list stays as it was (nothing highlighted). Before the
+ * click, the pointer has to have turned into a hand there.
  *
  * The list starts out scrolled to whichever end is farther from the block, so the
- * click has to scroll it for real.
+ * click has to scroll it for real. `aim` may scroll the report to bring its target
+ * into view; only the click itself must not.
  */
 async function expectClickCentresMethod(
   page: Page,
   app: JmhApp,
   methodName: string,
-  click: () => Promise<void>
+  aim: () => Promise<Point>
 ): Promise<void> {
   const list = app.sidebarList();
   const block = app.sidebarMethodBlock(methodName);
@@ -426,11 +537,15 @@ async function expectClickCentresMethod(
     await block.elementHandle()
   );
 
+  const [x, y] = await aim();
+  await expectPointerCursorAt(page, x, y);
+
   const checkboxes = page.getByRole('checkbox');
   const checkedBefore = await checkedStates(checkboxes);
+  const listBefore = await list.innerHTML();
   const scrollYBefore = await page.evaluate(() => window.scrollY);
 
-  await click();
+  await page.mouse.click(x, y);
 
   await expect(async () => {
     const offset = await list.evaluate(
@@ -457,6 +572,7 @@ async function expectClickCentresMethod(
 
   expect(await page.evaluate(() => window.scrollY)).toBe(scrollYBefore);
   expect(await checkedStates(checkboxes)).toEqual(checkedBefore);
+  expect(await list.innerHTML()).toBe(listBefore);
 }
 
 async function checkedStates(checkboxes: Locator): Promise<boolean[]> {
@@ -464,59 +580,10 @@ async function checkedStates(checkboxes: Locator): Promise<boolean[]> {
 }
 
 /**
- * A bar chart row's Y-axis label. recharts wraps a long one onto two lines, a <tspan>
- * each, so it's matched as a whole, whatever the whitespace where it wraps.
+ * Points at `x`/`y` and expects the pointer to turn into a hand there -- recharts only
+ * draws what it draws under a hovered row once the pointer has moved in.
  */
-function rowLabel(chart: Locator, name: string): Locator {
-  const pattern = name
-    .split(' ')
-    .map((part) => escapeRegExp(part))
-    .join('\\s*');
-  return chart.getByText(new RegExp(`^${pattern}$`));
-}
-
-async function clickRowLabel(page: Page, chart: Locator, name: string): Promise<void> {
-  const label = rowLabel(chart, name);
-  await label.scrollIntoViewIfNeeded();
-  await clickWithPointerCursor(page, ...(await centreOf(label)));
-}
-
-/**
- * Clicks a point of a bar chart row that's neither its label nor one of its bars: just
- * right of the Y axis, at the height of the row's label, which is the row's middle.
- * On the Run screen no bar crosses that point in the rows clicked there: the
- * single-run chart leaves a slot for every param combination of the class in every
- * row, and those rows have none of theirs in the middle, while the two-run chart's
- * bars start at its 0% line, far right of the axis, and grow rightwards in them.
- */
-async function clickRowGap(page: Page, chart: Locator, name: string): Promise<void> {
-  await clickWithPointerCursor(page, ...(await rowGapPoint(chart, name)));
-}
-
-async function rowGapPoint(chart: Locator, name: string): Promise<[number, number]> {
-  const label = rowLabel(chart, name);
-  await label.scrollIntoViewIfNeeded();
-  const box = await boxOf(label);
-  return [box.x + box.width + 20, box.y + box.height / 2];
-}
-
-/**
- * Clicks a bar just left of the label at its end. That label sits a few pixels right
- * of the bar, its bottom edge level with the upper half of the bar.
- */
-async function clickBar(page: Page, chart: Locator, barLabel: string): Promise<void> {
-  const label = chart.getByText(barLabel, { exact: true });
-  await label.scrollIntoViewIfNeeded();
-  const box = await boxOf(label);
-  await clickWithPointerCursor(page, box.x - 15, box.y + box.height - 1);
-}
-
-/**
- * A click at a point of a chart, after making sure the pointer turns into a hand there
- * -- recharts only draws what it draws under a hovered row once the pointer has moved
- * in, so it moves there first.
- */
-async function clickWithPointerCursor(page: Page, x: number, y: number): Promise<void> {
+async function expectPointerCursorAt(page: Page, x: number, y: number): Promise<void> {
   await movePointerTo(page, x, y);
   await expect
     .poll(async () =>
@@ -529,12 +596,60 @@ async function clickWithPointerCursor(page: Page, x: number, y: number): Promise
       )
     )
     .toBe('pointer');
-  await page.mouse.click(x, y);
 }
 
 async function movePointerTo(page: Page, x: number, y: number): Promise<void> {
   await page.mouse.move(0, 0);
   await page.mouse.move(x, y, { steps: 4 });
+}
+
+/**
+ * Text the chart draws -- an SVG <text>, which can't be the tooltip's: that renders
+ * inside `.recharts-wrapper` too, and an open one repeats row names in its heading.
+ * recharts wraps a long text onto several lines, a <tspan> each, so it's matched as a
+ * whole, whatever the whitespace where it wraps.
+ */
+function chartText(chart: Locator, text: string): Locator {
+  const pattern = text
+    .split(' ')
+    .map((part) => escapeRegExp(part))
+    .join('\\s*');
+  return chart.locator('text').filter({ hasText: new RegExp(`^${pattern}$`) });
+}
+
+/** A bar chart row's Y-axis label. */
+function rowLabel(chart: Locator, name: string): Locator {
+  return chartText(chart, name);
+}
+
+function rowLabelPoint(chart: Locator, name: string): Promise<Point> {
+  return centreOf(rowLabel(chart, name));
+}
+
+/**
+ * A point of a bar chart row that's neither its label nor one of its bars: just right
+ * of the Y axis, at the height of the row's label, which is the row's middle. On the
+ * Run screen no bar crosses that point in the rows clicked there: the single-run
+ * chart leaves a slot for every param combination of the class in every row, and
+ * those rows have none of theirs in the middle, while the two-run chart's bars start
+ * at its 0% line, far right of the axis, and grow rightwards in them.
+ */
+async function rowGapPoint(chart: Locator, name: string): Promise<Point> {
+  const label = rowLabel(chart, name);
+  await label.scrollIntoViewIfNeeded();
+  const box = await boxOf(label);
+  return [box.x + box.width + 20, box.y + box.height / 2];
+}
+
+/**
+ * A point on a bar, just left of the label at its end. That label sits a few pixels
+ * right of the bar, its bottom edge level with the upper half of the bar.
+ */
+async function barPoint(chart: Locator, barLabel: string): Promise<Point> {
+  const label = chartText(chart, barLabel);
+  await label.scrollIntoViewIfNeeded();
+  const box = await boxOf(label);
+  return [box.x - 15, box.y + box.height - 1];
 }
 
 /**
@@ -544,10 +659,4 @@ async function movePointerTo(page: Page, x: number, y: number): Promise<void> {
  */
 function legendEntry(scope: Page | Locator, key: string): Locator {
   return scope.getByText(key, { exact: true });
-}
-
-async function clickLegendEntry(page: Page, entry: Locator): Promise<void> {
-  await entry.scrollIntoViewIfNeeded();
-  const [x, y] = await centreOf(entry);
-  await clickWithPointerCursor(page, x, y);
 }

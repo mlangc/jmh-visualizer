@@ -80,12 +80,12 @@ fix — an older branch, `master`, a bisect. `INCLUDE_SCROLLING_ENHANCEMENTS`
 defaults to **off** for now, since no build has that feature yet; set it to `1`
 to run its specs. The flags are independent and combine.
 
-| Flag | Default | Set to `0` when the build… |
+| Flag | Default | Flip it when the build… |
 | --- | --- | --- |
 | `INCLUDE_FILTERS` | on | predates the benchmark/param filter checkboxes (`master`, or an older `main` commit). They were added on `add-filters-for-large-result-files` and are now merged into `main`. |
 | `HAS_FIX_FOR_SUMMARY_RUN_NAMES` | on | predates the fix of `SummaryScreen.tsx` passing the full run-name list to `SummaryView` (see below). |
 | `HAS_FIX_FOR_SINGLE_METHOD` | on | predates the guard that disables the checkbox of a class's last selected method (see below). |
-| `INCLUDE_SCROLLING_ENHANCEMENTS` | off | Set to `1` when the build has the scrollable sidebar list and the charts that scroll it to a clicked method (`plans/2026-10-20-SCROLLABLE-SIDEBAR-PLAN.md`). |
+| `INCLUDE_SCROLLING_ENHANCEMENTS` | off | has the scrollable sidebar list and the charts that scroll it to a clicked method (`plans/2026-10-20-SCROLLABLE-SIDEBAR-PLAN.md`). |
 
 | Tag | Runs when | Description |
 | --- | --- | --- |

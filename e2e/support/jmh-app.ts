@@ -326,12 +326,22 @@ export class JmhApp {
    * before the sidebar, so the sidebar's copy is the last one on the page.
    */
   async toggleSortForAllCharts(): Promise<void> {
-    await this.page.locator('[data-tooltip^="Sort by"]').last().click();
+    await this.sortForAllChartsControl().click();
   }
 
   /** See `toggleSortForAllCharts` — the same sidebar control for the log/linear scale. */
   async toggleScaleForAllCharts(): Promise<void> {
-    await this.page.locator('[data-tooltip^="Switch scale"]').last().click();
+    await this.scaleForAllChartsControl().click();
+  }
+
+  /** The control `toggleSortForAllCharts` clicks, for asserting on it. */
+  sortForAllChartsControl(): Locator {
+    return this.page.locator('[data-tooltip^="Sort by"]').last();
+  }
+
+  /** The control `toggleScaleForAllCharts` clicks, for asserting on it. */
+  scaleForAllChartsControl(): Locator {
+    return this.page.locator('[data-tooltip^="Switch scale"]').last();
   }
 
   /**
