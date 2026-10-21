@@ -1,7 +1,8 @@
-// A row of a BarChart: its name plus score, error, etc. per bar group
+// A row of a BarChart: its name and benchmark method plus score, error, etc. per bar group
 export interface BarDataPoint {
   index: number;
   name: string;
+  methodName: string;
   [barGroupKey: string]: unknown;
 }
 
@@ -161,7 +162,9 @@ function createBarDataSet(
     const benchmarkName = benchmarkGroup.key;
     const dataObject: BarDataPoint = {
       index: i,
-      name: benchmarkName
+      name: benchmarkName,
+      // A row holds a single method, or the params of the bundle's only method
+      methodName: benchmarkGroup.values[0].name
     };
     benchmarkGroup.values.forEach((benchmarkMethod) => {
       const benchmark = benchmarkMethod.benchmarks[0]!;

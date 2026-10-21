@@ -38,6 +38,7 @@ const SummaryScreen = ({ benchmarkSelection, selectedMetric }: SummaryScreenProp
 
   return (
     <SplitPane
+      fitSidebarIntoViewport={true}
       left={
         <SummaryView
           runIndex={runIndices}

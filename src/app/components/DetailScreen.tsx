@@ -96,6 +96,7 @@ const DetailScreen = ({
 
   return (
     <SplitPane
+      fitSidebarIntoViewport={true}
       left={mainView}
       right={
         <DetailSideBar

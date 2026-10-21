@@ -1,3 +1,4 @@
+import { rowClickHandlers } from 'components/lib/scrollSidebarToMethod.ts';
 import { createDataSetFromBenchmarks } from 'components/two/DiffBarDataSet.ts';
 import DiffLabel from 'components/two/DiffLabel.tsx';
 import TwoRunsChartTooltip from 'components/two/TwoRunsChartTooltip.tsx';
@@ -48,6 +49,7 @@ export default class DiffBarChartView extends React.Component<DiffBarChartViewPr
       .map((element) => element.name.length)
       .reduce((previous, current) => Math.max(previous, current), 32);
     const chartHeight = 100 + dataSet.data.length * 45;
+    const { onChartClick, onTickClick } = rowClickHandlers(benchmarkBundle.fullyQualifiedClassName, dataSet.data);
 
     if (dataSet.data.length === 0) {
       return <div>No data for comparision!</div>;
@@ -56,6 +58,8 @@ export default class DiffBarChartView extends React.Component<DiffBarChartViewPr
     return (
       <ResponsiveContainer width="100%" height={chartHeight}>
         <BarChart
+          className="rows-scroll-sidebar"
+          onClick={onChartClick}
           layout="vertical"
           width={900}
           height={chartHeight}
@@ -64,7 +68,7 @@ export default class DiffBarChartView extends React.Component<DiffBarChartViewPr
         >
           <ReferenceLine x={0} stroke={yellow} />
           <XAxis type="number" domain={[-100, 100]} />
-          <YAxis dataKey="name" type="category" />
+          <YAxis dataKey="name" type="category" onClick={onTickClick} />
           <CartesianGrid strokeDasharray="3 3" />
           <Legend verticalAlign="top" content={DiffLegendContent} labelStyle={{ color: 'inherit' }} height={30} />
           <Tooltip

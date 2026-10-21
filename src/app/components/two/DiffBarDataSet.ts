@@ -6,6 +6,7 @@ import { getMetricType } from 'models/MetricType.ts';
 export interface DiffDataPoint {
   index: number;
   name: string;
+  methodName: string;
   scoreDiff: number;
   scoreUnit: string;
   score1stRun: number;
@@ -49,6 +50,7 @@ export function createDataSetFromBenchmarks(
         return {
           index: i,
           name: benchmarkMethod.key,
+          methodName: benchmarkMethod.name,
           scoreDiff: scoreDiff,
           scoreUnit: scoreUnit,
           score1stRun: score1stRun,

@@ -168,3 +168,41 @@
 .bs-docs-sidebar .input-group > [data-tooltip] > .form-select {
   width: 100%;
 }
+
+/* A sidebar that SplitPane fits into the viewport: everything between it and its
+   list's box stacks up as a flex column, so that the box takes whatever height
+   the header above it leaves, and scrolls when the list doesn't fit. */
+.bs-docs-sidebar.fits-viewport,
+.bs-docs-sidebar.fits-viewport :has(.sidebar-scroll-list) {
+  display: flex;
+  flex-direction: column;
+  /* Bootstrap's .nav wraps, which would size the column to its widest entry */
+  flex-wrap: nowrap;
+  min-height: 0;
+}
+
+.bs-docs-sidebar.fits-viewport .sidebar-scroll-list {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* The list's box would clip its tooltips, so they are positioned relative to the
+   viewport instead, at the anchor Tooltipped.tsx sets on hover. */
+.sidebar-scroll-list [data-tooltip-position="left"]:before,
+.sidebar-scroll-list [data-tooltip-position="left"]:after {
+  position: fixed;
+  top: var(--tooltip-anchor-middle);
+  right: auto;
+  left: var(--tooltip-anchor-left);
+}
+
+.sidebar-scroll-list [data-tooltip-position="left"]:before {
+  margin-right: 0;
+  transform: translate(calc(-100% - 6px), -50%);
+}
+
+.sidebar-scroll-list [data-tooltip-position="left"]:after {
+  transform: translateX(-100%);
+}

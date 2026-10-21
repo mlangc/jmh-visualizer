@@ -1,3 +1,4 @@
+import { rowClickHandlers } from 'components/lib/scrollSidebarToMethod.ts';
 import { createDataSetFromBenchmarks } from 'components/single/BarDataSet.ts';
 import BarLabel from 'components/single/BarLabel.tsx';
 import SingleRunChartTooltip from 'components/single/SingleRunChartTooltip.tsx';
@@ -41,6 +42,7 @@ export default class BarChartView extends React.Component<BarChartViewProps> {
       .map((element) => element.name.length)
       .reduce((previous, current) => Math.max(previous, current), 32);
     const singleBar = dataSet.barGroups.length === 1;
+    const { onChartClick, onTickClick } = rowClickHandlers(benchmarkBundle.fullyQualifiedClassName, dataSet.data);
     const bars = dataSet.barGroups.map((barGroup, i) => {
       return (
         <Bar
@@ -63,6 +65,8 @@ export default class BarChartView extends React.Component<BarChartViewProps> {
         {/* responsive rather than a ResponsiveContainer, whose size would override the tooltip's own charts' */}
         <BarChart
           responsive
+          className="rows-scroll-sidebar"
+          onClick={onChartClick}
           layout="vertical"
           width="100%"
           height={chartHeight}
@@ -77,7 +81,7 @@ export default class BarChartView extends React.Component<BarChartViewProps> {
             allowDataOverflow
             tickFormatter={tickFormatter}
           />
-          <YAxis dataKey="name" type="category" />
+          <YAxis dataKey="name" type="category" onClick={onTickClick} />
           <CartesianGrid strokeDasharray="3 3" />
           <Legend itemSorter={null} labelStyle={{ color: 'inherit' }} />
           <Tooltip

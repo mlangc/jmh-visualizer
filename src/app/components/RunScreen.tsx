@@ -103,6 +103,7 @@ const RunScreen = ({
 
   return (
     <SplitPane
+      fitSidebarIntoViewport={true}
       left={mainView}
       right={
         <RunSideBar

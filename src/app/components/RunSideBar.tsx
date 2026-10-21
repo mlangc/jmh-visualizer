@@ -108,24 +108,26 @@ export default class RunSideBar extends React.Component<RunSideBarProps> {
 
     return (
       <div>
-        <FormGroup>
-          <InputGroup>
-            <Tooltipped tooltip="No secondary metrics found!!" position="left" disabled={metrics.length > 1}>
-              <Form.Select
-                size="sm"
-                onChange={(event) => {
-                  actions.selectMetric(event.target.value);
-                }}
-                value={metricExtractor.metricKey}
-                disabled={metrics.length < 2}
-              >
-                {metricsOptions}
-              </Form.Select>
-            </Tooltipped>
-          </InputGroup>
-        </FormGroup>
-        {buttons}
-        <hr style={{ marginTop: '10px', marginBottom: '10px' }} />
+        <div>
+          <FormGroup>
+            <InputGroup>
+              <Tooltipped tooltip="No secondary metrics found!!" position="left" disabled={metrics.length > 1}>
+                <Form.Select
+                  size="sm"
+                  onChange={(event) => {
+                    actions.selectMetric(event.target.value);
+                  }}
+                  value={metricExtractor.metricKey}
+                  disabled={metrics.length < 2}
+                >
+                  {metricsOptions}
+                </Form.Select>
+              </Tooltipped>
+            </InputGroup>
+          </FormGroup>
+          {buttons}
+          <hr style={{ marginTop: '10px', marginBottom: '10px' }} />
+        </div>
         <TocList
           categories={categories}
           activeCategory={activeCategory}

@@ -21,6 +21,7 @@ import {
 const lineColor = (index: number, lineCount: number) =>
   lineCount <= schemeCategory10.length ? schemeCategory10[index] : interpolateSinebow((index * 0.618034) % 1);
 
+import scrollSidebarToMethod from 'components/lib/scrollSidebarToMethod.ts';
 import MultiRunChartTooltip from 'components/multi/MultiRunChartTooltip.tsx';
 import { tickFormatter } from 'functions/charts.ts';
 import { tooltipBackground } from 'functions/colors.ts';
@@ -68,6 +69,14 @@ export default class LineChartView extends React.Component<LineChartViewProps, L
     this.setState({
       activeLine: benchmarkMethodKey
     });
+  }
+
+  scrollSidebarToLegendEntry(entry: Parameters<NonNullable<LegendProps['onClick']>>[0]) {
+    const { benchmarkBundle } = this.props;
+    const benchmarkMethod = benchmarkBundle.benchmarkMethods.find((aMethod) => aMethod.key === entry.dataKey);
+    if (benchmarkMethod) {
+      scrollSidebarToMethod(benchmarkBundle.fullyQualifiedClassName, benchmarkMethod.name);
+    }
   }
 
   deactivateLine() {
@@ -168,7 +177,7 @@ export default class LineChartView extends React.Component<LineChartViewProps, L
     );
     // The legend is portalled below the chart, so a long one doesn't eat into the chart's height
     return (
-      <div>
+      <div className="legend-scrolls-sidebar">
         <ResponsiveContainer width="100%" height={450}>
           <LineChart data={dataSet} margin={{ top: 45, right: 0, left: 0, bottom: 27 }}>
             <XAxis dataKey="name" />
@@ -179,6 +188,7 @@ export default class LineChartView extends React.Component<LineChartViewProps, L
               itemSorter={null}
               labelStyle={{ color: 'inherit' }}
               wrapperStyle={{ textAlign: 'center' }}
+              onClick={this.scrollSidebarToLegendEntry.bind(this)}
               onMouseEnter={this.activateLineFromLegend.bind(this)}
               onMouseLeave={this.deactivateLine.bind(this)}
             />

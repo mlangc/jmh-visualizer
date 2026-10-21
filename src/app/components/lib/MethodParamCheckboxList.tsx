@@ -194,7 +194,7 @@ export default function MethodParamCheckboxList({
         );
 
         return (
-          <li key={key}>
+          <li key={key} data-method-key={key}>
             {methodDoubleClickEnabled ? (
               <Tooltipped tooltip="Double-click to select only this method" position="left">
                 {methodLabel}

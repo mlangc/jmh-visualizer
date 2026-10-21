@@ -31,32 +31,34 @@ export default class DetailSideBar extends React.Component<DetailSideBarProps> {
 
     return (
       <div>
-        <a onClick={() => actions.goBack()}>
-          <BackIcon /> Back..
-        </a>
-        <br />
-        <br />
-        <FormGroup>
-          <InputGroup>
-            <Form.Select
-              size="sm"
-              onChange={(event) => actions.detailBenchmarkBundle(event.target.value)}
-              defaultValue={benchmarkBundle.fullyQualifiedClassName}
-            >
-              {benchmarkBundleOptions}
-            </Form.Select>
-          </InputGroup>
-        </FormGroup>
-        {buttons}
-        <hr style={{ marginTop: '10px', marginBottom: '10px' }} />
-        <TocList
-          categories={['Metrics']}
-          activeCategory={'Metrics'}
-          elementIds={metrics}
-          elementNames={metrics}
-          linkControlsCreators={[]}
-        />
-        <hr style={{ marginTop: '10px', marginBottom: '10px' }} />
+        <div>
+          <a onClick={() => actions.goBack()}>
+            <BackIcon /> Back..
+          </a>
+          <br />
+          <br />
+          <FormGroup>
+            <InputGroup>
+              <Form.Select
+                size="sm"
+                onChange={(event) => actions.detailBenchmarkBundle(event.target.value)}
+                defaultValue={benchmarkBundle.fullyQualifiedClassName}
+              >
+                {benchmarkBundleOptions}
+              </Form.Select>
+            </InputGroup>
+          </FormGroup>
+          {buttons}
+          <hr style={{ marginTop: '10px', marginBottom: '10px' }} />
+          <TocList
+            categories={['Metrics']}
+            activeCategory={'Metrics'}
+            elementIds={metrics}
+            elementNames={metrics}
+            linkControlsCreators={[]}
+          />
+          <hr style={{ marginTop: '10px', marginBottom: '10px' }} />
+        </div>
         <div className="sidebar-scroll-list">
           <div className="nav">
             <MethodParamCheckboxList
