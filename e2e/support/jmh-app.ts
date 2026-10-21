@@ -222,6 +222,31 @@ export class JmhApp {
   }
 
   /**
+   * The box around the sidebar's list -- the Run screen's classes with their method and
+   * param checkboxes, the Details screen's method and param checkboxes -- which scrolls
+   * on its own once the list doesn't fit. Its `sidebar-scroll-list` class is one of the
+   * sanctioned non-semantic hooks: nothing else tells the list apart from the sidebar's
+   * header above it.
+   */
+  sidebarList(): Locator {
+    return this.page.locator('.sidebar-scroll-list');
+  }
+
+  /**
+   * One method's block in the sidebar list: its checkbox plus all of its nested param
+   * names and param-value checkboxes. That's the method's <li>, the innermost list item
+   * holding the method's checkbox -- ancestors precede descendants in document order,
+   * hence `.last()`, which skips the Run screen's class row around it. Only meant for a
+   * sidebar listing a single class, as method names repeat across classes.
+   */
+  sidebarMethodBlock(methodName: string): Locator {
+    return this.sidebarList()
+      .getByRole('listitem')
+      .filter({ has: this.page.getByRole('checkbox', { name: methodName, exact: true }) })
+      .last();
+  }
+
+  /**
    * Push the "Ignoring deviations below X%" slider to its max (50%). Focuses
    * the handle via its enclosing aria-valuenow container rather than the
    * handle's own (unlabelled, roleless) library class name, then presses

@@ -57,13 +57,15 @@ export default class DetailSideBar extends React.Component<DetailSideBarProps> {
           linkControlsCreators={[]}
         />
         <hr style={{ marginTop: '10px', marginBottom: '10px' }} />
-        <div className="nav">
-          <MethodParamCheckboxList
-            fullyQualifiedClassName={benchmarkBundle.fullyQualifiedClassName}
-            bundle={benchmarkBundle}
-            deselectedMethods={deselectedMethods}
-            deselectedParamValues={deselectedParamValues}
-          />
+        <div className="sidebar-scroll-list">
+          <div className="nav">
+            <MethodParamCheckboxList
+              fullyQualifiedClassName={benchmarkBundle.fullyQualifiedClassName}
+              bundle={benchmarkBundle}
+              deselectedMethods={deselectedMethods}
+              deselectedParamValues={deselectedParamValues}
+            />
+          </div>
         </div>
       </div>
     );

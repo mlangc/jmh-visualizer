@@ -31,7 +31,10 @@ Summary/Compare workflow — and check their effects too.
 - `fixtures/` — vendored, unmodified JMH reports. The linked-hash on-battery
   report is a deliberate companion to the plain one (same class, methods and
   params, ~45-51% worse scores), used to drive a real "Declined Benchmarks"
-  comparison.
+  comparison. The three `linked-hash-vs-hash-multiple-benchmarks-*` reports
+  are the same class with 7 methods and 64 results, run with 1, 2 and 3
+  threads: large enough for the sidebar's list to overflow the suite's window
+  on every screen, which `scrollable-sidebar.spec.ts` needs.
 
 ## Commands
 
@@ -70,16 +73,19 @@ APP_BUILD_DIR=<path>/build npm test
 Some specs only hold against builds that have a certain UI or app fix. Each is
 tagged, and an env var decides whether the tag is run. All flags are booleans
 (`1`/`true`/`yes` or `0`/`false`/`no`; empty or unset means the default,
-anything else aborts the run) and all default to **on**, since a default build
-(this checkout's own) has everything. Set one to `0` only when `APP_BUILD_DIR`
-points at a build that predates the feature or fix — an older branch, `master`,
-a bisect. The flags are independent and combine.
+anything else aborts the run). All but `INCLUDE_SCROLLING_ENHANCEMENTS` default
+to **on**, since a default build (this checkout's own) has everything. Set one
+to `0` only when `APP_BUILD_DIR` points at a build that predates the feature or
+fix — an older branch, `master`, a bisect. `INCLUDE_SCROLLING_ENHANCEMENTS`
+defaults to **off** for now, since no build has that feature yet; set it to `1`
+to run its specs. The flags are independent and combine.
 
 | Flag | Default | Set to `0` when the build… |
 | --- | --- | --- |
 | `INCLUDE_FILTERS` | on | predates the benchmark/param filter checkboxes (`master`, or an older `main` commit). They were added on `add-filters-for-large-result-files` and are now merged into `main`. |
 | `HAS_FIX_FOR_SUMMARY_RUN_NAMES` | on | predates the fix of `SummaryScreen.tsx` passing the full run-name list to `SummaryView` (see below). |
 | `HAS_FIX_FOR_SINGLE_METHOD` | on | predates the guard that disables the checkbox of a class's last selected method (see below). |
+| `INCLUDE_SCROLLING_ENHANCEMENTS` | off | Set to `1` when the build has the scrollable sidebar list and the charts that scroll it to a clicked method (`plans/2026-10-20-SCROLLABLE-SIDEBAR-PLAN.md`). |
 
 | Tag | Runs when | Description |
 | --- | --- | --- |
@@ -88,6 +94,7 @@ a bisect. The flags are independent and combine.
 | `@needs-fix-for-summary-run-names` | `HAS_FIX_FOR_SUMMARY_RUN_NAMES` on | The Summary header naming the last two of 3 loaded runs correctly. |
 | `@needs-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` on | Tests of the guard: the last selected method's checkbox is disabled, so a class can't be emptied. |
 | `@must-not-have-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` off | Mirror image of the above: the old tests that deselect every method of a class. They only hold against builds without the guard. |
+| `@scrolling-enhancements` | `INCLUDE_SCROLLING_ENHANCEMENTS` on | Tests for the sidebar list scrolling on its own below a fixed header, and for clicks on a chart scrolling it to the clicked method. |
 
 The tag names live in `support/tags.ts`, the switches in `playwright.config.ts`.
 
@@ -155,18 +162,20 @@ quotes, semicolons, no trailing commas, 120-col width) in sync. Both use the
 - **No app-source changes for the suite's own benefit** — no test-only hooks,
   ids or attributes were ever added to `src/` to make something testable, and
   the suite runs unmodified against a vanilla checkout apart from the
-  `@needs-fix-for-*` tests described below, which need a genuine behavioural fix
+  tagged tests described below, which need a genuine feature or behavioural fix
   (not a test affordance) that older builds lack. Where semantic locators (`getByRole`/`getByText`) fall short, only
-  four non-semantic hooks are used: `.recharts-wrapper`, `ul.nav ul.nav`,
-  `div.btn`, and `Tooltipped.tsx`'s `data-tooltip` attribute. No generated /
-  hashed class names.
+  five non-semantic hooks are used: `.recharts-wrapper`, `ul.nav ul.nav`,
+  `div.btn`, `Tooltipped.tsx`'s `data-tooltip` attribute, and
+  `.sidebar-scroll-list`, the box around the sidebar's list that scrolls on its
+  own (also what the app's own styling uses). No generated / hashed class
+  names.
 - **Exact-pinned deps, no retries** — a characterization suite is for signal;
   a silent dependency bump or a retry-hidden flake both defeat the purpose.
   `@biomejs/biome` is pinned the same way.
 - Every spec must pass unmodified on both `master` and `main` (which carries
   the filter checkboxes, merged in from `add-filters-for-large-result-files`)
-  — it characterizes *shared* behaviour, not branch-only UI. Two deliberate
-  exceptions, both tagged and both switchable from the environment (see Flags
+  — it characterizes *shared* behaviour, not branch-only UI. Three deliberate
+  exceptions, all tagged and all switchable from the environment (see Flags
   and tags above). First, `@filters`-tagged tests characterize the filter
   checkboxes that only exist on `main`. They run by default, so plain
   `npm test` passes unmodified against a `main` build; testing against an
@@ -181,3 +190,6 @@ quotes, semicolons, no trailing commas, 120-col width) in sync. Both use the
   Where a fix changes behaviour rather than fixing a bug, the old behaviour's
   tests are tagged `@must-not-have-fix-for-*` and run only against builds
   without it.
+- Third, `@scrolling-enhancements` describes a feature still being built, so
+  unlike the others it's excluded by default and only runs with
+  `INCLUDE_SCROLLING_ENHANCEMENTS=1`.

@@ -135,6 +135,7 @@ export default class RunSideBar extends React.Component<RunSideBarProps> {
           subListCreator={methodListCreator}
           doubleClickCreator={selectAllMethodsCreator}
           doubleClickTooltip="Double-click to select all methods"
+          scrollableList={true}
         />
       </div>
     );
