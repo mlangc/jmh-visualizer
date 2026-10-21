@@ -1,5 +1,4 @@
-import { scaleOrdinal } from 'd3-scale';
-import { schemeCategory10 } from 'd3-scale-chromatic';
+import { interpolateSinebow, schemeCategory10 } from 'd3-scale-chromatic';
 import type BenchmarkMethod from 'models/BenchmarkMethod.ts';
 import React, { type ReactElement } from 'react';
 import {
@@ -17,7 +16,10 @@ import {
   YAxis
 } from 'recharts';
 
-const lineColors = scaleOrdinal(schemeCategory10).range();
+// Up to 10 lines get the familiar category colors. More lines get hues spread by the golden
+// ratio instead, so each stays distinct and neighbouring lines get clearly different hues.
+const lineColor = (index: number, lineCount: number) =>
+  lineCount <= schemeCategory10.length ? schemeCategory10[index] : interpolateSinebow((index * 0.618034) % 1);
 
 import MultiRunChartTooltip from 'components/multi/MultiRunChartTooltip.tsx';
 import { tickFormatter } from 'functions/charts.ts';
@@ -35,13 +37,15 @@ interface LineChartViewProps {
 
 interface LineChartViewState {
   activeLine: string | null;
+  legendContainer: HTMLDivElement | null;
 }
 
 export default class LineChartView extends React.Component<LineChartViewProps, LineChartViewState> {
   constructor(props: LineChartViewProps) {
     super(props);
     this.state = {
-      activeLine: null
+      activeLine: null,
+      legendContainer: null
     };
   }
 
@@ -51,7 +55,8 @@ export default class LineChartView extends React.Component<LineChartViewProps, L
       this.props.benchmarkBundle.fullyQualifiedClassName !== nextProps.benchmarkBundle.fullyQualifiedClassName ||
       this.props.metricExtractor.metricKey !== nextProps.metricExtractor.metricKey ||
       this.props.logScale !== nextProps.logScale ||
-      this.state.activeLine !== nextState.activeLine
+      this.state.activeLine !== nextState.activeLine ||
+      this.state.legendContainer !== nextState.legendContainer
     );
   }
 
@@ -71,9 +76,15 @@ export default class LineChartView extends React.Component<LineChartViewProps, L
     });
   }
 
+  setLegendContainer = (legendContainer: HTMLDivElement | null) => {
+    if (legendContainer !== this.state.legendContainer) {
+      this.setState({ legendContainer });
+    }
+  };
+
   render() {
     const { runNames, benchmarkBundle, metricExtractor, logScale } = this.props;
-    const { activeLine } = this.state;
+    const { activeLine, legendContainer } = this.state;
     const shouldRoundScores = shouldRound(benchmarkBundle.benchmarkMethods, metricExtractor);
 
     // Omitted rather than undefined for linear: recharts merges its own defaultProps under
@@ -107,46 +118,47 @@ export default class LineChartView extends React.Component<LineChartViewProps, L
       return runObject;
     });
 
-    const lines = benchmarkBundle.benchmarkMethods
-      .filter((benchmarkMethod) => !logScale || isInAllRuns(runNames, benchmarkMethod))
-      .map((benchmarkMethod, i) => {
-        const isActive = activeLine === benchmarkMethod.key;
-        const strokeWidth = isActive ? 7 : 3;
-        const strokeOpacity = !activeLine || isActive ? 1 : 0.1;
-        let label: ReactElement | undefined, errorBarStrokeWIdth: number;
-        if (isActive) {
-          label = (
-            <LabelList
-              dataKey={`${benchmarkMethod.key}-label`}
-              content={<Label runCount={runNames.length} shouldRoundScores={shouldRoundScores} />}
-            />
-          );
-          errorBarStrokeWIdth = 1;
-        } else {
-          errorBarStrokeWIdth = 0;
-        }
-        const errorBar = (
-          <ErrorBar dataKey={`${benchmarkMethod.key}-errorBarInterval`} width={4} strokeWidth={errorBarStrokeWIdth} />
+    const lineMethods = benchmarkBundle.benchmarkMethods.filter(
+      (benchmarkMethod) => !logScale || isInAllRuns(runNames, benchmarkMethod)
+    );
+    const lines = lineMethods.map((benchmarkMethod, i) => {
+      const isActive = activeLine === benchmarkMethod.key;
+      const strokeWidth = isActive ? 7 : 3;
+      const strokeOpacity = !activeLine || isActive ? 1 : 0.1;
+      let label: ReactElement | undefined, errorBarStrokeWIdth: number;
+      if (isActive) {
+        label = (
+          <LabelList
+            dataKey={`${benchmarkMethod.key}-label`}
+            content={<Label runCount={runNames.length} shouldRoundScores={shouldRoundScores} />}
+          />
         );
+        errorBarStrokeWIdth = 1;
+      } else {
+        errorBarStrokeWIdth = 0;
+      }
+      const errorBar = (
+        <ErrorBar dataKey={`${benchmarkMethod.key}-errorBarInterval`} width={4} strokeWidth={errorBarStrokeWIdth} />
+      );
 
-        return (
-          <Line
-            key={benchmarkMethod.key}
-            type="monotoneX"
-            dataKey={benchmarkMethod.key}
-            stroke={lineColors[i]}
-            strokeWidth={strokeWidth}
-            strokeOpacity={strokeOpacity}
-            onMouseEnter={this.activateLine.bind(this, benchmarkMethod.key)}
-            onMouseLeave={this.deactivateLine.bind(this)}
-            isAnimationActive={true}
-            animationDuration={540}
-          >
-            {label}
-            {errorBar}
-          </Line>
-        );
-      });
+      return (
+        <Line
+          key={benchmarkMethod.key}
+          type="monotoneX"
+          dataKey={benchmarkMethod.key}
+          stroke={lineColor(i, lineMethods.length)}
+          strokeWidth={strokeWidth}
+          strokeOpacity={strokeOpacity}
+          onMouseEnter={this.activateLine.bind(this, benchmarkMethod.key)}
+          onMouseLeave={this.deactivateLine.bind(this)}
+          isAnimationActive={true}
+          animationDuration={540}
+        >
+          {label}
+          {errorBar}
+        </Line>
+      );
+    });
 
     const tooltip = activeLine ? undefined : (
       <Tooltip
@@ -154,22 +166,28 @@ export default class LineChartView extends React.Component<LineChartViewProps, L
         wrapperStyle={{ backgroundColor: tooltipBackground, opacity: 0.95 }}
       />
     );
+    // The legend is portalled below the chart, so a long one doesn't eat into the chart's height
     return (
-      <ResponsiveContainer width="100%" height={450}>
-        <LineChart data={dataSet} margin={{ top: 45, right: 0, left: 0, bottom: 27 }}>
-          <XAxis dataKey="name" />
-          <YAxis {...logScaleProps} tickFormatter={tickFormatter} />
-          <CartesianGrid strokeDasharray="3 3" />
-          <Legend
-            itemSorter={null}
-            labelStyle={{ color: 'inherit' }}
-            onMouseEnter={this.activateLineFromLegend.bind(this)}
-            onMouseLeave={this.deactivateLine.bind(this)}
-          />
-          {tooltip}
-          {lines}
-        </LineChart>
-      </ResponsiveContainer>
+      <div>
+        <ResponsiveContainer width="100%" height={450}>
+          <LineChart data={dataSet} margin={{ top: 45, right: 0, left: 0, bottom: 27 }}>
+            <XAxis dataKey="name" />
+            <YAxis {...logScaleProps} tickFormatter={tickFormatter} />
+            <CartesianGrid strokeDasharray="3 3" />
+            <Legend
+              portal={legendContainer}
+              itemSorter={null}
+              labelStyle={{ color: 'inherit' }}
+              wrapperStyle={{ textAlign: 'center' }}
+              onMouseEnter={this.activateLineFromLegend.bind(this)}
+              onMouseLeave={this.deactivateLine.bind(this)}
+            />
+            {tooltip}
+            {lines}
+          </LineChart>
+        </ResponsiveContainer>
+        <div ref={this.setLegendContainer} />
+      </div>
     );
   }
 }
