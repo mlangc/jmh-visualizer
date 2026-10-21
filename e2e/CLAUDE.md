@@ -73,19 +73,17 @@ APP_BUILD_DIR=<path>/build npm test
 Some specs only hold against builds that have a certain UI or app fix. Each is
 tagged, and an env var decides whether the tag is run. All flags are booleans
 (`1`/`true`/`yes` or `0`/`false`/`no`; empty or unset means the default,
-anything else aborts the run). All but `INCLUDE_SCROLLING_ENHANCEMENTS` default
-to **on**, since a default build (this checkout's own) has everything. Set one
-to `0` only when `APP_BUILD_DIR` points at a build that predates the feature or
-fix — an older branch, `master`, a bisect. `INCLUDE_SCROLLING_ENHANCEMENTS`
-defaults to **off** for now, since no build has that feature yet; set it to `1`
-to run its specs. The flags are independent and combine.
+anything else aborts the run) and all default to **on**, since a default build
+(this checkout's own) has everything. Set one to `0` only when `APP_BUILD_DIR`
+points at a build that predates the feature or fix — an older branch, `master`,
+a bisect. The flags are independent and combine.
 
-| Flag | Default | Flip it when the build… |
+| Flag | Default | Set to `0` when the build… |
 | --- | --- | --- |
 | `INCLUDE_FILTERS` | on | predates the benchmark/param filter checkboxes (`master`, or an older `main` commit). They were added on `add-filters-for-large-result-files` and are now merged into `main`. |
 | `HAS_FIX_FOR_SUMMARY_RUN_NAMES` | on | predates the fix of `SummaryScreen.tsx` passing the full run-name list to `SummaryView` (see below). |
 | `HAS_FIX_FOR_SINGLE_METHOD` | on | predates the guard that disables the checkbox of a class's last selected method (see below). |
-| `INCLUDE_SCROLLING_ENHANCEMENTS` | off | has the scrollable sidebar list and the charts that scroll it to a clicked method (`plans/2026-10-20-SCROLLABLE-SIDEBAR-PLAN.md`). |
+| `INCLUDE_SCROLLING_ENHANCEMENTS` | on | predates the scrollable sidebar list and the charts that scroll it to a clicked method (`plans/2026-10-20-SCROLLABLE-SIDEBAR-PLAN.md`). |
 
 | Tag | Runs when | Description |
 | --- | --- | --- |
@@ -102,10 +100,11 @@ Examples, each combined with `APP_BUILD_DIR` the same way as above:
 
 ```bash
 # A build with the filters and the Summary fix, but without the single-method guard
-HAS_FIX_FOR_SINGLE_METHOD=0 APP_BUILD_DIR=<path-to-older-build>/build npm test
+# and the scrollable sidebar
+HAS_FIX_FOR_SINGLE_METHOD=0 INCLUDE_SCROLLING_ENHANCEMENTS=0 APP_BUILD_DIR=<path-to-older-build>/build npm test
 
 # An old `master` build that predates all of it
-INCLUDE_FILTERS=0 HAS_FIX_FOR_SINGLE_METHOD=0 HAS_FIX_FOR_SUMMARY_RUN_NAMES=0 \
+INCLUDE_FILTERS=0 HAS_FIX_FOR_SINGLE_METHOD=0 HAS_FIX_FOR_SUMMARY_RUN_NAMES=0 INCLUDE_SCROLLING_ENHANCEMENTS=0 \
   APP_BUILD_DIR=<old-master-build>/build npm test
 ```
 
@@ -186,10 +185,12 @@ quotes, semicolons, no trailing commas, 120-col width) in sync. Both use the
   behaviour only a build carrying `main`'s `src/` fix has, so they run by
   default and get excluded with the matching `HAS_FIX_FOR_*=0` when testing an
   older build. A `master` build needs all the switches:
-  `INCLUDE_FILTERS=0 HAS_FIX_FOR_SINGLE_METHOD=0 HAS_FIX_FOR_SUMMARY_RUN_NAMES=0`.
+  `INCLUDE_FILTERS=0 HAS_FIX_FOR_SINGLE_METHOD=0 HAS_FIX_FOR_SUMMARY_RUN_NAMES=0
+  INCLUDE_SCROLLING_ENHANCEMENTS=0`.
   Where a fix changes behaviour rather than fixing a bug, the old behaviour's
   tests are tagged `@must-not-have-fix-for-*` and run only against builds
   without it.
-- Third, `@scrolling-enhancements` describes a feature still being built, so
-  unlike the others it's excluded by default and only runs with
-  `INCLUDE_SCROLLING_ENHANCEMENTS=1`.
+- Third, `@scrolling-enhancements`-tagged tests characterize the scrollable
+  sidebar list and the charts that scroll it, which only exist on `main`. Like
+  `@filters`, they run by default and need `INCLUDE_SCROLLING_ENHANCEMENTS=0`
+  against an older build.

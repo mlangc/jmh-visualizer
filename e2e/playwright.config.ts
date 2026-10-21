@@ -19,8 +19,7 @@ function parseFlag(name: string, defaultValue: boolean = false): boolean {
 }
 
 const INCLUDE_FILTERS = parseFlag('INCLUDE_FILTERS', true);
-// Off by default until a build has the scrollable sidebar and its click-to-scroll charts.
-const INCLUDE_SCROLLING_ENHANCEMENTS = parseFlag('INCLUDE_SCROLLING_ENHANCEMENTS', false);
+const INCLUDE_SCROLLING_ENHANCEMENTS = parseFlag('INCLUDE_SCROLLING_ENHANCEMENTS', true);
 // One HAS_FIX_FOR_* flag per app fix this suite ships alongside -- set it to 0 when
 // pointing APP_BUILD_DIR at a build that predates the fix. The tag axes are
 // independent: @filters/@no-filters says which branch's UI is under test, while each
