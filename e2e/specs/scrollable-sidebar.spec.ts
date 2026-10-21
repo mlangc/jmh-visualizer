@@ -257,6 +257,36 @@ test.describe('clicking a chart', { tag: Tags.ScrollingEnhancements }, () => {
     expect(pageErrors).toEqual([]);
   });
 
+  test('centres the method of the row a click lands on, even if another row was hovered last', async ({ page }) => {
+    const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+    const app = new JmhApp(page);
+    await page.goto('/');
+    await app.uploadReport(ONE_THREAD);
+    const chart = page.locator('.recharts-wrapper').first();
+    await expect(chart.getByText(LONGEST_BAR_LABEL, { exact: true })).toBeVisible();
+
+    // Hover a row, then let the report scroll the next row under the pointer, as a
+    // mouse wheel would, and click there without moving -- the Y-axis labels line up
+    // on the right, so the point lands on the same spot of the next row
+    const [x, y] = await rowGapPoint(chart, 'get');
+    await movePointerTo(page, x, y);
+    await expect(page.getByRole('heading', { name: 'get', exact: true })).toBeVisible();
+    const distance = (await boxOf(rowLabel(chart, 'getAnyEntry'))).y - (await boxOf(rowLabel(chart, 'get'))).y;
+    const scrollYBefore = await page.evaluate(() => window.scrollY);
+    await page.mouse.wheel(0, distance);
+    await expect
+      .poll(async () => Math.abs((await page.evaluate(() => window.scrollY)) - scrollYBefore - distance))
+      .toBeLessThanOrEqual(1);
+    await page.mouse.down();
+    await page.mouse.up();
+
+    await expectMethodCentred(app, 'getAnyEntry');
+
+    expect(dialogs).toEqual([]);
+    expect(pageErrors).toEqual([]);
+  });
+
   test('centres the method of a two-run diff bar chart row in the sidebar list', async ({ page }) => {
     const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
@@ -547,6 +577,20 @@ async function expectClickCentresMethod(
 
   await page.mouse.click(x, y);
 
+  await expectMethodCentred(app, methodName);
+
+  expect(await page.evaluate(() => window.scrollY)).toBe(scrollYBefore);
+  expect(await checkedStates(checkboxes)).toEqual(checkedBefore);
+  expect(await list.innerHTML()).toBe(listBefore);
+}
+
+/**
+ * The block of `methodName` ends up centred in the sidebar list, as far as the list
+ * can scroll.
+ */
+async function expectMethodCentred(app: JmhApp, methodName: string): Promise<void> {
+  const list = app.sidebarList();
+  const block = app.sidebarMethodBlock(methodName);
   await expect(async () => {
     const offset = await list.evaluate(
       (element, blockElement) => {
@@ -569,10 +613,6 @@ async function expectClickCentresMethod(
       }
     }
   }).toPass({ timeout: 5_000 });
-
-  expect(await page.evaluate(() => window.scrollY)).toBe(scrollYBefore);
-  expect(await checkedStates(checkboxes)).toEqual(checkedBefore);
-  expect(await list.innerHTML()).toBe(listBefore);
 }
 
 async function checkedStates(checkboxes: Locator): Promise<boolean[]> {
