@@ -3,13 +3,13 @@ import { Tags } from './support/tags';
 
 function parseFlag(name: string, defaultValue: boolean = false): boolean {
   const value = process.env[name];
+  const normalizedValue = value?.trim().toLowerCase();
 
-  if (value === undefined) {
+  if (!normalizedValue) {
     return defaultValue;
   }
 
-  const normalizedValue = value.trim().toLowerCase();
-  if (['0', 'false', 'no', ''].includes(normalizedValue)) {
+  if (['0', 'false', 'no'].includes(normalizedValue)) {
     return false;
   } else if (['1', 'true', 'yes'].includes(normalizedValue)) {
     return true;
