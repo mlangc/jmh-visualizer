@@ -6,7 +6,7 @@
     "start": "webpack serve --mode development --open",
     "watch": "webpack --mode development --watch",
     "build": "webpack --mode development",
-    "lint": "biome check src test webpack.config.js version.js tsconfig.json",
+    "lint": "biome check --error-on-warnings src test webpack.config.js version.js tsconfig.json",
     "format": "biome check --write src test webpack.config.js version.js tsconfig.json",
     "format-unsafe": "biome check --write --unsafe src test webpack.config.js version.js tsconfig.json",
     "test": "NODE_ENV=testing NODE_PATH=./src/app mocha",
