@@ -42,8 +42,9 @@ export default function SplitPane({ left, right, fitSidebarIntoViewport }: Split
 // scrolls or resizes. The cap must never depend on the sidebar's own height, or capping it could change the page's
 // height and scroll position, and with them the cap again:
 //   - Where the report is longer than the sidebar, the report alone makes up the page's height.
-//   - Where it's shorter, the sidebar ends where the page then just fills the viewport, which leaves nothing to
-//     scroll.
+//   - Where it's shorter, the sidebar ends where the page just fills the viewport - or, if the page was scrolled
+//     further down before the report shrank, wherever the sidebar is stuck, which changes nothing until the page is
+//     scrolled back up.
 // Returns the cleanup function.
 function fitIntoViewport(row: HTMLElement, main: HTMLElement, sidebar: HTMLElement) {
   const update = () => {

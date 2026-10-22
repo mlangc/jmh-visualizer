@@ -8,10 +8,6 @@ interface TooltippedProps {
   children: ReactNode;
 }
 
-// Wraps a componen and puts a simple text hover tooltip to it. Parameters are:
-//   tooltip='Hello World'
-//   position=[left|right|bottom|top]
-//   (disabled=true)
 // Anchors the tooltip to the viewport, for where its position can't be relative to the wrapped component (see
 // sidenavi.css)
 const anchorTooltip = (event: MouseEvent<HTMLElement>) => {
@@ -20,6 +16,10 @@ const anchorTooltip = (event: MouseEvent<HTMLElement>) => {
   event.currentTarget.style.setProperty('--tooltip-anchor-middle', `${top + height / 2}px`);
 };
 
+// Wraps a componen and puts a simple text hover tooltip to it. Parameters are:
+//   tooltip='Hello World'
+//   position=[left|right|bottom|top]
+//   (disabled=true)
 export default function Tooltipped(options: TooltippedProps) {
   if (options.disabled) {
     return options.children;

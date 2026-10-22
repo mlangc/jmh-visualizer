@@ -61,7 +61,7 @@ export default class TocList extends React.PureComponent<TocListProps> {
             <div>
               <a onClick={() => actions.selectCategory(category)}>{category}</a>
             </div>
-            {this.wrapInListBox(
+            {wrapInListBox(
               scrollableList,
               <ul className="nav">
                 {category === activeCategory
@@ -109,8 +109,8 @@ export default class TocList extends React.PureComponent<TocListProps> {
       </ul>
     );
   }
+}
 
-  wrapInListBox(scrollableList: boolean | undefined, list: ReactNode) {
-    return scrollableList ? <div className="sidebar-scroll-list">{list}</div> : list;
-  }
+function wrapInListBox(scrollableList: boolean | undefined, list: ReactNode) {
+  return scrollableList ? <div className="sidebar-scroll-list">{list}</div> : list;
 }

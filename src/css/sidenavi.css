@@ -188,6 +188,25 @@
   overscroll-behavior: contain;
 }
 
+/* Names too long for the box end in an ellipsis rather than being cut off */
+.bs-docs-sidebar.fits-viewport .sidebar-scroll-list li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: lower specificity than "nested active links" above, but the two never share a property, so cascade order doesn't matter here */
+.bs-docs-sidebar.fits-viewport .sidebar-scroll-list li > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* An ellipsis needs the names to be inline rather than inline-block, as the
+   tooltip wrappers and Bootstrap's labels are, which changes nothing else here */
+.sidebar-scroll-list [data-tooltip],
+.sidebar-scroll-list label {
+  display: inline;
+}
+
 /* The list's box would clip its tooltips, so they are positioned relative to the
    viewport instead, at the anchor Tooltipped.tsx sets on hover. */
 .sidebar-scroll-list [data-tooltip-position="left"]:before,
