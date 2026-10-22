@@ -287,17 +287,8 @@ a {
   outline: none;
 }
 
-/* Chart elements a click on scrolls the sidebar to their benchmark method */
-.rows-scroll-sidebar .recharts-cartesian-grid,
-.rows-scroll-sidebar .recharts-tooltip-cursor,
-.rows-scroll-sidebar .recharts-bar-rectangle,
-.rows-scroll-sidebar .recharts-errorBar,
+/* Chart labels a click on scrolls the sidebar to their benchmark method (see RowClickArea.tsx for the rows) */
 .rows-scroll-sidebar .recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-label,
 .legend-scrolls-sidebar .recharts-legend-item {
   cursor: pointer;
-}
-
-/* A bar's label may stick out of the chart's rows; let clicks fall through to the bar beneath */
-.rows-scroll-sidebar .recharts-label-list {
-  pointer-events: none;
 }
