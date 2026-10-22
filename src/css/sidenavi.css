@@ -202,8 +202,8 @@
 
 /* An ellipsis needs the names to be inline rather than inline-block, as the
    tooltip wrappers and Bootstrap's labels are, which changes nothing else here */
-.sidebar-scroll-list [data-tooltip],
-.sidebar-scroll-list label {
+.bs-docs-sidebar.fits-viewport .sidebar-scroll-list [data-tooltip],
+.bs-docs-sidebar.fits-viewport .sidebar-scroll-list label {
   display: inline;
 }
 
