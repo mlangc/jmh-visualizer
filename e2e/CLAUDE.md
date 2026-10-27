@@ -82,7 +82,8 @@ Some specs only hold against builds that have a certain UI or app fix. Each is
 tagged, and an env var decides whether the tag is run. All flags are booleans
 (`1`/`true`/`yes` or `0`/`false`/`no`; empty or unset means the default,
 anything else aborts the run) and all default to **on**, since a default build
-(this checkout's own) has everything. Set one to `0` only when `APP_BUILD_DIR`
+(this checkout's own) has everything -- except `HAS_FIX_FOR_HISTORY`, which defaults
+to **off** until the history rework it stands for has landed. Set one to `0` only when `APP_BUILD_DIR`
 points at a build that predates the feature or fix — an older branch, `master`,
 a bisect. The flags are independent and combine.
 
@@ -91,6 +92,7 @@ a bisect. The flags are independent and combine.
 | `INCLUDE_FILTERS` | on | predates the benchmark/param filter checkboxes (`master`, or an older `main` commit). They were added on `add-filters-for-large-result-files` and are now merged into `main`. |
 | `HAS_FIX_FOR_SUMMARY_RUN_NAMES` | on | predates the fix of `SummaryScreen.tsx` passing the full run-name list to `SummaryView` (see below). |
 | `HAS_FIX_FOR_SINGLE_METHOD` | on | predates the guard that disables the checkbox of a class's last selected method (see below). |
+| `HAS_FIX_FOR_HISTORY` | **off** | has the history rework (see below). Switch it on once it is implemented, and its default with it. |
 | `INCLUDE_SCROLLING_ENHANCEMENTS` | on | predates the scrollable sidebar list and the charts that scroll it to a clicked method (`plans/2026-10-20-SCROLLABLE-SIDEBAR-PLAN.md`). |
 
 | Tag | Runs when | Description |
@@ -100,6 +102,8 @@ a bisect. The flags are independent and combine.
 | `@needs-fix-for-summary-run-names` | `HAS_FIX_FOR_SUMMARY_RUN_NAMES` on | The Summary header naming the last two of 3 loaded runs correctly. |
 | `@needs-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` on | Tests of the guard: the last selected method's checkbox is disabled, so a class can't be emptied. |
 | `@must-not-have-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` off | Mirror image of the above: the old tests that deselect every method of a class. They only hold against builds without the guard. |
+| `@needs-fix-for-history` | `HAS_FIX_FOR_HISTORY` on | `history.spec.ts`: Back, Forward, reload and a copied link all land on the Details screen the address bar names. |
+| `@must-not-have-fix-for-history` | `HAS_FIX_FOR_HISTORY` off | Mirror image: `detail-screen.spec.ts` pins that Forward restores `#details` in the address bar but not the screen. |
 | `@scrolling-enhancements` | `INCLUDE_SCROLLING_ENHANCEMENTS` on | Tests for the sidebar list scrolling on its own below a fixed header, and for clicks on a chart scrolling it to the clicked method. |
 
 The tag names live in `support/tags.ts`, the switches in `playwright.config.ts`.
@@ -126,6 +130,10 @@ The fixes the `HAS_FIX_FOR_*` flags stand for:
   disabled, so the selection can never be emptied (and a class with just one
   method can't be deselected at all). Before it, deselecting every method left
   a report with nothing in it.
+
+- **History:** the address bar, not the store, decides which class is detailed, so
+  Back, Forward, a reload and a pasted link all agree with the screen. Before it,
+  `store.ts` kept that in memory, pushed a bare `#details` and undetailed on every POP.
 
 ## Gotchas
 
