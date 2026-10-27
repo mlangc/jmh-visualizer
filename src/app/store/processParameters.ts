@@ -20,7 +20,7 @@ export function addSettingsFromParameters(settings: Settings) {
 }
 
 export function getBenchmarksLoadFunctionForDefinedExamples(examples: Examples): BenchmarkLoadFunction | undefined {
-  var example: string | null | undefined = getParameterByName('example');
+  let example: string | null | undefined = getParameterByName('example');
   if (!example) {
     example = getExampleFromHash();
   }
