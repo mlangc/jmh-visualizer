@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { JmhApp } from '../support/jmh-app';
 import { watchDialogsAndErrors } from '../support/page-watchers';
+import { Tags } from '../support/tags';
 
 // The Details screen below its metric list. `linked-hash-first-vs-iter-next-
 // benchmark.spec.ts` gets as far as the metric names in the nav and the "Back.." link;
@@ -143,7 +144,7 @@ test('detailing a class that the selected run never ran says so', async ({ page 
   expect(pageErrors).toEqual([]);
 });
 
-test('the browser Back button leaves the Details screen, and Forward does not return to it', async ({ page }) => {
+test('the browser Back button leaves the Details screen', async ({ page }) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
   const app = new JmhApp(page);
@@ -158,9 +159,25 @@ test('the browser Back button leaves the Details screen, and Forward does not re
   await expect(page.getByRole('heading', { name: /LinkedHashFirstVsIterNextBenchmark/ })).toBeVisible();
   await expect(page).not.toHaveURL(/#details$/);
 
-  // Forward puts `#details` back in the address bar but not the screen: store.ts's
-  // history listener undetails on *any* POP, which Forward is too. Pinned as the
-  // behaviour that exists, not as the behaviour one would want.
+  expect(dialogs).toEqual([]);
+  expect(pageErrors).toEqual([]);
+});
+
+test("the browser Forward button puts #details in the address bar but doesn't return to the Details screen", {
+  tag: Tags.MustNotHaveFixForHistory
+}, async ({ page }) => {
+  const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+  const app = new JmhApp(page);
+  await page.goto('/');
+  await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
+
+  await app.showDetails();
+  await page.goBack();
+  await expect(page.getByText('Back..')).toHaveCount(0);
+
+  // store.ts's history listener undetails on *any* POP, which Forward is too. Pinned as
+  // the behaviour that exists, not as the behaviour one would want.
   await page.goForward();
   await expect(page).toHaveURL(/#details$/);
   await expect(page.getByText('Back..')).toHaveCount(0);
