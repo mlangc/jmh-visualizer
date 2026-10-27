@@ -321,6 +321,9 @@ test.describe('clicking a chart', { tag: Tags.ScrollingEnhancements }, () => {
     const chart = page.locator('.recharts-wrapper').first();
     await expect(chart).toBeVisible();
 
+    // Reaching the legend scrolls the page, which slides the chart under the pointer left
+    // on the Compare button, and the tooltip that opens repeats the legend's texts
+    await page.mouse.move(0, 0);
     for (const [methodName, key] of [
       ['merge', MERGE_KEY],
       ['accumulateAndCopyToArray', FIRST_KEY],
