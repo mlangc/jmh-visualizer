@@ -20,6 +20,7 @@ module.exports = {
     path: BUILD_DIR,
     filename: 'bundle.js'
   },
+  devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
   module: {
     rules: [
       {
