@@ -388,7 +388,12 @@ export class JmhApp {
    */
   async selectDetailedBenchmarkClass(className: string): Promise<void> {
     await this.page.locator('select').selectOption({ label: className });
-    await this.page.getByRole('heading', { name: new RegExp(`Details of .*${escapeRegExp(className)}$`) }).waitFor();
+    await this.detailsHeading(className).waitFor();
+  }
+
+  /** The Details screen's heading for one benchmark class. */
+  detailsHeading(className: string): Locator {
+    return this.page.getByRole('heading', { name: new RegExp(`Details of .*${escapeRegExp(className)}$`) });
   }
 
   /** Click DetailScreen's "Back.." link, returning to the previous screen via a history back navigation. */

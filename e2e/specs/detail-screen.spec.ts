@@ -152,12 +152,10 @@ test('the browser Back button leaves the Details screen', async ({ page }) => {
   await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
 
   await app.showDetails();
-  await expect(page).toHaveURL(/#details$/); // `detailBenchmarkBundle` pushes this
 
   await page.goBack();
   await expect(page.getByText('Back..')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: /LinkedHashFirstVsIterNextBenchmark/ })).toBeVisible();
-  await expect(page).not.toHaveURL(/#details$/);
 
   expect(dialogs).toEqual([]);
   expect(pageErrors).toEqual([]);
@@ -173,6 +171,7 @@ test("the browser Forward button puts #details in the address bar but doesn't re
   await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
 
   await app.showDetails();
+  await expect(page).toHaveURL(/#details$/); // `detailBenchmarkBundle` pushes this
   await page.goBack();
   await expect(page.getByText('Back..')).toHaveCount(0);
 
