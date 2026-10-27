@@ -29,7 +29,7 @@ const HAS_FIX_FOR_SINGLE_METHOD = parseFlag('HAS_FIX_FOR_SINGLE_METHOD', true);
 // Unlike its siblings this one defaults to off until the history rework lands.
 const HAS_FIX_FOR_HISTORY = parseFlag('HAS_FIX_FOR_HISTORY', false);
 const BUILD_DIR = process.env.APP_BUILD_DIR ?? '../build';
-const PORT = 4173;
+const PORT = Number(process.env.E2E_PORT ?? 4173);
 
 const grepInvert = [INCLUDE_FILTERS ? /@no-filters\b/ : /@filters\b/];
 if (!INCLUDE_SCROLLING_ENHANCEMENTS) {

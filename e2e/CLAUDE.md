@@ -76,6 +76,14 @@ git worktree add <path> <branch>
 APP_BUILD_DIR=<path>/build npm test
 ```
 
+`E2E_PORT` (env var, default `4173`) is the port the suite serves the build on. Set
+it when another run already holds the default one, and give the second run its own
+`--output` too, so the two don't overwrite each other's traces in `test-results/`:
+
+```bash
+E2E_PORT=4174 npm test -- specs/history.spec.ts --output=<some-other-dir>/test-results
+```
+
 ### Flags and tags
 
 Some specs only hold against builds that have a certain UI or app fix. Each is
