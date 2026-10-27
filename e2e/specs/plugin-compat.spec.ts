@@ -4,13 +4,16 @@ import vm from 'node:vm';
 import { expect, test } from '@playwright/test';
 import { JmhApp } from '../support/jmh-app';
 import { watchDialogsAndErrors } from '../support/page-watchers';
-import { BUILD_DIR, createPluginReport, pluginRunName, readFixture } from '../support/plugin-report';
+import { BUILD_DIR, createPluginReport, readFixture } from '../support/plugin-report';
+import { escapeRegExp } from '../support/regex-util';
 
 // gradle-jmh-report ships a prebuilt jmh-visualizer and turns a JMH result into a report
 // by unpacking it, then overwriting `provided.js` with the result embedded as JS globals.
 // Nothing but this file's contract ties the two projects together, so these specs pin the
 // parts a change here could break without any other spec noticing: the files the plugin
 // expects in a build, and a report the plugin made rendering when opened straight from disk.
+// The plugin ships a release build (`npm run providedZip`), whose index.html is minified
+// (attribute quotes dropped); these specs hold for either kind of build.
 
 const FIXTURE = 'linked-hash-first-vs-iter-next-benchmark.json';
 
@@ -21,11 +24,14 @@ test.describe('the build, as the plugin consumes it', () => {
     }
 
     // Relative, and ahead of the bundle: the app reads both files' globals while it starts up.
+    // Quotes around the attribute are optional: a release build's minified HTML has none.
     const html = fs.readFileSync(path.join(BUILD_DIR, 'index.html'), 'utf8');
-    const scripts = [...html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"/g)].map((m) => m[1]);
+    const scripts = [...html.matchAll(/<script\b[^>]*?\bsrc=["']?([^"'\s>]+)/g)].map((m) => m[1]);
     expect(scripts).toEqual(['provided.js', 'settings.js', 'bundle.js']);
   });
 
+  // The plugin overwrites this file, so its content only matters to the standalone app, but
+  // it must stay a plain script defining just the two globals the plugin's output replaces.
   test('provided.js is a placeholder defining exactly the two globals, with nothing provided', async () => {
     const sandbox: Record<string, unknown> = {};
     vm.runInNewContext(fs.readFileSync(path.join(BUILD_DIR, 'provided.js'), 'utf8'), sandbox);
@@ -43,8 +49,9 @@ test.describe('a report written the way the plugin writes it, opened from disk',
     const url = createPluginReport(testInfo.outputPath('report'), FIXTURE, readFixture(FIXTURE));
     await page.goto(url);
 
-    const runName = pluginRunName(FIXTURE);
-    await expect(page.getByText(new RegExp(`different benchmark classes for single run '${runName}'`))).toBeVisible();
+    await expect(
+      page.getByText(/different benchmark classes for single run 'linked-hash-first-vs-iter-next-benchmark'/)
+    ).toBeVisible();
 
     const chart = page.locator('.recharts-wrapper');
     await expect(chart.getByText('entryIteratorNext')).toBeVisible();
@@ -61,15 +68,19 @@ test.describe('a report written the way the plugin writes it, opened from disk',
     expect(pageErrors).toEqual([]);
   });
 
-  // The plugin derives the run name from the file name and quotes it into the script as is.
-  for (const resultFileName of ['results.json', 'my.run-1.v2.json', 'no-extension']) {
-    test(`names the run after '${resultFileName}'`, async ({ page }, testInfo) => {
+  // The plugin derives the run name from the file name (up to its last dot) and quotes it into the script as is.
+  for (const [resultFileName, runName] of [
+    ['results.json', 'results'],
+    ['my.run-1.v2.json', 'my.run-1.v2'],
+    ['no-extension', 'no-extension'],
+    ['größe.json', 'größe']
+  ]) {
+    test(`names the run '${runName}' after '${resultFileName}'`, async ({ page }, testInfo) => {
       const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
       await page.goto(createPluginReport(testInfo.outputPath('report'), resultFileName, readFixture(FIXTURE)));
 
-      const runName = pluginRunName(resultFileName);
-      await expect(page.getByText(new RegExp(`for single run '${runName.replaceAll('.', '\\.')}'`))).toBeVisible();
+      await expect(page.getByText(new RegExp(`for single run '${escapeRegExp(runName)}'`))).toBeVisible();
 
       expect(dialogs).toEqual([]);
       expect(pageErrors).toEqual([]);
@@ -92,13 +103,11 @@ test.describe('a report written the way the plugin writes it, opened from disk',
     expect(pageErrors).toEqual([]);
   });
 
-  // A real JMH writer's output, with its quirks (`"key" : value`, CRLF line ends on Windows),
-  // goes in line by line; the line-wise copy must not change what the browser parses.
-  test('copes with CRLF line ends in the result', async ({ page }, testInfo) => {
+  // On Windows the plugin's PrintWriter ends every line of provided.js with CRLF.
+  test('copes with CRLF line ends in provided.js', async ({ page }, testInfo) => {
     const { dialogs, pageErrors } = watchDialogsAndErrors(page);
-    const result = readFixture(FIXTURE).replaceAll('\r\n', '\n').replaceAll('\n', '\r\n');
 
-    await page.goto(createPluginReport(testInfo.outputPath('report'), FIXTURE, result));
+    await page.goto(createPluginReport(testInfo.outputPath('report'), FIXTURE, readFixture(FIXTURE), '\r\n'));
 
     await expect(page.locator('.recharts-wrapper').getByText('entryIteratorNext')).toBeVisible();
 

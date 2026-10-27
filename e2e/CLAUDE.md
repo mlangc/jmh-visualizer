@@ -28,6 +28,12 @@ Summary/Compare workflow — and check their effects too.
   check in `specs/harness.spec.ts`; `mock-remote-fixtures.ts` and
   `gist-fixtures.ts` back the URL/Gist specs with mocked network responses;
   `tags.ts` names the test tags (see Flags and tags below).
+- `specs/plugin-compat.spec.ts` guards the contract with the gradle-jmh-report Gradle
+  plugin, which unpacks a release build and overwrites `provided.js` with the result
+  embedded as globals. `support/plugin-report.ts` mirrors the plugin's
+  `JmhReportTask.generateReport()` (keep it in step with the task) and lays out such a
+  report in the test's output folder; the specs open it from `file://`, as users do, and
+  read the build directly from `APP_BUILD_DIR`. They hold for dev and release builds alike.
 - `fixtures/` — vendored, unmodified JMH reports. The linked-hash on-battery
   report is a deliberate companion to the plain one (same class, methods and
   params, ~45-51% worse scores), used to drive a real "Declined Benchmarks"
