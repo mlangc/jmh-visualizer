@@ -3,12 +3,17 @@ import { JmhApp } from '../support/jmh-app';
 import { watchDialogsAndErrors } from '../support/page-watchers';
 
 // The run-selection bar with as many runs as the linked-hash-vs-hash fixtures offer: each
-// run's button, and the Summary button next to them, have to stay reachable, however
-// narrow the window is. Only reachability is checked, not how the bar is laid out.
+// run's button, and the Summary button next to them, have to stay reachable in windows
+// down to 600px wide. Their run names are long and differ only at the end, which is what
+// crowds the bar. Only reachability is checked, not how the bar is laid out.
 
-const RUNS = ['1-thread', '2-threads', '3-threads', '5-threads', '9-threads'].map(
-  (threads) => `linked-hash-vs-hash-multiple-benchmarks-${threads}`
-);
+const RUNS = [
+  'linked-hash-vs-hash-multiple-benchmarks-1-thread',
+  'linked-hash-vs-hash-multiple-benchmarks-2-threads',
+  'linked-hash-vs-hash-multiple-benchmarks-3-threads',
+  'linked-hash-vs-hash-multiple-benchmarks-5-threads',
+  'linked-hash-vs-hash-multiple-benchmarks-9-threads'
+];
 
 for (const width of [1280, 900, 600]) {
   test(`every run can be selected with ${RUNS.length} runs loaded in a ${width}px wide window`, async ({ page }) => {
@@ -19,17 +24,19 @@ for (const width of [1280, 900, 600]) {
     await page.goto('/');
     await app.uploadReports(RUNS.map((run) => `${run}.json`));
 
-    const summaryButton = page.locator('button', { hasText: /^Summary$/ });
     for (const run of RUNS) {
-      await expect(page.getByRole('button', { name: run, exact: true })).toBeInViewport({ ratio: 1 });
+      await expect(app.runButton(run)).toBeInViewport({ ratio: 1 });
     }
-    await expect(summaryButton).toBeInViewport({ ratio: 1 });
+    await expect(app.allRunsButton()).toBeInViewport({ ratio: 1 });
+    // The Summary button's caret, the bar's rightmost element, has no text to find it by
+    await expect(app.allRunsButton().locator('xpath=following-sibling::button')).toBeInViewport({ ratio: 1 });
 
     for (const run of RUNS) {
       await app.selectRun(run);
     }
 
     await app.clickAllRunsButton();
+    await expect(page.getByText(/Ignoring deviations below/)).toBeVisible();
     await expect(page.getByText(/for single run/)).toHaveCount(0);
 
     expect(dialogs).toEqual([]);

@@ -42,7 +42,7 @@ Summary/Compare workflow — and check their effects too.
   threads: large enough for the sidebar's list to overflow the suite's window
   on every screen, which `scrollable-sidebar.spec.ts` needs (with the first
   three), and enough runs to crowd the run-selection bar, which
-  `run-selection-bar.spec.ts` loads all of.
+  `run-selection-bar.spec.ts` loads together.
 
 ## Commands
 

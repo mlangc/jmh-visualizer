@@ -61,7 +61,7 @@ export class JmhApp {
    * pass before the click's effect actually landed.
    */
   async selectRun(runName: string): Promise<void> {
-    await this.page.getByRole('button', { name: runName, exact: true }).click();
+    await this.runButton(runName).click();
     await this.page.getByText(new RegExp(`for single run '${escapeRegExp(runName)}'`)).waitFor();
   }
 
@@ -79,7 +79,17 @@ export class JmhApp {
    * a fixed landmark.
    */
   async clickAllRunsButton(): Promise<void> {
-    await this.page.locator('button', { hasText: /^(Summary|Compare)$/ }).click();
+    await this.allRunsButton().click();
+  }
+
+  /** A run-selection button by run name (the report's file name without `.json`). */
+  runButton(runName: string): Locator {
+    return this.page.getByRole('button', { name: runName, exact: true });
+  }
+
+  /** The run-selection bar's plain "Summary"/"Compare" title button, see `clickAllRunsButton`. */
+  allRunsButton(): Locator {
+    return this.page.locator('button', { hasText: /^(Summary|Compare)$/ });
   }
 
   /**
