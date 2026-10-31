@@ -5,6 +5,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import SplitButton from 'react-bootstrap/SplitButton';
 import { actions, connect, type RunView, type State } from 'store/store.ts';
+import '../../css/run-selection-bar.css';
 
 function selectSingleRun(benchmarkRuns: BenchmarkRun[], runView: RunView | null, runIndex: number) {
   const runSelection = benchmarkRuns.map((_run, index) => {
@@ -65,6 +66,8 @@ const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchma
         key={index}
         variant={isActive ? 'primary' : 'outline-secondary'}
         size="sm"
+        className="run-btn"
+        title={benchmarkRuns[index].name}
         onClick={() => selectSingleRun(benchmarkRuns, runView, index)}
       >
         {benchmarkRuns[index].name}
@@ -102,8 +105,22 @@ const RunSelectionBar = ({ benchmarkRuns, runSelection, runView, detailedBenchma
   }
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '-9px', marginBottom: '15px', paddingRight: '20%' }}>
-      <ButtonGroup>{runComponents}</ButtonGroup> <ButtonGroup>{allButton}</ButtonGroup>
+    <div
+      style={{
+        display: 'flex',
+        gap: '4px',
+        marginTop: '-9px',
+        marginBottom: '15px',
+        paddingRight: '20%'
+      }}
+    >
+      <ButtonGroup
+        className="run-btn-group"
+        style={{ minWidth: `calc(${runComponents.length} * var(--run-btn-min-width))`, marginLeft: 'auto' }}
+      >
+        {runComponents}
+      </ButtonGroup>
+      <ButtonGroup style={{ flexShrink: 0, marginRight: 'auto' }}>{allButton}</ButtonGroup>
     </div>
   );
 };

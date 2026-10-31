@@ -1,0 +1,23 @@
+/* Run buttons keep their natural width as long as the bar has room, and only
+   then shrink (down to a stub) and truncate their label. The ellipsis goes at
+   the start, since run names tend to differ at the end; the invisible LRMs
+   keep the right-to-left direction from reordering names that begin or end
+   with a digit or punctuation. The empty alt text keeps them out of the
+   accessible name. */
+.run-btn-group {
+  --run-btn-min-width: 4em;
+}
+
+.btn-group > .run-btn {
+  flex: 0 1 auto;
+  min-width: var(--run-btn-min-width);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+}
+
+.run-btn::before,
+.run-btn::after {
+  content: "\200E" / "";
+}
