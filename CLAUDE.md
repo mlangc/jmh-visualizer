@@ -49,6 +49,16 @@ nothing else — no descriptive prose, no bullet list. A plan may state this
 requirement itself (see its own Ground rules); absent that, still keep
 bodies empty by default.
 
+## Branches
+
+- `main` is where development has taken place since the fork, and the target
+  for PRs.
+- `master` is the legacy branch from before the fork (the `upstream` remote,
+  `jzillmann/jmh-visualizer`): `main` descends from its tip, `50289e2`, and it
+  isn't developed any further. It only serves as a baseline, since it needs
+  webpack 4 and the OpenSSL legacy provider to build, and since the e2e suite
+  is meant to pass against builds of both branches.
+
 ## Architecture quick map
 
 - Language: TypeScript (`strict`). Imports are bare paths rooted at

@@ -179,7 +179,8 @@ quotes, semicolons, no trailing commas, 120-col width) in sync. Both use the
 - **Exact-pinned deps, no retries** — a characterization suite is for signal;
   a silent dependency bump or a retry-hidden flake both defeat the purpose.
   `@biomejs/biome` is pinned the same way.
-- Every spec must pass unmodified on both `master` and `main` (which carries
+- Every spec must pass unmodified on both `master` (the legacy pre-fork branch)
+  and `main` (the branch developed since, which carries
   the filter checkboxes, merged in from `add-filters-for-large-result-files`)
   — it characterizes *shared* behaviour, not branch-only UI. Three deliberate
   exceptions, all tagged and all switchable from the environment (see Flags
