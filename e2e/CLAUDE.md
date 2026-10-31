@@ -37,10 +37,12 @@ Summary/Compare workflow — and check their effects too.
 - `fixtures/` — vendored, unmodified JMH reports. The linked-hash on-battery
   report is a deliberate companion to the plain one (same class, methods and
   params, ~45-51% worse scores), used to drive a real "Declined Benchmarks"
-  comparison. The three `linked-hash-vs-hash-multiple-benchmarks-*` reports
-  are the same class with 7 methods and 64 results, run with 1, 2 and 3
+  comparison. The five `linked-hash-vs-hash-multiple-benchmarks-*` reports
+  are the same class with 7 methods and 64 results, run with 1, 2, 3, 5 and 9
   threads: large enough for the sidebar's list to overflow the suite's window
-  on every screen, which `scrollable-sidebar.spec.ts` needs.
+  on every screen, which `scrollable-sidebar.spec.ts` needs (with the first
+  three), and enough runs to crowd the run-selection bar, which
+  `run-selection-bar.spec.ts` loads all of.
 
 ## Commands
 
