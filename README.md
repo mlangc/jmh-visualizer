@@ -33,6 +33,7 @@ Comes with 2 companion projects:
 
 ## Major Changes
 
+- **Nov 2026** - 1.1.0 Scrollable sidebar & layout fixes
 - **Sep 2026** - 1.0.0 Migrate to modern stack, TypeScript and add filters
 - **Mar 2021** - 0.9.3 Support [Gists containing multiple files](https://github.com/jzillmann/jmh-visualizer/issues/33)
 - **Aug 2018** - 0.9 Couple of [user requested features](https://github.com/jzillmann/jmh-visualizer/milestone/6?closed=1)
