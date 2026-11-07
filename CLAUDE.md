@@ -59,6 +59,15 @@ bodies empty by default.
   webpack 4 and the OpenSSL legacy provider to build, and since the e2e suite
   is meant to pass against builds of both branches.
 
+## Project history
+
+Forked from the abandoned `jzillmann/jmh-visualizer`. The stack was then
+modernized (React 19, TypeScript, Zustand, recharts 3, Biome) with the
+deliberate goal of keeping behavior identical, see `plans/`. The remaining
+legacy patterns (class components with `this.state`,
+`UNSAFE_componentWillReceiveProps`) were left on purpose; don't modernize them
+unprompted. New components should be function components.
+
 ## Architecture quick map
 
 - Language: TypeScript (`strict`). Imports are bare paths rooted at
