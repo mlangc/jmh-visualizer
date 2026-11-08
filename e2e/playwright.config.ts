@@ -27,7 +27,7 @@ const INCLUDE_SCROLLING_ENHANCEMENTS = parseFlag('INCLUDE_SCROLLING_ENHANCEMENTS
 const HAS_FIX_FOR_SUMMARY_RUN_NAMES = parseFlag('HAS_FIX_FOR_SUMMARY_RUN_NAMES', true);
 const HAS_FIX_FOR_SINGLE_METHOD = parseFlag('HAS_FIX_FOR_SINGLE_METHOD', true);
 // Unlike its siblings this one defaults to off until the history rework lands.
-const HAS_FIX_FOR_HISTORY = parseFlag('HAS_FIX_FOR_HISTORY', false);
+const HAS_FIX_FOR_HISTORY = parseFlag('HAS_FIX_FOR_HISTORY', true);
 const BUILD_DIR = process.env.APP_BUILD_DIR ?? '../build';
 const PORT = Number(process.env.E2E_PORT ?? 4173);
 

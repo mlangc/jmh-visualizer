@@ -95,6 +95,8 @@ if (providedBenchmarks.length > 0) {
   }
 }
 
+const detailsKey = 'details';
+
 // Setup store
 const config = {
   initialState: {
@@ -289,8 +291,16 @@ const config = {
     selectCategory: (_state: State, _actions: Actions, category: string): StateUpdate => {
       return { activeCategory: category, focusedBundles: new Set() };
     },
-    detailBenchmarkBundle: (_state: State, _actions: Actions, fullyQualifiedClassName: string): StateUpdate => {
-      history.push('#details');
+    detailBenchmarkBundle: (
+      _state: State,
+      _actions: Actions,
+      fullyQualifiedClassName: string,
+      pushHistory: boolean = true
+    ): StateUpdate => {
+      if (pushHistory) {
+        pushHashParamsUpdate((params) => params.set(detailsKey, fullyQualifiedClassName));
+      }
+
       return { detailedBenchmarkBundle: fullyQualifiedClassName };
     },
     undetailBenchmarkBundle: (): StateUpdate => {
@@ -312,16 +322,38 @@ const config = {
       return { chartConfig: { ...state.chartConfig, logScale: !state.chartConfig.logScale } };
     },
     goBack: (): StateUpdate => {
-      history.back();
-      return {};
+      // According to https://github.com/remix-run/history/blob/main/docs/api-reference.md#locationkey
+      // location.key is set to 'default' initially, for a fresh visit. Since we don't want the
+      // back link to leave the app, we implement it differently in this special case.
+      if (history.location.key === 'default') {
+        pushHashParamsUpdate((params) => params.delete(detailsKey));
+        return { detailedBenchmarkBundle: null };
+      } else {
+        history.back();
+        return {};
+      }
     }
   }
 };
 
+function getLocationHashParams() {
+  return new URLSearchParams(history.location.hash.slice(1));
+}
+
+function pushHashParamsUpdate(update: (params: URLSearchParams) => void) {
+  const hashParams = getLocationHashParams();
+  update(hashParams);
+  const { pathname, search } = history.location;
+  history.push({ pathname, search, hash: hashParams.toString() });
+}
+
 function stateForBenchmarks(benchmarkRuns: BenchmarkRun[]): StateUpdate {
   const runView = benchmarkRuns.length > 1 ? 'Summary' : null;
   const runSelection = Array(benchmarkRuns.length).fill(true);
+  const detailedBenchmarkBundle = getLocationHashParams().get(detailsKey);
+
   return {
+    detailedBenchmarkBundle,
     initialLoading: false,
     loading: false,
     benchmarkRuns: benchmarkRuns,
@@ -410,7 +442,13 @@ export function isMethodInstanceDeselected(
 
 history.listen(({ action }) => {
   if (action === 'POP') {
-    actions.undetailBenchmarkBundle();
+    const detailsBundle = getLocationHashParams().get(detailsKey);
+
+    if (detailsBundle) {
+      actions.detailBenchmarkBundle(detailsBundle, false);
+    } else {
+      actions.undetailBenchmarkBundle();
+    }
   }
 });
 
