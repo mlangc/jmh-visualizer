@@ -56,8 +56,7 @@ export function getBenchmarksLoadFunctionForSourceExamples(): BenchmarkLoadFunct
 }
 
 function getParameterByName(name: string) {
-  var match = RegExp(`[?&]${name}=([^&]*)`).exec(window.location.search);
-  return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+  return new URLSearchParams(window.location.search).get(name);
 }
 
 function fetchFromUrls(benchmarkLoadFunction: InitBenchmarksFunction, urls: string[]) {
