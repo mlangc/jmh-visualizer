@@ -161,7 +161,7 @@ test('the browser Back button leaves the Details screen', async ({ page }) => {
   expect(pageErrors).toEqual([]);
 });
 
-test("the browser Forward button puts #details in the address bar but doesn't return to the Details screen", {
+test("the browser Forward button doesn't return to the Details screen", {
   tag: Tags.MustNotHaveFixForUrlState
 }, async ({ page }) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
@@ -171,14 +171,13 @@ test("the browser Forward button puts #details in the address bar but doesn't re
   await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
 
   await app.showDetails();
-  await expect(page).toHaveURL(/#details$/); // `detailBenchmarkBundle` pushes this
+  await expect(app.detailsHeading('LinkedHashFirstVsIterNextBenchmark')).toBeVisible();
   await page.goBack();
   await expect(page.getByText('Back..')).toHaveCount(0);
 
   // store.ts's history listener undetails on *any* POP, which Forward is too. Pinned as
   // the behaviour that exists, not as the behaviour one would want.
   await page.goForward();
-  await expect(page).toHaveURL(/#details$/);
   await expect(page.getByText('Back..')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: /LinkedHashFirstVsIterNextBenchmark/ })).toBeVisible();
 

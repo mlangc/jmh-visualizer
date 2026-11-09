@@ -111,7 +111,7 @@ branch, `master`, a bisect. The flags are independent and combine.
 | `@needs-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` on | Tests of the guard: the last selected method's checkbox is disabled, so a class can't be emptied. |
 | `@must-not-have-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` off | Mirror image of the above: the old tests that deselect every method of a class. They only hold against builds without the guard. |
 | `@needs-fix-for-url-state` | `HAS_FIX_FOR_URL_STATE` on | `url-state.spec.ts`: Back, Forward, reload and a copied link all land on the Details screen the address bar names. |
-| `@must-not-have-fix-for-url-state` | `HAS_FIX_FOR_URL_STATE` off | Mirror image: `detail-screen.spec.ts` pins that Forward restores `#details` in the address bar but not the screen. |
+| `@must-not-have-fix-for-url-state` | `HAS_FIX_FOR_URL_STATE` off | Mirror image: `detail-screen.spec.ts` pins that Forward doesn't return to the Details screen. |
 | `@scrolling-enhancements` | `INCLUDE_SCROLLING_ENHANCEMENTS` on | Tests for the sidebar list scrolling on its own below a fixed header, and for clicks on a chart scrolling it to the clicked method. |
 
 The tag names live in `support/tags.ts`, the switches in `playwright.config.ts`.
