@@ -81,7 +81,7 @@ it when another run already holds the default one, and give the second run its o
 `--output` too, so the two don't overwrite each other's traces in `test-results/`:
 
 ```bash
-E2E_PORT=4174 npm test -- specs/history.spec.ts --output=<some-other-dir>/test-results
+E2E_PORT=4174 npm test -- specs/url-state.spec.ts --output=<some-other-dir>/test-results
 ```
 
 ### Flags and tags
@@ -90,8 +90,8 @@ Some specs only hold against builds that have a certain UI or app fix. Each is
 tagged, and an env var decides whether the tag is run. All flags are booleans
 (`1`/`true`/`yes` or `0`/`false`/`no`; empty or unset means the default,
 anything else aborts the run) and all default to **on**, since a default build
-(this checkout's own) has everything — except `HAS_FIX_FOR_HISTORY`, which defaults
-to **off** until the history rework it stands for has landed. Set one to `0` only
+(this checkout's own) has everything — except `HAS_FIX_FOR_URL_STATE`, which defaults
+to **off** until the URL-state rework it stands for has landed. Set one to `0` only
 when `APP_BUILD_DIR` points at a build that predates the feature or fix — an older
 branch, `master`, a bisect. The flags are independent and combine.
 
@@ -100,7 +100,7 @@ branch, `master`, a bisect. The flags are independent and combine.
 | `INCLUDE_FILTERS` | on | predates the benchmark/param filter checkboxes (`master`, or an older `main` commit). They were added on `add-filters-for-large-result-files` and are now merged into `main`. |
 | `HAS_FIX_FOR_SUMMARY_RUN_NAMES` | on | predates the fix of `SummaryScreen.tsx` passing the full run-name list to `SummaryView` (see below). |
 | `HAS_FIX_FOR_SINGLE_METHOD` | on | predates the guard that disables the checkbox of a class's last selected method (see below). |
-| `HAS_FIX_FOR_HISTORY` | **off** | predates the history rework (see below). Until it is implemented the flag is off and the `@needs-fix-for-history` tests, which fail, are skipped; switch it on then, and flip its default with it. |
+| `HAS_FIX_FOR_URL_STATE` | **off** | predates the URL-state rework (see below). Until it is implemented the flag is off and the `@needs-fix-for-url-state` tests, which fail, are skipped; switch it on then, and flip its default with it. |
 | `INCLUDE_SCROLLING_ENHANCEMENTS` | on | predates the scrollable sidebar list and the charts that scroll it to a clicked method (`plans/2026-10-20-SCROLLABLE-SIDEBAR-PLAN.md`). |
 
 | Tag | Runs when | Description |
@@ -110,8 +110,8 @@ branch, `master`, a bisect. The flags are independent and combine.
 | `@needs-fix-for-summary-run-names` | `HAS_FIX_FOR_SUMMARY_RUN_NAMES` on | The Summary header naming the last two of 3 loaded runs correctly. |
 | `@needs-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` on | Tests of the guard: the last selected method's checkbox is disabled, so a class can't be emptied. |
 | `@must-not-have-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` off | Mirror image of the above: the old tests that deselect every method of a class. They only hold against builds without the guard. |
-| `@needs-fix-for-history` | `HAS_FIX_FOR_HISTORY` on | `history.spec.ts`: Back, Forward, reload and a copied link all land on the Details screen the address bar names. |
-| `@must-not-have-fix-for-history` | `HAS_FIX_FOR_HISTORY` off | Mirror image: `detail-screen.spec.ts` pins that Forward restores `#details` in the address bar but not the screen. |
+| `@needs-fix-for-url-state` | `HAS_FIX_FOR_URL_STATE` on | `url-state.spec.ts`: Back, Forward, reload and a copied link all land on the Details screen the address bar names. |
+| `@must-not-have-fix-for-url-state` | `HAS_FIX_FOR_URL_STATE` off | Mirror image: `detail-screen.spec.ts` pins that Forward restores `#details` in the address bar but not the screen. |
 | `@scrolling-enhancements` | `INCLUDE_SCROLLING_ENHANCEMENTS` on | Tests for the sidebar list scrolling on its own below a fixed header, and for clicks on a chart scrolling it to the clicked method. |
 
 The tag names live in `support/tags.ts`, the switches in `playwright.config.ts`.
@@ -139,7 +139,7 @@ The fixes the `HAS_FIX_FOR_*` flags stand for:
   method can't be deselected at all). Before it, deselecting every method left
   a report with nothing in it.
 
-- **History:** the address bar, not the store, decides which class is detailed, so
+- **URL state:** the address bar, not the store, decides which class is detailed, so
   Back, Forward, a reload and a pasted link all agree with the screen. Before it,
   `store.ts` kept that in memory, pushed a bare `#details` (which also dropped the
   `?sources=`/`?example=` query) and undetailed on every POP.
@@ -210,8 +210,8 @@ quotes, semicolons, no trailing commas, 120-col width) in sync. Both use the
 - Second, `@needs-fix-for-*` cuts the other way: those tests describe
   behaviour only a build carrying `main`'s `src/` fix has, so they run by
   default and get excluded with the matching `HAS_FIX_FOR_*=0` when testing an
-  older build (`@needs-fix-for-history` is the exception: it runs only with
-  `HAS_FIX_FOR_HISTORY=1`, until the fix exists). A `master` build needs all the switches:
+  older build (`@needs-fix-for-url-state` is the exception: it runs only with
+  `HAS_FIX_FOR_URL_STATE=1`, until the fix exists). A `master` build needs all the switches:
   `INCLUDE_FILTERS=0 HAS_FIX_FOR_SINGLE_METHOD=0 HAS_FIX_FOR_SUMMARY_RUN_NAMES=0
   INCLUDE_SCROLLING_ENHANCEMENTS=0`.
   Where a fix changes behaviour rather than fixing a bug, the old behaviour's

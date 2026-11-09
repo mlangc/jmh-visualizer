@@ -4,6 +4,6 @@ export const Tags = {
   NeedsFixForSingleMethod: '@needs-fix-for-single-method',
   MustNotHaveFixForSingleMethod: '@must-not-have-fix-for-single-method',
   ScrollingEnhancements: '@scrolling-enhancements',
-  NeedsFixForHistory: '@needs-fix-for-history',
-  MustNotHaveFixForHistory: '@must-not-have-fix-for-history'
+  NeedsFixForUrlState: '@needs-fix-for-url-state',
+  MustNotHaveFixForUrlState: '@must-not-have-fix-for-url-state'
 } as const;

@@ -5,12 +5,12 @@ import { blockOffOrigin, mockRawUrls } from '../support/mock-remote-fixtures';
 import { watchDialogsAndErrors } from '../support/page-watchers';
 import { Tags } from '../support/tags';
 
-// The browser history around the Details screen: the address bar is expected to be the
+// The URL as the app's state, starting with the Details screen: the address bar is expected to be the
 // source of truth for which class is detailed, so Back, Forward, a reload and a pasted
 // link all land on the screen the URL names. None of that holds today -- store.ts keeps
 // the detailed class in memory only, pushes a bare `#details` and undetails on every POP
-// -- so every test here carries `@needs-fix-for-history`. Where today's behaviour is
-// pinned instead, see detail-screen.spec.ts (`@must-not-have-fix-for-history`).
+// -- so every test here carries `@needs-fix-for-url-state`. Where today's behaviour is
+// pinned instead, see detail-screen.spec.ts (`@must-not-have-fix-for-url-state`).
 //
 // Deliberately format-agnostic: nothing here knows what the URL looks like, specs that
 // need a link just copy whatever the app put in the address bar.
@@ -20,7 +20,7 @@ import { Tags } from '../support/tags';
 // it doesn't today: `history.push('#details')` drops `?sources=`, so a reload would land on
 // the upload screen even if the hash were read at startup.
 
-test.describe('the Details screen and browser history', { tag: Tags.NeedsFixForHistory }, () => {
+test.describe('the Details screen and the URL', { tag: Tags.NeedsFixForUrlState }, () => {
   test('Back and Forward walk through the detailed classes in order', async ({ page }) => {
     const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 

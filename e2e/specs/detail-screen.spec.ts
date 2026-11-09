@@ -162,7 +162,7 @@ test('the browser Back button leaves the Details screen', async ({ page }) => {
 });
 
 test("the browser Forward button puts #details in the address bar but doesn't return to the Details screen", {
-  tag: Tags.MustNotHaveFixForHistory
+  tag: Tags.MustNotHaveFixForUrlState
 }, async ({ page }) => {
   const { dialogs, pageErrors } = watchDialogsAndErrors(page);
 
