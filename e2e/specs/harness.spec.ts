@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { expectBrandMenu } from '../support/brand-menu-assertions';
+import { type BundledExample, expectBundledExampleLoaded } from '../support/bundled-example-assertions';
 import { expectChartTooltip, hoverBarRow } from '../support/chart-tooltip-assertions';
 import { JmhApp } from '../support/jmh-app';
 import {
@@ -168,6 +169,32 @@ test.describe('linked-hash-first-vs-iter-next-filters falsification checks', () 
     await app.uploadReport('linked-hash-first-vs-iter-next-benchmark.json');
     await expectNoFilters(page);
   });
+});
+
+test.describe('expectBundledExampleLoaded falsification checks', () => {
+  const KINDS: BundledExample[] = ['single', 'two', 'multi'];
+
+  test('rejects on a blank page', async ({ page }) => {
+    await page.goto('about:blank');
+    for (const kind of KINDS) {
+      await expect(expectBundledExampleLoaded(page, kind, NEG_TIMEOUT)).rejects.toThrow();
+    }
+  });
+
+  for (const loaded of KINDS) {
+    test(`accepts only the ${loaded} example once it is loaded`, async ({ page }) => {
+      const app = new JmhApp(page);
+      await page.goto('/');
+      await app.loadBundledExample(loaded);
+
+      // Confirm the real state first -- otherwise a routine that matched nothing
+      // would pass the rejections below for the wrong reason.
+      await expectBundledExampleLoaded(page, loaded);
+      for (const other of KINDS.filter((kind) => kind !== loaded)) {
+        await expect(expectBundledExampleLoaded(page, other, NEG_TIMEOUT)).rejects.toThrow();
+      }
+    });
+  }
 });
 
 test.describe('expectSummaryHeader falsification checks', () => {

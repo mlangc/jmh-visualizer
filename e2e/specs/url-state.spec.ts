@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { expectBundledExampleLoaded } from '../support/bundled-example-assertions';
 import { GISTS } from '../support/gist-fixtures';
 import { JmhApp } from '../support/jmh-app';
 import { blockOffOrigin, mockRawUrls } from '../support/mock-remote-fixtures';
@@ -103,6 +104,23 @@ test.describe('the Details screen and the URL', { tag: Tags.NeedsFixForUrlState 
     expect(dialogs).toEqual([]);
     expect(pageErrors).toEqual([]);
   });
+
+  for (const kind of ['single', 'two', 'multi'] as const) {
+    test(`a reload keeps a loaded ${kind} run example`, async ({ page }) => {
+      const { dialogs, pageErrors } = watchDialogsAndErrors(page);
+
+      const app = new JmhApp(page);
+      await page.goto('/');
+      await app.loadBundledExample(kind);
+      await expectBundledExampleLoaded(page, kind);
+
+      await page.reload();
+      await expectBundledExampleLoaded(page, kind);
+
+      expect(dialogs).toEqual([]);
+      expect(pageErrors).toEqual([]);
+    });
+  }
 
   test('a copied Details link opens the Details screen, and its Back link stays in the app', async ({ page }) => {
     const { dialogs, pageErrors } = watchDialogsAndErrors(page);
