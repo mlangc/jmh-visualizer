@@ -7,6 +7,10 @@ Playwright black-box suite) and `plans/` (implementation plans) have their own
 ## Commands
 
 - `npm run check`: lint + typecheck + test. Run it before committing.
+- `npm run build-and-check-all`: `check` + `build` + `e2e`'s own `check`, which
+  serves `build/` and therefore needs the fresh build. Run it instead of
+  `check` before committing a non-trivial change, so that the e2e suite has
+  passed too.
 - `npm run lint`: Biome formatting + lint, no writes.
 - `npm run format`: the same checks, but applies formatting, import sorting and
   safe lint fixes.
@@ -25,8 +29,6 @@ Playwright black-box suite) and `plans/` (implementation plans) have their own
   hash, so a plain browser reload may show a cached copy.
 - `npm run release-build`: production build into `build/`.
 - `npm run release`: `check` + `release-build`.
-- `npm run build-and-check-all`: `check` + `build` + `e2e`'s own `check`, which
-  serves `build/` and therefore needs the fresh build.
 
 ## Linting
 
