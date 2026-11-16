@@ -24,7 +24,7 @@ Run these in `e2e/`:
 npm ci && npx playwright install chromium   # one-time
 npm test                                    # headless run
 npx playwright test specs/filters.spec.ts   # a single spec
-npx playwright test -g "<test title>"       # tests matching a title
+npx playwright test -g "<test title>"       # tests matching a title (finds none if a flag excludes their tag)
 npm run test:headed                         # headed, for debugging
 npm run report                              # open the HTML report
 npm run typecheck                           # tsc, no emit
@@ -54,11 +54,11 @@ APP_BUILD_DIR=<path>/build npm test
 - `specs/`: one spec per screen or feature. Each opens with a comment saying
   what it covers and why it runs on the data it does (several can only run on
   the bundled examples, since each vendored fixture holds a single class).
-- `support/jmh-app.ts`: the page object, and the only place that should know
-  app-specific selectors.
+- `support/jmh-app.ts`: the page object, where most app-specific selectors
+  live.
 - `support/*-assertions.ts`: assertion routines that several specs share. Each
-  has its own falsification check in `specs/harness.spec.ts`. Add one whenever
-  you add a shared assertion routine.
+  has its own falsification check in `specs/harness.spec.ts`. Give every new
+  shared assertion routine its own falsification check there.
 - `support/mock-remote-fixtures.ts` and `support/gist-fixtures.ts`: back the
   URL/Gist specs with mocked network responses.
 - `support/tags.ts`: names the test tags (see "Flags and tags").
@@ -84,7 +84,7 @@ APP_BUILD_DIR=<path>/build npm test
 ## Constraints
 
 - Never change app source for the suite's own benefit: no test-only hooks, ids
-  or attributes in `src/`. The suite must run against a vanilla checkout.
+  or attributes in `src/`.
 - Prefer semantic locators (`getByRole`, `getByText`). Where they fall short,
   only five non-semantic hooks are in use: `.recharts-wrapper`,
   `ul.nav ul.nav`, `div.btn`, `Tooltipped.tsx`'s `data-tooltip` attribute and
@@ -129,8 +129,9 @@ is tagged, and an env flag decides whether the tag runs.
 | `@must-not-have-fix-for-single-method` | `HAS_FIX_FOR_SINGLE_METHOD` off | Mirror image of the above: the old tests that deselect every method of a class. They only hold against builds without the guard. |
 | `@scrolling-enhancements` | `INCLUDE_SCROLLING_ENHANCEMENTS` on | Tests for the sidebar list scrolling on its own below a fixed header, and for clicks on a chart scrolling it to the clicked method. |
 
-The tag names live in `support/tags.ts` (except `@no-filters`, a literal in
-its one test and in the config), the switches in `playwright.config.ts`.
+The tag names live in `support/tags.ts`, except `@no-filters`, a literal in
+`harness.spec.ts`. The switches live in `playwright.config.ts`, which matches
+both filter tags with literal regexes.
 
 Which kind of tag a new test needs:
 
@@ -142,13 +143,12 @@ Which kind of tag a new test needs:
   the old behaviour's tests `@must-not-have-fix-for-*`, so that they keep
   running against builds without it.
 
-Examples, each combined with `APP_BUILD_DIR` as shown under "Commands":
+A new flag needs a `parseFlag` call and a `grepInvert` entry in
+`playwright.config.ts`, a `Tags` entry and a row in both tables above.
+
+Example, combined with `APP_BUILD_DIR` as shown under "Commands":
 
 ```bash
-# A build with the filters and the Summary fix, but without the single-method guard
-# and the scrollable sidebar
-HAS_FIX_FOR_SINGLE_METHOD=0 INCLUDE_SCROLLING_ENHANCEMENTS=0 APP_BUILD_DIR=<path-to-older-build>/build npm test
-
 # A `master` build, which predates all of it
 INCLUDE_FILTERS=0 HAS_FIX_FOR_SINGLE_METHOD=0 HAS_FIX_FOR_SUMMARY_RUN_NAMES=0 INCLUDE_SCROLLING_ENHANCEMENTS=0 \
   APP_BUILD_DIR=<master-build>/build npm test
@@ -170,15 +170,14 @@ The fixes the `HAS_FIX_FOR_*` flags stand for:
 - Don't click while the bar labels are animating in. `BarChartView`'s
   `LabelList` animates over ~540ms after a load. On builds still on recharts
   1.x (anything before the modernization's recharts 2 bump, e.g. `master`), a
-  re-render during
-  that window (a sort, or a filter click the app refuses) drops the labels
-  permanently: the chart keeps its bars, axes and category names, but the
+  re-render during that window (a sort, or a filter click the app refuses)
+  drops the labels permanently: the chart keeps its bars, axes and category names, but the
   per-bar value labels never come back. A spec that interacts straight after
   `uploadReport()` and then asserts on a label fails there in a way that looks
   like a filtering bug. Wait the labels out first
   (`await expect(chart.getByText(/s\/op/)).toHaveCount(4)`), which several
   specs do as their first assertion anyway. recharts 2 fixed it and 3.x kept
-  it fixed, so the suite deliberately pins the behaviour neither way.
+  it fixed, so the suite deliberately asserts neither behaviour.
 - A tooltip changes what `.recharts-wrapper` matches. `SingleRunChartTooltip`
   renders its "Raw Data" iteration charts as recharts charts of their own, so
   while one is open the page has several wrappers nested inside the first. Use

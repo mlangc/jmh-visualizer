@@ -2,7 +2,7 @@
 
 A browser-only React app that visualizes JMH benchmark results. `e2e/` (a
 Playwright black-box suite) and `plans/` (implementation plans) have their own
-`CLAUDE.md`.
+`CLAUDE.md`. Read `plans/CLAUDE.md` before writing a new plan.
 
 ## Commands
 
@@ -41,8 +41,9 @@ Playwright black-box suite) and `plans/` (implementation plans) have their own
 ## Branches
 
 - `main` is where development has taken place since the fork, and the target
-  for PRs. GitHub's default branch is still `master`, so pass `--base main` to
-  `gh pr create`.
+  for PRs. `gh` prefers a remote named `upstream` and may therefore resolve to
+  the abandoned original repo, which has no `main`. Name the fork explicitly:
+  `gh pr create -R mlangc/jmh-visualizer --base main`.
 - `master` is the legacy branch from before the fork (the `upstream` remote,
   `jzillmann/jmh-visualizer`). `main` descends from its tip, `50289e2`, and it
   isn't developed any further. It only serves as a baseline: the e2e suite is
@@ -56,11 +57,12 @@ Playwright black-box suite) and `plans/` (implementation plans) have their own
   bullet list.
 - The multi-line messages in the log are squash-merged PRs or dependabot's,
   not a style to copy.
-- Claude Code's attribution trailer (`Co-Authored-By:`), when the session's
-  settings call for it, still gets appended and doesn't count as a body.
-- Exception: when working from a tracked plan (`plans/*.md`), the body may hold
-  a bare reference to that plan and nothing else. Plans usually demand this in
-  their own "Ground rules".
+- Claude Code's attribution trailer (`Co-Authored-By:` / `Claude-Session:`),
+  when the session's settings call for it, still gets appended and doesn't
+  count as a body.
+- Exception: when working from a tracked plan (`plans/*.md`) whose "Ground
+  rules" demand it, the body holds a bare reference to that plan and nothing
+  else. Absent such a rule, keep the body empty.
 
 ## Project history
 
